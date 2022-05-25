@@ -84,7 +84,7 @@ class Registration(Resource):
             return make_response(jsonify({'error': 'Something went wrong when registering account'})), 403
 
 
-class UserCRUD(Resource):
+class User(Resource):
     def get(self, user_id):
         user = UserModel.query.filter_by(id=user_id).first()
         if user:
@@ -97,11 +97,19 @@ class UserCRUD(Resource):
         else:
             return make_response(jsonify({'error': 'User not exist'}), 404)
 
-    def post(self, user_id):
-        pass
-
     def put(self, user_id):
-        return ''
+        data = request.get_json()
+        user = UserModel.query.filter_by(id=user_id).first()
+
+        if user:
+            user_data = {}
+            user_data['id'] = data['id']
+            user_data['username'] = data['username']
+            user_data['password'] = data['password']
+            user_data['is_admin'] = data['is_admin']
+            return make_response(jsonify({'user': user_data}), 200)
+        else:
+            return make_response(jsonify({'error': 'User not exist'}), 404)
 
     def delete(self, user_id):
         return ''
@@ -110,7 +118,7 @@ class UserCRUD(Resource):
 api.add_resource(Home, '/')
 api.add_resource(Admin, '/admin')
 api.add_resource(Users, '/users')
-api.add_resource(UserCRUD, '/user/<user_id>')
+api.add_resource(User, '/user/<user_id>')
 api.add_resource(Registration, '/register')
 
 if __name__ == '__main__':
