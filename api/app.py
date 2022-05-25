@@ -44,7 +44,19 @@ class Admin(Resource):
 
 class Users(Resource):
     def get(self):
-        return ''
+        users = UserModel.query.all()
+
+        users_json = []
+
+        for user in users:
+            user_data = {}
+            user_data['id'] = user.id
+            user_data['username'] = user.username
+            user_data['password'] = user.password
+            user_data['is_admin'] = user.is_admin
+            users_json.append(user_data)
+
+        return make_response(jsonify({'users': users_json}), 200)
 
 
 class User(Resource):
