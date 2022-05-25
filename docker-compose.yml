@@ -4,11 +4,12 @@ services:
     image: mysql
     restart: always
     environment:
-      - MYSQL_DATABASE=mydb
-      - MYSQL_ROOT_USER=admin
-      - MYSQL_ROOT_PASSWORD=12345
-      - MYSQL_USER=admin
-      - MYSQL_PASSWORD=12345
+      MYSQL_DATABASE: mydb
+      MYSQL_ROOT_USER: admin
+      MYSQL_ROOT_PASSWORD: 12345
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: 12345
+      MYSQL_HOST: localhost
 
     ports:
       - "3306:3306"
