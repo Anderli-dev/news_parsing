@@ -112,7 +112,13 @@ class User(Resource):
             return make_response(jsonify({'error': 'User not exist'}), 404)
 
     def delete(self, user_id):
-        return ''
+        user = UserModel.query.filter_by(id=user_id).first()
+        if user:
+            db.session.delete(user)
+            db.session.commit()
+            return make_response(jsonify({'success': 'Delete success'}), 200)
+        else:
+            return make_response(jsonify({'error': 'User not exist'}), 404)
 
 
 api.add_resource(Home, '/')
