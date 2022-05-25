@@ -7,7 +7,7 @@ from werkzeug.security import generate_password_hash
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'v-0wa-43amc=-29-30mdci230j'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://admin:12345@localhost/mydb'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://admin:12345@localhost/mydb'
 
 
 api = Api(app)
@@ -59,10 +59,7 @@ class Users(Resource):
         return make_response(jsonify({'users': users_json}), 200)
 
 
-class User(Resource):
-    def get(self, user_id):
-        return ''
-
+class Registration(Resource):
     def post(self):
         data = request.get_json()
 
@@ -86,6 +83,23 @@ class User(Resource):
         except():
             return make_response(jsonify({'error': 'Something went wrong when registering account'})), 403
 
+
+class UserCRUD(Resource):
+    def get(self, user_id):
+        user = UserModel.query.filter_by(id=user_id).first()
+        if user:
+            user_data = {}
+            user_data['id'] = user.id
+            user_data['username'] = user.username
+            user_data['password'] = user.password
+            user_data['is_admin'] = user.is_admin
+            return make_response(jsonify({'user': user_data}), 200)
+        else:
+            return make_response(jsonify({'error': 'User not exist'}), 404)
+
+    def post(self, user_id):
+        pass
+
     def put(self, user_id):
         return ''
 
@@ -95,8 +109,9 @@ class User(Resource):
 
 api.add_resource(Home, '/')
 api.add_resource(Admin, '/admin')
-api.add_resource(User, '/user')
 api.add_resource(Users, '/users')
+api.add_resource(UserCRUD, '/user/<user_id>')
+api.add_resource(Registration, '/register')
 
 if __name__ == '__main__':
     app.run(debug=True)
