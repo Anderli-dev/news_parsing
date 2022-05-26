@@ -2,38 +2,16 @@ import datetime
 from functools import wraps
 
 import jwt
-from flask import Flask
 from flask import jsonify, request, make_response
 from flask_restful import Api
 from flask_restful import Resource
-from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'v-0wa-43amc=-29-30mdci230j'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://admin:12345@localhost/mydb'
-
+from models import UserModel
+from app import app
+from app import db
 
 api = Api(app)
-
-db = SQLAlchemy(app)
-
-
-class UserModel(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-
-    username = db.Column(db.String(50), nullable=False, unique=True)
-    password = db.Column(db.String(255), nullable=False)
-    is_admin = db.Column(db.Boolean, default=False)
-
-
-class NewsModel(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-
-    img_name = db.Column(db.Text, nullable=False)
-
-    title = db.Column(db.String(255), nullable=False)
-    text = db.Column(db.Text)
 
 
 def token_required(f):
@@ -71,8 +49,10 @@ class Admin(Resource):
 class Users(Resource):
     @token_required
     def get(self, current_user):
+
         if not current_user.is_admin:
             return make_response(jsonify({'error': 'Cannot access this page'}), 404)
+
         users = UserModel.query.all()
 
         users_json = []
@@ -144,6 +124,9 @@ class Login(Resource):
 class User(Resource):
     @token_required
     def get(self, current_user, user_id):
+        if current_user.id != int(user_id):
+            return make_response(jsonify({'error': 'Cannot access this page'}), 404)
+
         user = UserModel.query.filter_by(id=user_id).first()
         if user:
             user_data = {}
@@ -157,6 +140,9 @@ class User(Resource):
 
     @token_required
     def put(self, current_user, user_id):
+        if current_user.id != user_id:
+            return make_response(jsonify({'error': 'Cannot access this page'}), 404)
+
         data = request.get_json()
         user = UserModel.query.filter_by(id=user_id).first()
 
@@ -172,6 +158,9 @@ class User(Resource):
 
     @token_required
     def delete(self, current_user, user_id):
+        if current_user.id != user_id:
+            return make_response(jsonify({'error': 'Cannot access this page'}), 404)
+
         user = UserModel.query.filter_by(id=user_id).first()
         if user:
             db.session.delete(user)
@@ -179,14 +168,3 @@ class User(Resource):
             return make_response(jsonify({'success': 'Delete success'}), 200)
         else:
             return make_response(jsonify({'error': 'User not exist'}), 404)
-
-
-api.add_resource(Home, '/')
-api.add_resource(Admin, '/admin')
-api.add_resource(Users, '/users')
-api.add_resource(User, '/user/<user_id>')
-api.add_resource(Registration, '/register')
-api.add_resource(Login, '/login')
-
-if __name__ == '__main__':
-    app.run(debug=True)
