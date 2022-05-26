@@ -9,7 +9,12 @@ class UserModel(db.Model):
     is_admin = db.Column(db.Boolean, default=False)
 
 
-class NewsModel(db.Model):
+# class Editor(UserModel):
+#     is_editor = db.Column(db.Boolean, default=False)
+#     news = db.relationship('News', backref='editor', lazy=True)
+
+
+class News(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     img_name = db.Column(db.Text, nullable=False)
