@@ -1,9 +1,13 @@
+import datetime
+from functools import wraps
+
+import jwt
 from flask import Flask
 from flask import jsonify, request, make_response
 from flask_restful import Api
 from flask_restful import Resource
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'v-0wa-43amc=-29-30mdci230j'
@@ -32,18 +36,43 @@ class NewsModel(db.Model):
     text = db.Column(db.Text)
 
 
+def token_required(f):
+    @wraps(f)
+    def decorated(self, *args, **kwargs):
+        token = None
+
+        if 'x-access-token' in request.headers:
+            token = request.headers['x-access-token']
+
+        if not token:
+            return make_response(jsonify({'error': 'Token is missing!'}), 401)
+
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'])
+            current_user = UserModel.query.filter_by(id=data['id']).first()
+        except:
+            return make_response(jsonify({'error': 'Token is invalid!'}), 401)
+
+        return f(self, current_user, *args, **kwargs)
+    return decorated
+
+
 class Home(Resource):
     def get(self):
         return {'Header': 'Hello world!'}, 200
 
 
 class Admin(Resource):
-    def get(self):
+    @token_required
+    def get(self, current_user):
         return {'Page': 'its admin'}, 200
 
 
 class Users(Resource):
-    def get(self):
+    @token_required
+    def get(self, current_user):
+        if not current_user.is_admin:
+            return make_response(jsonify({'error': 'Cannot access this page'}), 404)
         users = UserModel.query.all()
 
         users_json = []
@@ -79,13 +108,42 @@ class Registration(Resource):
                     db.session.add(user)
                     db.session.commit()
 
-                    return make_response(jsonify({'message': 'User created'}), 200)
+                    token = jwt.encode(
+                        {'id': user.id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},
+                        app.config['SECRET_KEY']
+                    )
+
+                    return make_response(jsonify({'msg': 'User created!', 'token': token.decode('UTF-8')}), 200)
         except():
             return make_response(jsonify({'error': 'Something went wrong when registering account'})), 403
 
 
+class Login(Resource):
+    def post(self):
+        auth = request.authorization
+
+        if not auth or not auth.username or not auth.password:
+            return make_response(jsonify({'error': 'Could not verify'}), 401)
+
+        user = UserModel.query.filter_by(username=auth.username).first()
+
+        if not user:
+            return make_response(jsonify({'error': 'Could not verify'}), 401)
+
+        if check_password_hash(user.password, auth.password):
+            token = jwt.encode(
+                {'id': user.id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},
+                app.config['SECRET_KEY']
+            )
+
+            return make_response(jsonify({'token': token.decode('UTF-8')}), 200)
+
+        return make_response(jsonify({'error': 'Could not verify'}), 401)
+
+
 class User(Resource):
-    def get(self, user_id):
+    @token_required
+    def get(self, current_user, user_id):
         user = UserModel.query.filter_by(id=user_id).first()
         if user:
             user_data = {}
@@ -97,7 +155,8 @@ class User(Resource):
         else:
             return make_response(jsonify({'error': 'User not exist'}), 404)
 
-    def put(self, user_id):
+    @token_required
+    def put(self, current_user, user_id):
         data = request.get_json()
         user = UserModel.query.filter_by(id=user_id).first()
 
@@ -111,7 +170,8 @@ class User(Resource):
         else:
             return make_response(jsonify({'error': 'User not exist'}), 404)
 
-    def delete(self, user_id):
+    @token_required
+    def delete(self, current_user, user_id):
         user = UserModel.query.filter_by(id=user_id).first()
         if user:
             db.session.delete(user)
@@ -126,6 +186,7 @@ api.add_resource(Admin, '/admin')
 api.add_resource(Users, '/users')
 api.add_resource(User, '/user/<user_id>')
 api.add_resource(Registration, '/register')
+api.add_resource(Login, '/login')
 
 if __name__ == '__main__':
     app.run(debug=True)
