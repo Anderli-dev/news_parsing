@@ -35,23 +35,22 @@ def token_required(f):
     return decorated
 
 
+class ProtectedResource(Resource):
+    method_decoratos = [token_required]
+
+
 class Home(Resource):
     def get(self):
         return {'Header': 'Hello world!'}, 200
 
 
-class Admin(Resource):
-    @token_required
-    def get(self, current_user):
+class Admin(ProtectedResource):
+    def get(self):
         return {'Page': 'its admin'}, 200
 
 
-class Users(Resource):
-    @token_required
-    def get(self, current_user):
-
-        if not current_user.is_admin:
-            return make_response(jsonify({'error': 'Cannot access this page'}), 404)
+class Users(ProtectedResource):
+    def get(self):
 
         users = UserModel.query.all()
 
@@ -121,12 +120,8 @@ class Login(Resource):
         return make_response(jsonify({'error': 'Could not verify'}), 401)
 
 
-class User(Resource):
-    @token_required
-    def get(self, current_user, user_id):
-        if current_user.id != int(user_id):
-            return make_response(jsonify({'error': 'Cannot access this page'}), 404)
-
+class User(ProtectedResource):
+    def get(self, user_id):
         user = UserModel.query.filter_by(id=user_id).first()
         if user:
             user_data = {}
@@ -138,11 +133,7 @@ class User(Resource):
         else:
             return make_response(jsonify({'error': 'User not exist'}), 404)
 
-    @token_required
-    def put(self, current_user, user_id):
-        if current_user.id != user_id:
-            return make_response(jsonify({'error': 'Cannot access this page'}), 404)
-
+    def put(self, user_id):
         data = request.get_json()
         user = UserModel.query.filter_by(id=user_id).first()
 
@@ -156,11 +147,7 @@ class User(Resource):
         else:
             return make_response(jsonify({'error': 'User not exist'}), 404)
 
-    @token_required
-    def delete(self, current_user, user_id):
-        if current_user.id != user_id:
-            return make_response(jsonify({'error': 'Cannot access this page'}), 404)
-
+    def delete(self, user_id):
         user = UserModel.query.filter_by(id=user_id).first()
         if user:
             db.session.delete(user)

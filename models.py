@@ -2,16 +2,20 @@ from app import db
 
 
 class UserModel(db.Model):
+    __abstract__ = True
     id = db.Column(db.Integer, primary_key=True)
 
     username = db.Column(db.String(50), nullable=False, unique=True)
     password = db.Column(db.String(255), nullable=False)
-    is_admin = db.Column(db.Boolean, default=False)
+    role_id = db.Column(db.Integer)
 
 
-# class Editor(UserModel):
-#     is_editor = db.Column(db.Boolean, default=False)
-#     news = db.relationship('News', backref='editor', lazy=True)
+class Admin(UserModel):
+    pass
+
+
+class Editor(UserModel):
+    news = db.relationship('News', backref='editor', lazy=True)
 
 
 class News(db.Model):
@@ -21,3 +25,7 @@ class News(db.Model):
 
     title = db.Column(db.String(255), nullable=False)
     text = db.Column(db.Text)
+
+    editor_id = db.Column(db.Integer, db.ForeignKey('editor.id'),
+                          nullable=False)
+
