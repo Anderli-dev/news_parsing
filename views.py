@@ -9,7 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import app
 from app import db
-from models import Role, Profile, BlacklistToken, Permission
+from models import Role, Profile, BlacklistToken, Permission, RolePermission
 
 api = Api(app)
 
@@ -224,5 +224,36 @@ class PermissionView(AuthResource):
 
             db.session.commit()
             return make_response(jsonify({'message': 'Permission created successful'}), 200)
+        except:
+            return make_response(jsonify({'error': 'Something went wrong'}), 403)
+
+
+class RolePermissionView(AuthResource):
+    def get(self):
+        roles_permissions = RolePermission.query.all()
+
+        roles_permissions_json = []
+
+        for role_permission in roles_permissions:
+            roles_permissions_data = {}
+            roles_permissions_data['id'] = role_permission.id
+            # TODO add if role or permission exist
+            roles_permissions_data['role_id'] = role_permission.role_id
+            roles_permissions_data['permission_id'] = role_permission.permission_id
+            roles_permissions_json.append(roles_permissions_data)
+
+        return make_response(jsonify({'role_permission': roles_permissions_json}), 200)
+
+    def post(self):
+        data = request.get_json()
+        try:
+            roles_permissions = data['roles_permissions']
+            for role_permission in roles_permissions:
+                role_id = role_permission['role_id']
+                permission_id = role_permission['permission_id']
+                db.session.add(RolePermission(role_id=role_id, permission_id=permission_id))
+
+            db.session.commit()
+            return make_response(jsonify({'message': 'To role added permissions successful'}), 200)
         except:
             return make_response(jsonify({'error': 'Something went wrong'}), 403)
