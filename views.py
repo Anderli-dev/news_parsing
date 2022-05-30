@@ -9,7 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import app
 from app import db
-from models import Role, Profile, BlacklistToken
+from models import Role, Profile, BlacklistToken, Permission
 
 api = Api(app)
 
@@ -25,6 +25,7 @@ def token_required(f):
         if not token:
             return make_response(jsonify({'error': 'Token is missing!'}), 401)
 
+        # TODO separate token and login required decorators
         blacklist_token = BlacklistToken.query.filter_by(token=token).first()
         if blacklist_token:
             return make_response(jsonify({'error': 'Authentication error!'}), 401)
@@ -183,10 +184,10 @@ class RoleView(AuthResource):
         for role in roles:
             role_data = {}
             role_data['id'] = role.id
-            role_data['name'] = role.username
+            role_data['name'] = role.name
             roles_json.append(role_data)
 
-        return make_response(jsonify({'roles': roles_json})), 200
+        return make_response(jsonify({'roles': roles_json}), 200)
 
     def post(self):
         data = request.get_json()
@@ -201,4 +202,27 @@ class RoleView(AuthResource):
 
 
 class PermissionView(AuthResource):
-    pass
+    def get(self):
+        permissions = Permission.query.all()
+
+        permissions_json = []
+
+        for permission in permissions:
+            permission_data = {}
+            permission_data['id'] = permission.id
+            permission_data['name'] = permission.name
+            permissions_json.append(permission_data)
+
+        return make_response(jsonify({'permissions': permissions_json}), 200)
+
+    def post(self):
+        data = request.get_json()
+        try:
+            permissions = data['permissions']
+            for permission in permissions:
+                db.session.add(Permission(name=permission))
+
+            db.session.commit()
+            return make_response(jsonify({'message': 'Permission created successful'}), 200)
+        except:
+            return make_response(jsonify({'error': 'Something went wrong'}), 403)
