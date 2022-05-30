@@ -14,6 +14,28 @@ from models import Role, Profile, BlacklistToken, Permission, RolePermission
 api = Api(app)
 
 
+def scope(scope_name):
+    def wrap(f):
+        def inner_wrapper(*args, **kwargs):
+            token = request.headers['x-access-token']
+            data = jwt.decode(token, app.config['SECRET_KEY'])
+
+            user = Profile.query.filter_by(id=data['id']).first()
+            role = Role.query.filter_by(id=user.role_id).first()
+            permission_ids = RolePermission.query.filter_by(role_id=role.id).all()
+            permission_ids = [p.permission_id for p in permission_ids]
+            for permission_id in permission_ids:
+                permission = Permission.query.filter_by(id=permission_id).first()
+                if permission.name == scope_name:
+                    return f(*args, **kwargs)
+
+            return {"error": "You do not have the permission"}, 403
+
+        return inner_wrapper
+
+    return wrap
+
+
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -140,6 +162,7 @@ class LogoutView(AuthResource):
 
 
 class UserView(AuthResource):
+    @scope("user:read")
     def get(self, user_id):
         user = Profile.query.filter_by(id=user_id).first()
         if user:
@@ -151,6 +174,7 @@ class UserView(AuthResource):
         else:
             return make_response(jsonify({'error': 'User not exist'}), 404)
 
+    @scope("user:update")
     def put(self, user_id):
         data = request.get_json()
         user = Profile.query.filter_by(id=user_id).first()
@@ -164,6 +188,7 @@ class UserView(AuthResource):
         else:
             return make_response(jsonify({'error': 'User not exist'}), 404)
 
+    @scope("user:delete")
     def delete(self, user_id):
         user = Profile.query.filter_by(id=user_id).first()
         if user:
