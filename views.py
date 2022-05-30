@@ -3,21 +3,20 @@ from functools import wraps
 
 import jwt
 from flask import jsonify, request, make_response
-from flask_jwt_extended import get_jwt
 from flask_restful import Api
 from flask_restful import Resource
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import app
 from app import db
-from models import Role, Profile
+from models import Role, Profile, BlacklistToken
 
 api = Api(app)
 
 
 def token_required(f):
     @wraps(f)
-    def decorated(self, *args, **kwargs):
+    def decorated(*args, **kwargs):
         token = None
 
         if 'x-access-token' in request.headers:
@@ -26,18 +25,22 @@ def token_required(f):
         if not token:
             return make_response(jsonify({'error': 'Token is missing!'}), 401)
 
+        blacklist_token = BlacklistToken.query.filter_by(token=token).first()
+        if blacklist_token:
+            return make_response(jsonify({'error': 'Authentication error!'}), 401)
+
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'])
             current_user = Profile.query.filter_by(id=data['id']).first()
         except:
             return make_response(jsonify({'error': 'Token is invalid!'}), 401)
 
-        return f(self, current_user, *args, **kwargs)
+        return f(*args, **kwargs)
     return decorated
 
 
-class ProtectedResource(Resource):
-    method_decoratos = [token_required]
+class AuthResource(Resource):
+    method_decorators = [token_required]
 
 
 class Home(Resource):
@@ -45,12 +48,12 @@ class Home(Resource):
         return {'Header': 'Hello world!'}, 200
 
 
-class AdminView(ProtectedResource):
+class AdminView(AuthResource):
     def get(self):
         return {'Page': 'its admin'}, 200
 
 
-class UsersView(ProtectedResource):
+class UsersView(AuthResource):
     def get(self):
 
         users = Profile.query.all()
@@ -120,14 +123,22 @@ class LoginView(Resource):
         return make_response(jsonify({'error': 'Could not verify'}), 401)
 
 
-class LogoutView(ProtectedResource):
+class LogoutView(AuthResource):
     def post(self):
-        jti = get_jwt()["jti"]
-        jwt_redis_blocklist.set(jti, "", ex=ACCESS_EXPIRES)
-        return make_response(jsonify({'message': 'Logout success'}), 200)
+        token = request.headers['x-access-token']
+        if token:
+            blacklist_token = BlacklistToken(token=token)
+            try:
+                db.session.add(blacklist_token)
+                db.session.commit()
+                return make_response(jsonify({'message': 'Logout success'}), 200)
+            except:
+                return make_response(jsonify({'error': 'Logout error'}), 403)
+        else:
+            return make_response(jsonify({'error': 'Token is missing'}), 403)
 
 
-class UserView(ProtectedResource):
+class UserView(AuthResource):
     def get(self, user_id):
         user = Profile.query.filter_by(id=user_id).first()
         if user:
@@ -162,7 +173,7 @@ class UserView(ProtectedResource):
             return make_response(jsonify({'error': 'User not exist'}), 404)
 
 
-class RoleView(ProtectedResource):
+class RoleView(AuthResource):
     def get(self):
 
         roles = Role.query.all()
@@ -189,5 +200,5 @@ class RoleView(ProtectedResource):
             return make_response(jsonify({'error': 'Something went wrong'}), 403)
 
 
-class PermissionView(ProtectedResource):
+class PermissionView(AuthResource):
     pass

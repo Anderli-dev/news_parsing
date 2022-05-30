@@ -9,3 +9,5 @@ api.add_resource(RoleView, '/role')
 
 api.add_resource(RegistrationView, '/register')
 api.add_resource(LoginView, '/login')
+api.add_resource(LogoutView, '/logout')
+

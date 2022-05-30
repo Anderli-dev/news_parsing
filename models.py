@@ -49,3 +49,13 @@ class RolePermission(db.Model):
     role_id = db.Column(db.Integer)
     permission_id = db.Column(db.Integer)
 
+
+class BlacklistToken(db.Model):
+    __tablename__ = 'blacklist_tokens'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    token = db.Column(db.String(500), unique=True, nullable=False)
+    blacklisted_on = db.Column(db.DateTime, nullable=False)
+
+    def __init__(self, token):
+        self.token = token
+        self.blacklisted_on = datetime.datetime.now()
