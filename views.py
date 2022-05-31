@@ -55,6 +55,8 @@ def token_required(f):
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'])
             current_user = Profile.query.filter_by(id=data['id']).first()
+
+
         except:
             return make_response(jsonify({'error': 'Token is invalid!'}), 401)
 
@@ -62,8 +64,29 @@ def token_required(f):
     return decorated
 
 
+def is_admin(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.headers['x-access-token']
+        data = jwt.decode(token, app.config['SECRET_KEY'])
+
+        user = Profile.query.filter_by(id=data['id']).first()
+
+        role_admin = Role.query.filter_by(name='Admin').first()
+
+        if user.role_id != role_admin.id:
+            return make_response(jsonify({"error": "You do not have the permission"}), 403)
+
+        return f(*args, **kwargs)
+    return decorated
+
+
 class AuthResource(Resource):
     method_decorators = [token_required]
+
+
+class AdminResource(AuthResource):
+    method_decorators = [is_admin]
 
 
 class Home(Resource):
@@ -77,6 +100,7 @@ class AdminView(AuthResource):
 
 
 class UsersView(AuthResource):
+    @scope('users:read')
     def get(self):
 
         users = Profile.query.all()
@@ -164,42 +188,68 @@ class LogoutView(AuthResource):
 class UserView(AuthResource):
     @scope("user:read")
     def get(self, user_id):
-        user = Profile.query.filter_by(id=user_id).first()
-        if user:
-            user_data = {}
-            user_data['id'] = user.id
-            user_data['username'] = user.username
-            user_data['password'] = user.password
-            return make_response(jsonify({'user': user_data}), 200)
+        token = request.headers['x-access-token']
+        data = jwt.decode(token, app.config['SECRET_KEY'])
+
+        auth_user = Profile.query.filter_by(id=data['id']).first()
+        role_admin = Role.query.filter_by(name='Admin').first()
+
+        if user_id == str(data['id']) or auth_user.role_id == role_admin.id:
+            user_get = Profile.query.filter_by(id=user_id).first()
+            if user_get:
+                    user_data = {}
+                    user_data['id'] = user_get.id
+                    user_data['username'] = user_get.username
+                    user_data['password'] = user_get.password
+                    return make_response(jsonify({'user': user_data}), 200)
+            else:
+                return make_response(jsonify({'error': 'User not exist'}), 404)
         else:
-            return make_response(jsonify({'error': 'User not exist'}), 404)
+            return make_response(jsonify({'error': 'You do not have the permission'}), 403)
 
     @scope("user:update")
     def put(self, user_id):
-        data = request.get_json()
-        user = Profile.query.filter_by(id=user_id).first()
+        token = request.headers['x-access-token']
+        data = jwt.decode(token, app.config['SECRET_KEY'])
 
-        if user:
-            user_data = {}
-            user_data['id'] = data['id']
-            user_data['username'] = data['username']
-            user_data['password'] = data['password']
-            return make_response(jsonify({'user': user_data}), 200)
+        auth_user = Profile.query.filter_by(id=data['id']).first()
+        role_admin = Role.query.filter_by(name='Admin').first()
+
+        if user_id == str(data['id']) or auth_user.role_id == role_admin.id:
+            user_get = Profile.query.filter_by(id=user_id).first()
+            data = request.get_json()
+            if user_get:
+                user_data = {}
+                user_data['id'] = data['id']
+                user_data['username'] = data['username']
+                user_data['password'] = data['password']
+                return make_response(jsonify({'user': user_data}), 200)
+            else:
+                return make_response(jsonify({'error': 'User not exist'}), 404)
         else:
-            return make_response(jsonify({'error': 'User not exist'}), 404)
+            return make_response(jsonify({'error': 'You do not have the permission'}), 403)
 
     @scope("user:delete")
     def delete(self, user_id):
-        user = Profile.query.filter_by(id=user_id).first()
-        if user:
-            db.session.delete(user)
-            db.session.commit()
-            return make_response(jsonify({'success': 'Delete success'}), 200)
+        token = request.headers['x-access-token']
+        data = jwt.decode(token, app.config['SECRET_KEY'])
+
+        auth_user = Profile.query.filter_by(id=data['id']).first()
+        role_admin = Role.query.filter_by(name='Admin').first()
+
+        if user_id == str(data['id']) or auth_user.role_id == role_admin.id:
+            user_get = Profile.query.filter_by(id=user_id).first()
+            if user_get:
+                db.session.delete(user_get)
+                db.session.commit()
+                return make_response(jsonify({'success': 'Delete success'}), 200)
+            else:
+                return make_response(jsonify({'error': 'User not exist'}), 404)
         else:
-            return make_response(jsonify({'error': 'User not exist'}), 404)
+            return make_response(jsonify({'error': 'You do not have the permission'}), 403)
 
 
-class RoleView(AuthResource):
+class RoleView(AdminResource):
     def get(self):
 
         roles = Role.query.all()
@@ -226,7 +276,7 @@ class RoleView(AuthResource):
             return make_response(jsonify({'error': 'Something went wrong'}), 403)
 
 
-class PermissionView(AuthResource):
+class PermissionView(AdminResource):
     def get(self):
         permissions = Permission.query.all()
 
@@ -253,7 +303,7 @@ class PermissionView(AuthResource):
             return make_response(jsonify({'error': 'Something went wrong'}), 403)
 
 
-class RolePermissionView(AuthResource):
+class RolePermissionView(AdminResource):
     def get(self):
         roles_permissions = RolePermission.query.all()
 
