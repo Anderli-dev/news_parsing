@@ -24,7 +24,7 @@ export function Login(){
         };
 
         try {
-            await axios.post(`${process.env.REACT_APP_API_URL}/login`, {}, {
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/login`, {}, {
                     headers: headers,
                     auth: {
                         username: username,

@@ -5,16 +5,16 @@ api.add_resource(Home, '/')
 api.add_resource(AdminView, '/admin')
 
 # user routes
-api.add_resource(UsersView, '/users')
-api.add_resource(UserView, '/user/<user_id>')
+api.add_resource(UsersView, '/api/users')
+api.add_resource(UserView, '/api/user/<user_id>')
 
 # role and permission routes
-api.add_resource(RoleView, '/role')
-api.add_resource(PermissionView, '/permission')
-api.add_resource(RolePermissionView, '/role-permission')
+api.add_resource(RoleView, '/api/role')
+api.add_resource(PermissionView, '/api/permission')
+api.add_resource(RolePermissionView, '/api/role-permission')
 
 # authorization and authentication routes
-api.add_resource(RegistrationView, '/register')
-api.add_resource(LoginView, '/login')
-api.add_resource(LogoutView, '/logout')
+api.add_resource(RegistrationView, '/api/register')
+api.add_resource(LoginView, '/api/login')
+api.add_resource(LogoutView, '/api/logout')
 
