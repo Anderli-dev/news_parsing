@@ -55,8 +55,6 @@ def token_required(f):
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'])
             current_user = Profile.query.filter_by(id=data['id']).first()
-
-
         except:
             return make_response(jsonify({'error': 'Token is invalid!'}), 401)
 
@@ -67,15 +65,18 @@ def token_required(f):
 def is_admin(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = request.headers['x-access-token']
-        data = jwt.decode(token, app.config['SECRET_KEY'])
+        try:
+            token = request.headers['x-access-token']
+            data = jwt.decode(token, app.config['SECRET_KEY'])
 
-        user = Profile.query.filter_by(id=data['id']).first()
+            user = Profile.query.filter_by(id=data['id']).first()
 
-        role_admin = Role.query.filter_by(name='Admin').first()
+            role_admin = Role.query.filter_by(name='Admin').first()
 
-        if user.role_id != role_admin.id:
-            return make_response(jsonify({"error": "You do not have the permission"}), 403)
+            if user.role_id != role_admin.id:
+                return make_response(jsonify({"error": "You do not have the permission"}), 403)
+        except:
+            return make_response(jsonify({'error': 'Authentication error!'}), 401)
 
         return f(*args, **kwargs)
     return decorated
@@ -132,6 +133,9 @@ class RegistrationView(Resource):
 
 
 class LoginView(Resource):
+    def options(self):
+        return make_response(jsonify({'msg': 'success'}), 200)
+
     def post(self):
         auth = request.authorization
 
@@ -336,3 +340,6 @@ class UserView(AuthResource):
                 return make_response(jsonify({'error': 'User not exist'}), 404)
         else:
             return make_response(jsonify({'error': 'You do not have the permission'}), 403)
+
+
+
