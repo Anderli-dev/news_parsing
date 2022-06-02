@@ -159,7 +159,7 @@ class LoginView(Resource):
 
 
 class LogoutView(AuthResource):
-    def post(self):
+    def get(self):
         token = request.headers['x-access-token']
         if token:
             blacklist_token = BlacklistToken(token=token)
