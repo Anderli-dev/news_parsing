@@ -4,21 +4,31 @@ import Cookies from "js-cookie";
 import {useLocation, Link} from "react-router-dom";
 import {Logout} from "../actions/Logout";
 import {CreateWhiteIco} from "../actions/CreateWhiteIco";
-import {MdOutlineLogin, MdOutlineLogout} from "react-icons/md"
+import {MdOutlineLogin, MdOutlineLogout, MdOutlineMenu} from "react-icons/md";
+import '../static/css/nav-bar.css'
+import {SideNavBar} from "./SideNavBar";
 
 export function NavBar() {
     const isAuth = Cookies.get("x-access-token")
     const location = useLocation()
     const [username] = useState(localStorage.getItem('user'))
+    const [open, setOpen] = useState(false)
+
     return (
         <>
             <Navbar variant="dark"
                     style={{
                         backgroundColor: "#202124",
                         boxShadow: "0px 4px 5px 0px rgb(0 0 0 / 14%), 0px 1px 10px 0px rgb(0 0 0 / 12%), 0px 2px 4px -1px rgb(0 0 0 / 20%)"
-                    }}>
-                <div className="px-5 d-flex w-100">
-                    <Navbar.Brand className="fs-4 d-flex" href="/">News parsing</Navbar.Brand>
+                    }}
+                    className="p-1 fixed-top">
+                <div className="ps-3 pe-5 d-flex w-100">
+                    <Navbar.Brand className="fs-4 d-flex">
+                        <div className="menu-ico " onClick={() => setOpen(!open)}>{<MdOutlineMenu/>}</div>
+                    </Navbar.Brand>
+                    <Navbar.Brand className="fs-4 d-flex">
+                        <Link to="/" style={{color: "#fff"}} className="noselect">News parsing</Link>
+                    </Navbar.Brand>
                     <Navbar.Collapse id="basic-navbar-nav" className="flex-grow-0 d-flex w-100">
                         <Nav className="w-100">
                             {isAuth
@@ -50,6 +60,8 @@ export function NavBar() {
                     </Navbar.Collapse>
                 </div>
             </Navbar>
+
+            <SideNavBar isOpen={open}/>
         </>
     )
 }

@@ -6,7 +6,7 @@ export default () => {
     return (
         <React.Fragment>
             <NavBar />
-            <div className={"container"}>
+            <div className="container" style={{ marginTop: "59px"}}>
                 <Outlet />
             </div>
         </React.Fragment>
