@@ -8,4 +8,4 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 CORS_HEADERS = 'Content-Type'
 
-UPLOAD_FOLDER = '/frontend/src/uploads'
+UPLOAD_FOLDER = 'news_parsing/frontend/src/uploads'

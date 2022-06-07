@@ -1,6 +1,7 @@
 import datetime
 import os
 from functools import wraps
+from pathlib import Path
 
 import jwt
 from flask import jsonify, request, make_response
@@ -16,6 +17,7 @@ from models import Role, Profile, BlacklistToken, Permission, RolePermission
 api = Api(app)
 
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 def allowed_file(filename):
@@ -354,17 +356,17 @@ class UserView(AuthResource):
 # News actions
 class NewsPreviewView(AuthResource):
     def post(self):
-        if 'file' not in request.files:
+        if 'img' not in request.files:
             return make_response(jsonify({'error': 'No file part'}), 404)
-        file = request.files['file']
+        file = request.files['img']
         if file.filename == '':
             return make_response(jsonify({'error': 'No selected file'}), 404)
 
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            print(os.path.join(app.config['UPLOAD_FOLDER']))
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return make_response(jsonify({}), 200)
+            print(os.path.join(BASE_DIR, app.config['UPLOAD_FOLDER']))
+            file.save(os.path.join(BASE_DIR, app.config['UPLOAD_FOLDER'], filename))
+            return make_response(jsonify({'msg': 'success load'}), 200)
 
 
 class NewsView(AuthResource):
