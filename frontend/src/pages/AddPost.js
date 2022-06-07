@@ -1,7 +1,9 @@
 import React, {useState} from "react";
-import {MDBBtn, MDBFile, MDBInput, MDBSwitch, MDBValidationItem} from 'mdb-react-ui-kit';
+import {MDBBtn, MDBFile, MDBInput, MDBSwitch, MDBTextArea, MDBValidationItem} from 'mdb-react-ui-kit';
 import axios from "axios";
 import Cookies from "js-cookie";
+import { Editor } from '@tinymce/tinymce-react';
+
 
 export function AddPost(){
     const [formData, setFormData] = useState({
@@ -51,29 +53,37 @@ export function AddPost(){
         <div>
             <h1>Add post</h1>
                 <form className='row g-3' onSubmit={previewSubmit}>
-                    <MDBValidationItem className='col-md-4'>
+                    <MDBValidationItem className='mb-4 d-flex'>
                         <MDBInput
+                            style={{color: '#fff', width: '422px'}}
                             value={title}
                             name='title'
                             onChange={onChange}
                             id='validationCustom01'
                             required
                             label='Title'
+                            labelStyle={{color:"rgb(147 147 147)"}}
                         />
                     </MDBValidationItem>
                     <MDBValidationItem className='col-md-4'>
-                        <MDBInput
+                        <MDBTextArea
+                            style={{color: '#fff', height: '200px'}}
                             value={preview}
                             name='preview'
                             onChange={onChange}
                             id='validationCustom01'
                             required
                             label='Preview'
+                            labelStyle={{color:"rgb(147 147 147)"}}
                         />
                     </MDBValidationItem>
 
                     <MDBValidationItem className='file-container'>
-                        <MDBFile onChange={handleImgSelect} label='Chose preview image' id='customFile' />
+                        <MDBFile onChange={handleImgSelect}
+                                 style={{width:'422px'}}
+                                 label='Chose preview image'
+                                 labelStyle={{color:"rgb(147 147 147)"}}
+                                 id='customFile' />
                     </MDBValidationItem>
 
                     <MDBSwitch checked={checked} onChange={switchChange} id='flexSwitchCheckDefault' label='Only preview' />
