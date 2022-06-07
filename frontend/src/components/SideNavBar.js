@@ -46,6 +46,9 @@ export function SideNavBar(props){
                     <Nav.Item className="w-100">
                         <Nav.Link eventKey="link-3" style={navLink}>Permissions</Nav.Link>
                     </Nav.Item>
+                    <Nav.Item className="w-100">
+                        <Nav.Link eventKey="link-3" style={navLink}>Profile</Nav.Link>
+                    </Nav.Item>
                 </Nav>)}
             </Motion>
         </>

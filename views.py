@@ -260,7 +260,7 @@ class RolePermissionView(AdminResource):
 
 
 # User actions
-class UsersView(AuthResource):
+class UsersView(AdminResource):
     @scope('users:read')
     def get(self):
 
@@ -342,4 +342,12 @@ class UserView(AuthResource):
             return make_response(jsonify({'error': 'You do not have the permission'}), 403)
 
 
+# News actions
+class NewsPreviewView(AuthResource):
+    def get(self):
+        pass
 
+
+class NewsView(AuthResource):
+    def get(self):
+        pass

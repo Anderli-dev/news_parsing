@@ -25,16 +25,26 @@ class Editor(db.Model):
 class News(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-    img_name = db.Column(db.Text, nullable=False)
-
     title = db.Column(db.String(255), nullable=False)
-    preview = db.Column(db.String(255), nullable=True)
     posted_at = db.Column(db.Time, nullable=False)
 
     text = db.Column(db.Text)
+    imgs = db.Column(db.Text, nullable=False)
 
     editor_id = db.Column(db.Integer, db.ForeignKey('editor.profile_id'),
-                          nullable=False)
+                          nullable=True)
+
+
+class NewsPreview(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    img = db.Column(db.Text, nullable=False)
+
+    title = db.Column(db.String(255), nullable=False)
+    preview = db.Column(db.String(255), nullable=True)
+
+    news_id = db.Column(db.Integer, db.ForeignKey('news.id'),
+                           nullable=True)
 
 
 class Role(db.Model):
