@@ -1,4 +1,5 @@
 import datetime
+import os
 from functools import wraps
 
 import jwt
@@ -6,12 +7,20 @@ from flask import jsonify, request, make_response
 from flask_restful import Api
 from flask_restful import Resource
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 
 from app import app
 from app import db
 from models import Role, Profile, BlacklistToken, Permission, RolePermission
 
 api = Api(app)
+
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 def scope(scope_name):
@@ -344,8 +353,18 @@ class UserView(AuthResource):
 
 # News actions
 class NewsPreviewView(AuthResource):
-    def get(self):
-        pass
+    def post(self):
+        if 'file' not in request.files:
+            return make_response(jsonify({'error': 'No file part'}), 404)
+        file = request.files['file']
+        if file.filename == '':
+            return make_response(jsonify({'error': 'No selected file'}), 404)
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            print(os.path.join(app.config['UPLOAD_FOLDER']))
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return make_response(jsonify({}), 200)
 
 
 class NewsView(AuthResource):

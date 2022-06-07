@@ -31,6 +31,8 @@ class News(db.Model):
     text = db.Column(db.Text)
     imgs = db.Column(db.Text, nullable=False)
 
+    preview_id = db.Column(db.Integer, db.ForeignKey('news_preview.id'),
+                        nullable=True)
     editor_id = db.Column(db.Integer, db.ForeignKey('editor.profile_id'),
                           nullable=True)
 
@@ -43,8 +45,7 @@ class NewsPreview(db.Model):
     title = db.Column(db.String(255), nullable=False)
     preview = db.Column(db.String(255), nullable=True)
 
-    news_id = db.Column(db.Integer, db.ForeignKey('news.id'),
-                           nullable=True)
+    news = db.relationship("News", uselist=False, backref="news_preview")
 
 
 class Role(db.Model):
