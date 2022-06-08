@@ -12,7 +12,7 @@ from werkzeug.utils import secure_filename
 
 from app import app
 from app import db
-from models import Role, Profile, BlacklistToken, Permission, RolePermission
+from models import Role, Profile, BlacklistToken, Permission, RolePermission, NewsPreview
 
 api = Api(app)
 
@@ -357,16 +357,24 @@ class UserView(AuthResource):
 class NewsPreviewView(AuthResource):
     def post(self):
         if 'img' not in request.files:
-            return make_response(jsonify({'error': 'No file part'}), 404)
+            return make_response(jsonify({'error': 'No file part'}), 403)
         file = request.files['img']
         if file.filename == '':
-            return make_response(jsonify({'error': 'No selected file'}), 404)
+            return make_response(jsonify({'error': 'No selected file'}), 403)
 
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            print(os.path.join(BASE_DIR, app.config['UPLOAD_FOLDER']))
             file.save(os.path.join(BASE_DIR, app.config['UPLOAD_FOLDER'], filename))
-            return make_response(jsonify({'msg': 'success load'}), 200)
+
+        try:
+            data = request.form
+
+            db.session.add(NewsPreview(img=secure_filename(file.filename), title=data['title'], preview=data['preview']))
+            db.session.commit()
+
+            return make_response(jsonify({'msg': 'success saved preview'}), 200)
+        except:
+            return make_response(jsonify({'error': 'something went wrong'}), 403)
 
 
 class NewsView(AuthResource):

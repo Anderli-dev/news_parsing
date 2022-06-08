@@ -34,10 +34,15 @@ export function AddPost(){
             'x-access-token': Cookies.get('x-access-token'),
         };
         console.log(selectedImg)
-        const data = {"img": selectedImg};
+        let formData = new FormData();
+        let imagefile = document.querySelector('#customFile');
+        formData.append("img", imagefile.files[0]);
+        formData.append("title", title)
+        formData.append("preview", preview)
+        // const data = {"img": selectedImg, "title": title, "preview": preview};
 
         try {
-            await axios.post(`${process.env.REACT_APP_API_URL}/api/preview`, data, {headers: headers,})
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/preview`, formData, {headers: headers,})
                 .then(response => {
                     if (response.status === 200) {
                         console.log('Success')
