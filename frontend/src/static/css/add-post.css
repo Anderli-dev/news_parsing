@@ -1,0 +1,17 @@
+.data{
+    margin-right: 3rem;
+    width: 50%;
+}
+@media(max-width:767px){
+    .phone-preview{
+        flex-wrap: wrap;
+    }
+
+    .phone-preview div{
+        width: 100%;
+    }
+    .data{
+        margin-right: 0;
+        width: 100%;
+    }
+}

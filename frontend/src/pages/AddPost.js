@@ -3,6 +3,9 @@ import {MDBBtn, MDBFile, MDBInput, MDBSwitch, MDBTextArea, MDBValidationItem} fr
 import axios from "axios";
 import Cookies from "js-cookie";
 import { Editor } from '@tinymce/tinymce-react';
+import {DataTimePicker} from "../components/DataTimePicker";
+import '../static/css/add-post.css'
+
 
 
 export function AddPost(){
@@ -39,7 +42,6 @@ export function AddPost(){
         formData.append("img", imagefile.files[0]);
         formData.append("title", title)
         formData.append("preview", preview)
-        // const data = {"img": selectedImg, "title": title, "preview": preview};
 
         try {
             await axios.post(`${process.env.REACT_APP_API_URL}/api/preview`, formData, {headers: headers,})
@@ -55,49 +57,59 @@ export function AddPost(){
     };
 
     return(
-        <div>
-            <h1>Add post</h1>
-                <form className='row g-3' onSubmit={previewSubmit}>
-                    <MDBValidationItem className='mb-4 d-flex'>
-                        <MDBInput
-                            style={{color: '#fff', width: '422px'}}
-                            value={title}
-                            name='title'
-                            onChange={onChange}
-                            id='validationCustom01'
-                            required
-                            label='Title'
-                            labelStyle={{color:"rgb(147 147 147)"}}
-                        />
-                    </MDBValidationItem>
-                    <MDBValidationItem className='col-md-4'>
-                        <MDBTextArea
-                            style={{color: '#fff', height: '200px'}}
-                            value={preview}
-                            name='preview'
-                            onChange={onChange}
-                            id='validationCustom01'
-                            required
-                            label='Preview'
-                            labelStyle={{color:"rgb(147 147 147)"}}
-                        />
-                    </MDBValidationItem>
+        <div className="mt-4">
+            <h1 className="mb-4">Add post</h1>
+                <form className="g-3 " onSubmit={previewSubmit}>
+                    <div className="d-flex phone-preview">
+                        <div className="data">
+                            <MDBValidationItem className='mb-4'>
+                                <MDBInput
+                                    style={{color: '#fff'}}
+                                    value={title}
+                                    name='title'
+                                    onChange={onChange}
+                                    id='validationCustom01'
+                                    required
+                                    label='Title'
+                                    labelStyle={{color:"rgb(147 147 147)"}}
+                                />
+                            </MDBValidationItem>
 
-                    <MDBValidationItem className='file-container'>
-                        <MDBFile onChange={handleImgSelect}
-                                 style={{width:'422px'}}
-                                 label='Chose preview image'
-                                 labelStyle={{color:"rgb(147 147 147)"}}
-                                 id='customFile' />
-                    </MDBValidationItem>
+                            <p className="m-0" style={{color:"rgb(147 147 147)"}}>Chose date</p>
+                            <DataTimePicker/>
 
-                    <MDBSwitch checked={checked} onChange={switchChange} id='flexSwitchCheckDefault' label='Only preview' />
+                            <MDBValidationItem className='file-container mb-4'>
+                                <MDBFile onChange={handleImgSelect}
+                                         label='Chose preview image'
+                                         labelStyle={{color:"rgb(147 147 147)"}}
+                                         id='customFile' />
+                            </MDBValidationItem>
+                        </div>
 
-                    <div className='col-12'>
-                        <MDBBtn type='submit' className="me-2">Submit form</MDBBtn>
-                        <MDBBtn type='reset'>Reset form</MDBBtn>
+                        <MDBValidationItem className='mb-4 w-100'>
+                            <MDBTextArea
+                                style={{color: '#fff', height: '215px'}}
+                                value={preview}
+                                name='preview'
+                                onChange={onChange}
+                                id='validationCustom01'
+                                required
+                                label='Preview'
+                                labelStyle={{color:"rgb(147 147 147)"}}
+                            />
+                        </MDBValidationItem>
                     </div>
 
+                    <div className="mb-4">
+                        <MDBSwitch checked={checked} onChange={switchChange} id='flexSwitchCheckDefault' label='Only preview' />
+                    </div>
+
+                    <div>
+                        <div className='col-12'>
+                            <MDBBtn type='submit' className="me-2">Submit form</MDBBtn>
+                            <MDBBtn type='reset'>Reset form</MDBBtn>
+                        </div>
+                    </div>
                 </form>
         </div>
     )
