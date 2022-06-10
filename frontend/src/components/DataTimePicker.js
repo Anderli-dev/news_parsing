@@ -1,9 +1,11 @@
 import React from "react";
 import Datetime from 'react-datetime';
 import moment from 'moment';
-import { Moment } from 'moment';
 
 export class DataTimePicker extends React.Component {
+    constructor(props) {
+        super(props);
+    }
     render() {
         return (
             <Datetime
@@ -15,6 +17,8 @@ export class DataTimePicker extends React.Component {
                 renderView={(undefined, renderDefault) =>
                     this.renderView(renderDefault)
                 }
+                initialValue={this.props.initialValue}
+                onChange={this.props.onChange}
             />
         );
     }

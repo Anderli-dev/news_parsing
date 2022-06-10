@@ -1,8 +1,9 @@
-import React, {useState} from "react";
+import React, {useRef, useState} from "react";
 import {MDBBtn, MDBFile, MDBInput, MDBSwitch, MDBTextArea, MDBValidationItem} from 'mdb-react-ui-kit';
 import axios from "axios";
 import Cookies from "js-cookie";
 import { Editor } from '@tinymce/tinymce-react';
+import moment from 'moment';
 import {DataTimePicker} from "../components/DataTimePicker";
 import '../static/css/add-post.css'
 
@@ -16,6 +17,10 @@ export function AddPost(){
     const { title, preview } = formData;
     const [checked, setChecked] = useState(false);
     const [selectedImg, setSelectedImg] = useState(null);
+    const datetime = useRef(null);
+    const [date, setDate] = useState(null);
+
+
 
     const onChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -42,6 +47,7 @@ export function AddPost(){
         formData.append("img", imagefile.files[0]);
         formData.append("title", title)
         formData.append("preview", preview)
+        formData.append("posted_at", date.format())
 
         try {
             await axios.post(`${process.env.REACT_APP_API_URL}/api/preview`, formData, {headers: headers,})
@@ -75,8 +81,13 @@ export function AddPost(){
                                 />
                             </MDBValidationItem>
 
-                            <p className="m-0" style={{color:"rgb(147 147 147)"}}>Chose date</p>
-                            <DataTimePicker/>
+                            <p className="m-0" style={{color:"rgb(147 147 147)"}}>Chose posted date</p>
+                            <DataTimePicker
+                                ref={datetime}
+                                selected={date}
+                                onChange={date => setDate(date)}
+                                initialValue={moment([])}
+                            />
 
                             <MDBValidationItem className='file-container mb-4'>
                                 <MDBFile onChange={handleImgSelect}
@@ -103,6 +114,10 @@ export function AddPost(){
                     <div className="mb-4">
                         <MDBSwitch checked={checked} onChange={switchChange} id='flexSwitchCheckDefault' label='Only preview' />
                     </div>
+
+                    {!checked &&
+                        <div>hello</div>
+                    }
 
                     <div>
                         <div className='col-12'>

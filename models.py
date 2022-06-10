@@ -26,7 +26,6 @@ class News(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     title = db.Column(db.String(255), nullable=False)
-    posted_at = db.Column(db.Time, nullable=False)
 
     text = db.Column(db.Text)
     imgs = db.Column(db.Text, nullable=False)
@@ -42,6 +41,7 @@ class NewsPreview(db.Model):
 
     img = db.Column(db.Text, nullable=False)
 
+    posted_at = db.Column(db.DateTime, nullable=False)
     title = db.Column(db.String(255), nullable=False)
     preview = db.Column(db.String(255), nullable=True)
 

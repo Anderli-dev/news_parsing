@@ -29,7 +29,8 @@ export function SideNavBar(props){
                         transform: `translateX(${style.x}px)`,
                         opacity: style.opacity,
                         backgroundColor: "#202124",
-                        marginTop: "-4px"
+                        marginTop: "59px",
+                        zIndex:"999"
                     }}
                     variant="pills"
                     defaultActiveKey="/"

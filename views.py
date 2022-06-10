@@ -368,15 +368,23 @@ class NewsPreviewView(AuthResource):
 
         try:
             data = request.form
+            date_without_timezone = str(data['posted_at'].split('+')[0])
+            date = datetime.datetime.strptime(date_without_timezone, '%Y-%m-%dT%H:%M:%S')
 
-            db.session.add(NewsPreview(img=secure_filename(file.filename), title=data['title'], preview=data['preview']))
+            db.session.add(NewsPreview(
+                img=secure_filename(file.filename),
+                title=data['title'],
+                posted_at=date,
+                preview=data['preview']),
+            )
             db.session.commit()
 
             return make_response(jsonify({'msg': 'success saved preview'}), 200)
-        except:
+        except Exception as e:
+            print(e)
             return make_response(jsonify({'error': 'something went wrong'}), 403)
 
 
 class NewsView(AuthResource):
-    def get(self):
+    def post(self):
         pass
