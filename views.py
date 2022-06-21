@@ -1,4 +1,5 @@
 import datetime
+import errno
 import os
 from functools import wraps
 from pathlib import Path
@@ -12,7 +13,7 @@ from werkzeug.utils import secure_filename
 
 from app import app
 from app import db
-from models import Role, Profile, BlacklistToken, Permission, RolePermission, NewsPreview
+from models import Role, Profile, BlacklistToken, Permission, RolePermission, NewsPreview, News
 
 api = Api(app)
 
@@ -354,6 +355,19 @@ class UserView(AuthResource):
 
 
 # News actions
+class ImageUploader(Resource):
+    def post(self):
+        file = request.files['file']
+        filename = secure_filename(file.filename)
+
+        if file and allowed_file(file.filename):
+            file.save(os.path.join(BASE_DIR, app.config['UPLOAD_FOLDER'], filename))
+            print('File successfully uploaded ' + file.filename + ' to ' + app.config['UPLOAD_FOLDER'])
+            return make_response(jsonify({'location': 'uploads/'+file.filename}), 200)
+        else:
+            make_response(jsonify({'error': 'Invalid Upload only png, jpg, jpeg, gif'}), 200)
+
+
 class NewsPreviewView(AuthResource):
     def post(self):
         if 'img' not in request.files:
@@ -371,15 +385,16 @@ class NewsPreviewView(AuthResource):
             date_without_timezone = str(data['posted_at'].split('+')[0])
             date = datetime.datetime.strptime(date_without_timezone, '%Y-%m-%dT%H:%M:%S')
 
-            db.session.add(NewsPreview(
+            preview = NewsPreview(
                 img=secure_filename(file.filename),
                 title=data['title'],
                 posted_at=date,
-                preview=data['preview']),
-            )
+                preview=data['preview'])
+
+            db.session.add(preview)
             db.session.commit()
 
-            return make_response(jsonify({'msg': 'success saved preview'}), 200)
+            return make_response(jsonify({'msg': 'success saved preview', 'previewId': preview.id}), 200)
         except Exception as e:
             print(e)
             return make_response(jsonify({'error': 'something went wrong'}), 403)
@@ -387,4 +402,20 @@ class NewsPreviewView(AuthResource):
 
 class NewsView(AuthResource):
     def post(self):
-        pass
+        token = request.headers['x-access-token']
+        data = jwt.decode(token, app.config['SECRET_KEY'])
+
+        user_id = data['id']
+
+        try:
+            post = News(title=request.form.get('title_post'),
+                        text=request.form.get('text'),
+                        preview_id=request.form.get('previewId'),
+                        editor_id=user_id)
+            db.session.add(post)
+            db.session.commit()
+
+            return make_response(jsonify({'msg': 'post success saved'}), 200)
+        except Exception as e:
+            print(e)
+            return make_response(jsonify({'error': 'something went wrong'}), 403)

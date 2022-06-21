@@ -23,12 +23,11 @@ class Editor(db.Model):
 
 
 class News(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=True)
 
     title = db.Column(db.String(255), nullable=False)
 
     text = db.Column(db.Text)
-    imgs = db.Column(db.Text, nullable=False)
 
     preview_id = db.Column(db.Integer, db.ForeignKey('news_preview.id'),
                         nullable=True)
@@ -37,7 +36,7 @@ class News(db.Model):
 
 
 class NewsPreview(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=True)
 
     img = db.Column(db.Text, nullable=False)
 

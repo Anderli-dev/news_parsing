@@ -19,4 +19,6 @@ api.add_resource(LoginView, '/api/login')
 api.add_resource(LogoutView, '/api/logout')
 
 # news routes
+api.add_resource(ImageUploader, '/api/image_upload')
 api.add_resource(NewsPreviewView, '/api/preview')
+api.add_resource(NewsView, '/api/post')
