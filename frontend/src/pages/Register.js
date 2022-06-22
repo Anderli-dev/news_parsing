@@ -11,7 +11,6 @@ export function Register(props) {
         password: "",
         re_password: ""
     });
-    const [token] = useState(Cookies.get("x-access-token"));
     const navigate = useNavigate()
 
     const { username, password, re_password } = formData;
@@ -22,13 +21,12 @@ export function Register(props) {
         // user register
         e.preventDefault()
         const headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'x-access-token': token,
+            'Accept': "application/json",
+            'Content-Type': "application/json; charset=UTF-8",
         };
         const body = {username: username, password: password, re_password: re_password}
         try {
-            await axios.post(`${process.env.REACT_APP_API_URL}/api/register/`, body,{
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/register`, body,{
                     headers: headers,
                 })
                 .then(response => {
@@ -82,10 +80,10 @@ export function Register(props) {
                                                 </div>
                                                 <div className="col-md-6 mb-4">
                                                     <div className="form-outline">
-                                                        <input type="text" id="form2Example27"
+                                                        <input type="password" id="form2Example28"
                                                            value={password}
                                                            onChange={onChange}
-                                                           name="username"
+                                                           name="password"
                                                            className="form-control form-control-lg"
                                                            style={{border: "1px solid #bdbdbd"}}/>
                                                     <label className="form-label"
@@ -96,10 +94,10 @@ export function Register(props) {
                                                 </div>
                                                 <div className="col-md-6 mb-4 ms-auto">
                                                     <div className="form-outline">
-                                                        <input type="password" id="form2Example27"
+                                                        <input type="password" id="form2Example29"
                                                                value={re_password}
                                                                onChange={onChange}
-                                                               name="username"
+                                                               name="re_password"
                                                                className="form-control form-control-lg"
                                                                style={{border: "1px solid #bdbdbd"}}/>
                                                         <label className="form-label"
