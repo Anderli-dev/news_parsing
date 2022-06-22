@@ -13,7 +13,7 @@ from werkzeug.utils import secure_filename
 
 from app import app
 from app import db
-from models import Role, Profile, BlacklistToken, Permission, RolePermission, NewsPreview, News
+from models import Role, User, BlacklistToken, Permission, RolePermission, NewsPreview, News
 
 api = Api(app)
 
@@ -32,7 +32,7 @@ def scope(scope_name):
             token = request.headers['x-access-token']
             data = jwt.decode(token, app.config['SECRET_KEY'])
 
-            user = Profile.query.filter_by(id=data['id']).first()
+            user = User.query.filter_by(id=data['id']).first()
             role = Role.query.filter_by(id=user.role_id).first()
             permission_ids = RolePermission.query.filter_by(role_id=role.id).all()
             permission_ids = [p.permission_id for p in permission_ids]
@@ -66,7 +66,7 @@ def token_required(f):
 
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'])
-            current_user = Profile.query.filter_by(id=data['id']).first()
+            current_user = User.query.filter_by(id=data['id']).first()
         except:
             return make_response(jsonify({'error': 'Token is invalid!'}), 401)
 
@@ -81,7 +81,7 @@ def is_admin(f):
             token = request.headers['x-access-token']
             data = jwt.decode(token, app.config['SECRET_KEY'])
 
-            user = Profile.query.filter_by(id=data['id']).first()
+            user = User.query.filter_by(id=data['id']).first()
 
             role_admin = Role.query.filter_by(name='Admin').first()
 
@@ -115,14 +115,18 @@ class AdminView(AuthResource):
 
 # Authentication and authorization
 class RegistrationView(Resource):
+    def options(self):
+        return make_response(jsonify({'msg': 'success'}), 200)
+
     def post(self):
         data = request.get_json()
 
         username = data['username']
         password = data['password']
-
+        re_password = data['re_password']
+        # TODO check re_password
         try:
-            if db.session.query(db.exists().where(Profile.username == username)).scalar():
+            if db.session.query(db.exists().where(User.username == username)).scalar():
                 return make_response(jsonify({'error': 'Username already exists'}), 403)
             else:
                 if len(password) < 6:
@@ -130,7 +134,7 @@ class RegistrationView(Resource):
                 else:
                     hashed_password = generate_password_hash(password, 'sha256')
 
-                    user = Profile(username=username, password=hashed_password)
+                    user = User(username=username, password=hashed_password)
                     db.session.add(user)
                     db.session.commit()
 
@@ -140,7 +144,8 @@ class RegistrationView(Resource):
                     )
 
                     return make_response(jsonify({'msg': 'User created!', 'token': token.decode('UTF-8')}), 200)
-        except():
+        except Exception as e:
+            print(e)
             return make_response(jsonify({'error': 'Something went wrong when registering account'})), 403
 
 
@@ -154,7 +159,7 @@ class LoginView(Resource):
         if not auth or not auth.username or not auth.password:
             return make_response(jsonify({'error': 'Could not verify'}), 401)
 
-        user = Profile.query.filter_by(username=auth.username).first()
+        user = User.query.filter_by(username=auth.username).first()
 
         if not user:
             return make_response(jsonify({'error': 'Could not verify'}), 401)
@@ -276,7 +281,7 @@ class UsersView(AdminResource):
     @scope('users:read')
     def get(self):
 
-        users = Profile.query.all()
+        users = User.query.all()
 
         users_json = []
 
@@ -296,11 +301,11 @@ class UserView(AuthResource):
         token = request.headers['x-access-token']
         data = jwt.decode(token, app.config['SECRET_KEY'])
 
-        auth_user = Profile.query.filter_by(id=data['id']).first()
+        auth_user = User.query.filter_by(id=data['id']).first()
         role_admin = Role.query.filter_by(name='Admin').first()
 
         if user_id == str(data['id']) or auth_user.role_id == role_admin.id:
-            user_get = Profile.query.filter_by(id=user_id).first()
+            user_get = User.query.filter_by(id=user_id).first()
             if user_get:
                     user_data = {}
                     user_data['id'] = user_get.id
@@ -317,11 +322,11 @@ class UserView(AuthResource):
         token = request.headers['x-access-token']
         data = jwt.decode(token, app.config['SECRET_KEY'])
 
-        auth_user = Profile.query.filter_by(id=data['id']).first()
+        auth_user = User.query.filter_by(id=data['id']).first()
         role_admin = Role.query.filter_by(name='Admin').first()
 
         if user_id == str(data['id']) or auth_user.role_id == role_admin.id:
-            user_get = Profile.query.filter_by(id=user_id).first()
+            user_get = User.query.filter_by(id=user_id).first()
             data = request.get_json()
             if user_get:
                 user_data = {}
@@ -339,11 +344,11 @@ class UserView(AuthResource):
         token = request.headers['x-access-token']
         data = jwt.decode(token, app.config['SECRET_KEY'])
 
-        auth_user = Profile.query.filter_by(id=data['id']).first()
+        auth_user = User.query.filter_by(id=data['id']).first()
         role_admin = Role.query.filter_by(name='Admin').first()
 
         if user_id == str(data['id']) or auth_user.role_id == role_admin.id:
-            user_get = Profile.query.filter_by(id=user_id).first()
+            user_get = User.query.filter_by(id=user_id).first()
             if user_get:
                 db.session.delete(user_get)
                 db.session.commit()
@@ -355,6 +360,7 @@ class UserView(AuthResource):
 
 
 # News actions
+# TODO add auth res
 class ImageUploader(Resource):
     def post(self):
         file = request.files['file']
@@ -362,7 +368,6 @@ class ImageUploader(Resource):
 
         if file and allowed_file(file.filename):
             file.save(os.path.join(BASE_DIR, app.config['UPLOAD_FOLDER'], filename))
-            print('File successfully uploaded ' + file.filename + ' to ' + app.config['UPLOAD_FOLDER'])
             return make_response(jsonify({'location': 'uploads/'+file.filename}), 200)
         else:
             make_response(jsonify({'error': 'Invalid Upload only png, jpg, jpeg, gif'}), 200)
@@ -385,11 +390,15 @@ class NewsPreviewView(AuthResource):
             date_without_timezone = str(data['posted_at'].split('+')[0])
             date = datetime.datetime.strptime(date_without_timezone, '%Y-%m-%dT%H:%M:%S')
 
+            token = request.headers['x-access-token']
+            token_data = jwt.decode(token, app.config['SECRET_KEY'])
+
             preview = NewsPreview(
                 img=secure_filename(file.filename),
                 title=data['title'],
                 posted_at=date,
-                preview=data['preview'])
+                preview=data['preview'],
+                user_id=token_data['id'])
 
             db.session.add(preview)
             db.session.commit()
@@ -402,16 +411,10 @@ class NewsPreviewView(AuthResource):
 
 class NewsView(AuthResource):
     def post(self):
-        token = request.headers['x-access-token']
-        data = jwt.decode(token, app.config['SECRET_KEY'])
-
-        user_id = data['id']
-
         try:
             post = News(title=request.form.get('title_post'),
                         text=request.form.get('text'),
-                        preview_id=request.form.get('previewId'),
-                        editor_id=user_id)
+                        preview_id=request.form.get('previewId'))
             db.session.add(post)
             db.session.commit()
 

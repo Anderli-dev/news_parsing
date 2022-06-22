@@ -19,7 +19,15 @@ export function AddPost(){
     const [checked, setChecked] = useState(false);
     const [selectedImg, setSelectedImg] = useState(null);
     const datetime = useRef(null);
-    const [date, setDate] = useState(null);
+    const [date, setDate] = useState(moment().format("YYYY[-]MM[-]DD[T]h[:]m[:]s"));
+
+    const [headers] = useState(
+        {
+            'Accept': "application/json",
+            'Content-Type': "multipart/form-data",
+            'x-access-token': Cookies.get('x-access-token'),
+        }
+    )
 
     const editorRef = useRef(null);
 
@@ -37,18 +45,14 @@ export function AddPost(){
 
     const previewSubmit = async e => {
         e.preventDefault()
-        const headers = {
-            'Accept': "application/json",
-            'Content-Type': "multipart/form-data",
-            'x-access-token': Cookies.get('x-access-token'),
-        };
 
         let formData = new FormData();
-        let imagefile = document.querySelector('#customFile');
+        let imagefile = document.querySelector('#img');
         formData.append("img", imagefile.files[0]);
         formData.append("title", title_preview)
         formData.append("preview", preview)
-        formData.append("posted_at", date.format())
+        // TODO add auto time
+        formData.append("posted_at", date.toString())
 
         try {
             await axios.post(`${process.env.REACT_APP_API_URL}/api/preview`, formData, {headers: headers,})
@@ -65,44 +69,32 @@ export function AddPost(){
 
     const allSubmit = async e =>{
         e.preventDefault()
-        const headers = {
-            'Accept': "application/json",
-            'Content-Type': "multipart/form-data",
-            'x-access-token': Cookies.get('x-access-token'),
-        };
 
         let formData = new FormData();
-        let imagefile = document.querySelector('#customFile');
+        let imagefile = document.querySelector('#img');
         formData.append("img", imagefile.files[0]);
         formData.append("title", title_preview)
         formData.append("preview", preview)
-        formData.append("posted_at", date.format())
+        // TODO add auto time
+        formData.append("posted_at", date.toString())
         let previewId
         try {
             await axios.post(`${process.env.REACT_APP_API_URL}/api/preview`, formData, {headers: headers,})
                 .then(response => {
                     if (response.status === 200) {
-                        previewId=response.data['previewId']
+                        console.log('Success')
+                        previewId = response.data['previewId']
                     }
                 })
                 .catch(error => console.log(error.response))
         } catch (err) {
             console.log(err.response)
         }
-        let data
-        console.log(window.tinymce.activeEditor.getContent())
-        if(title_post === ''){
-            data = {
-                title_post: title_preview,
-                text: window.tinymce.activeEditor.getContent(),
-                previewId: previewId
-            }
-        }else {
-            data = {
-                title_post: title_post,
-                text: window.tinymce.activeEditor.getContent(),
-                previewId: previewId
-            }
+
+        let data = {
+            title_post: title_post === '' ? title_preview : title_post,
+            text: window.tinymce.activeEditor.getContent(),
+            previewId: previewId
         }
 
         try {
@@ -122,6 +114,8 @@ export function AddPost(){
         <div className="mt-4">
             <h1 className="mb-4">Add post</h1>
                 <form className="g-3 " onSubmit={checked ? previewSubmit: allSubmit}>
+
+
                     <div className="d-flex phone-preview">
                         <div className="data">
                             <MDBValidationItem className='mb-4'>
@@ -142,14 +136,14 @@ export function AddPost(){
                                 ref={datetime}
                                 selected={date}
                                 onChange={date => setDate(date)}
-                                initialValue={moment([])}
+                                initialValue={moment()}
                             />
 
                             <MDBValidationItem className='file-container mb-4'>
                                 <MDBFile onChange={handleImgSelect}
                                          label='Chose preview image'
                                          labelStyle={{color:"rgb(147 147 147)"}}
-                                         id='customFile' />
+                                         id='img' />
                             </MDBValidationItem>
                         </div>
 
@@ -167,9 +161,11 @@ export function AddPost(){
                         </MDBValidationItem>
                     </div>
 
+
                     <div className="mb-4">
                         <MDBSwitch checked={checked} onChange={switchChange} id='flexSwitchCheckDefault' label='Only preview' />
                     </div>
+
 
                     {!checked &&
                         <div>
@@ -180,7 +176,6 @@ export function AddPost(){
                                     name='title_post'
                                     onChange={onChange}
                                     id='validationCustom01'
-                                    required
                                     label='Title'
                                     labelStyle={{color:"rgb(147 147 147)"}}
                                 />
@@ -192,6 +187,7 @@ export function AddPost(){
                                 className='d-flex'
                                 style={{backgroundColor: 'rgb(46 46 46)', height:'45px'}}
                             >
+                                {/*TODO remove p element*/}
                                 <p className='fw-bolder'>Note:&nbsp;</p>you can leave title blank empty
                             </MDBTypography>
 
@@ -220,7 +216,6 @@ export function AddPost(){
 
                                             input.onchange = function () {
                                                 var file = this.files[0];
-                                                console.log(file.name)
                                                 var reader = new FileReader();
                                                 reader.onload = function () {
                                                     var id = 'blobid' + (new Date()).getTime();
@@ -243,6 +238,7 @@ export function AddPost(){
                             </div>
                         </div>
                     }
+
 
                     <div>
                         <div className='col-12'>

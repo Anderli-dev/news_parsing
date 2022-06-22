@@ -1,38 +1,14 @@
 import datetime
 
-from sqlalchemy.orm import backref
-
 from app import db
 
 
-class Profile(db.Model):
+class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     username = db.Column(db.String(50), nullable=False, unique=True)
     password = db.Column(db.String(255), nullable=False)
     role_id = db.Column(db.Integer)
-    user_type = db.relationship('Editor', uselist=False, lazy=True)
-
-
-class Editor(db.Model):
-    __table_args__ = (
-        db.PrimaryKeyConstraint('profile_id'),
-    )
-    profile_id = db.Column(db.Integer, db.ForeignKey('profile.id'), nullable=False)
-    news = db.relationship('News', backref='editor', lazy=True)
-
-
-class News(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=True)
-
-    title = db.Column(db.String(255), nullable=False)
-
-    text = db.Column(db.Text)
-
-    preview_id = db.Column(db.Integer, db.ForeignKey('news_preview.id'),
-                        nullable=True)
-    editor_id = db.Column(db.Integer, db.ForeignKey('editor.profile_id'),
-                          nullable=True)
 
 
 class NewsPreview(db.Model):
@@ -44,7 +20,21 @@ class NewsPreview(db.Model):
     title = db.Column(db.String(255), nullable=False)
     preview = db.Column(db.String(255), nullable=True)
 
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'),
+                        nullable=True)
+
     news = db.relationship("News", uselist=False, backref="news_preview")
+
+
+class News(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    title = db.Column(db.String(255), nullable=False)
+
+    text = db.Column(db.Text)
+
+    preview_id = db.Column(db.Integer, db.ForeignKey('news_preview.id'),
+                        nullable=True)
 
 
 class Role(db.Model):
