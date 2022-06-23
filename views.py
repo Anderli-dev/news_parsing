@@ -134,7 +134,9 @@ class RegistrationView(Resource):
                 else:
                     hashed_password = generate_password_hash(password, 'sha256')
 
-                    user = User(username=username, password=hashed_password)
+                    user = User(username=username,
+                                password=hashed_password,
+                                role_id=Role.query.filter_by(name='BaseUser').first().id)
                     db.session.add(user)
                     db.session.commit()
 
@@ -373,8 +375,28 @@ class ImageUploader(Resource):
             make_response(jsonify({'error': 'Invalid Upload only png, jpg, jpeg, gif'}), 200)
 
 
-class NewsPreviewView(AuthResource):
+class PostsView(Resource):
+    def get(self):
+        posts = NewsPreview.query.all()
+
+        posts_json = []
+
+        for post in posts:
+            post_data = {}
+            post_data['preview_id'] = post.id
+            post_data['img'] = post.img
+            post_data['posted_at'] = post.posted_at
+            post_data['title'] = post.title
+            post_data['preview'] = post.preview
+            post_data['post_id'] = News.query.filter_by(preview_id=post.id).first().id
+            posts_json.append(post_data)
+
+        return make_response(jsonify({'posts': posts_json}), 200)
+
+
+class PostPreviewView(AuthResource):
     def post(self):
+        # TODO limit image size
         if 'img' not in request.files:
             return make_response(jsonify({'error': 'No file part'}), 403)
         file = request.files['img']
@@ -409,7 +431,7 @@ class NewsPreviewView(AuthResource):
             return make_response(jsonify({'error': 'something went wrong'}), 403)
 
 
-class NewsView(AuthResource):
+class PostView(AuthResource):
     def post(self):
         try:
             post = News(title=request.form.get('title_post'),
