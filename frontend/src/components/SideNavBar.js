@@ -39,7 +39,7 @@ export function SideNavBar(props){
                         <Nav.Link href="/" style={navLink}>News</Nav.Link>
                     </Nav.Item>
                     <Nav.Item className="w-100">
-                        <Nav.Link href="/add-post" eventKey="1" style={navLink}>Create new post</Nav.Link>
+                        <Nav.Link href="/add-post" eventKey="1" style={navLink}>Posts</Nav.Link>
                     </Nav.Item>
                     <Nav.Item className="w-100">
                         <Nav.Link eventKey="2" style={navLink}>Users</Nav.Link>
@@ -50,6 +50,7 @@ export function SideNavBar(props){
                     <Nav.Item className="w-100">
                         <Nav.Link eventKey="4" style={navLink}>Permissions</Nav.Link>
                     </Nav.Item>
+
 
                 </Nav>)}
             </Motion>
