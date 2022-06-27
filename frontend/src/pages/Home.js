@@ -53,7 +53,7 @@ export function Home(){
                             <MDBCardText>
                                 {item.preview}
                             </MDBCardText>
-                            <MDBBtn href="#">Read more></MDBBtn>
+                            <MDBBtn href={'post/'+item.post_id}>Read more></MDBBtn>
                         </MDBCardBody>
                     </div>
 

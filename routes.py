@@ -20,6 +20,6 @@ api.add_resource(LogoutView, '/api/logout')
 
 # news routes
 api.add_resource(ImageUploader, '/api/image_upload')
-api.add_resource(PostPreviewView, '/api/preview')
-api.add_resource(PostView, '/api/post')
+api.add_resource(PostPreviewView, '/api/preview', '/api/preview/<id>')
+api.add_resource(PostView, '/api/post', '/api/post/<id>')
 api.add_resource(PostsView, '/api/posts')

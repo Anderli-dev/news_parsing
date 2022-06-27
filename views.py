@@ -8,6 +8,7 @@ import jwt
 from flask import jsonify, request, make_response
 from flask_restful import Api
 from flask_restful import Resource
+from sqlalchemy import func
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
@@ -430,8 +431,16 @@ class PostPreviewView(AuthResource):
             print(e)
             return make_response(jsonify({'error': 'something went wrong'}), 403)
 
+    def get(self, id):
+        try:
+            preview = NewsPreview.query.filter_by(id=id).first()
+            return make_response(jsonify({'title': preview.title, 'img': preview.img}), 200)
+        except:
+            return make_response(jsonify({'title': preview.title, 'img': preview.img}), 200)
 
-class PostView(AuthResource):
+
+class PostView(Resource):
+    @token_required
     def post(self):
         try:
             post = News(title=request.form.get('title_post'),
@@ -444,3 +453,8 @@ class PostView(AuthResource):
         except Exception as e:
             print(e)
             return make_response(jsonify({'error': 'something went wrong'}), 403)
+
+    def get(self, id):
+        post = News.query.filter_by(id=id).first()
+
+        return make_response(jsonify({'title': post.title, 'body': post.text}), 200)
