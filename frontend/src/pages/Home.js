@@ -2,8 +2,8 @@ import React, {useEffect, useState} from "react";
 import axios from "axios";
 import {MDBBtn, MDBCardBody, MDBCardImage, MDBCardText, MDBCardTitle} from "mdb-react-ui-kit";
 import moment from 'moment';
-import {Button} from "react-bootstrap";
-
+import {MdShare, MdFacebook} from "react-icons/md";
+import {SiTwitter} from "react-icons/si";
 
 export function Home(){
     const [posts, setPosts] = useState([]);
@@ -58,9 +58,19 @@ export function Home(){
                     </div>
 
                     <div className="d-flex">
-                        <MDBBtn  className="m-0 mt-3 me-2 p-0" style={{width:'30px', height:'30px'}}></MDBBtn>
-                        <MDBBtn  className="m-0 mt-3 me-2 p-0" style={{width:'30px', height:'30px'}}></MDBBtn>
-                        <MDBBtn  className="m-0 mt-3 me-2 p-0" style={{width:'30px', height:'30px'}}></MDBBtn>
+                        <MDBBtn  className="m-0 mt-3 me-2 p-0 d-flex align-items-center"
+                                 style={{height:'30px'}}>
+                            <SiTwitter className="mx-2"/>
+                        </MDBBtn>
+                        <MDBBtn  className="m-0 mt-3 me-2 p-0 d-flex align-items-center"
+                                 style={{height:'30px'}}>
+                            <MdFacebook className="mx-2"/>
+                        </MDBBtn>
+                        <MDBBtn  className="m-0 mt-3 me-2 p-0 d-flex align-items-center"
+                                 style={{height:'30px'}}>
+                            <MdShare className="mx-2"/>
+                            <p className="m-0 me-3">Share</p>
+                        </MDBBtn>
                     </div>
                 </div>
             ))}
