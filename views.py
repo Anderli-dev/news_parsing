@@ -395,7 +395,28 @@ class PostsView(Resource):
         return make_response(jsonify({'posts': posts_json}), 200)
 
 
-class PostPreviewView(AuthResource):
+@app.route('/api/get_preview')
+def get_three_preview():
+    try:
+        post_id = request.args.get('post_id')
+        first, second, third = NewsPreview.query.filter(NewsPreview.id != post_id, func.random())[:3]
+
+        previews_json = []
+
+        for preview in first, second, third:
+            preview_data = {}
+            preview_data['preview_id'] = preview.id
+            preview_data['img'] = preview.img
+            preview_data['title'] = preview.title
+            preview_data['post_id'] = News.query.filter_by(preview_id=preview.id).first().id
+            previews_json.append(preview_data)
+        return make_response(jsonify({'data': previews_json}), 200)
+    except Exception as e:
+        print(e)
+
+
+class PostPreviewView(Resource):
+    @token_required
     def post(self):
         # TODO limit image size
         if 'img' not in request.files:
