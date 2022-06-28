@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import axios from "axios";
 import {MDBBtn, MDBCardBody, MDBCardImage, MDBCardText, MDBCardTitle} from "mdb-react-ui-kit";
 import moment from 'moment';
-import {MdShare, MdFacebook} from "react-icons/md";
+import {MdShare, MdFacebook, MdArrowForward} from "react-icons/md";
 import {SiTwitter} from "react-icons/si";
 
 export function Home(){
@@ -53,7 +53,12 @@ export function Home(){
                             <MDBCardText>
                                 {item.preview}
                             </MDBCardText>
-                            <MDBBtn href={'post/'+item.post_id}>Read more></MDBBtn>
+                            <MDBBtn href={'post/'+item.post_id} className='px-3'>
+                                <div className='d-flex'>
+                                    <p className='m-0 me-2'>Read more</p>
+                                    <MdArrowForward size={"1.5em"} style={{marginTop: '-1px'}}/>
+                                </div>
+                            </MDBBtn>
                         </MDBCardBody>
                     </div>
 
