@@ -293,6 +293,7 @@ class UsersView(AdminResource):
             user_data['id'] = user.id
             user_data['username'] = user.username
             user_data['password'] = user.password
+            user_data['role'] = Role.query.filter_by(id=user.role_id).first().name
             users_json.append(user_data)
 
         return make_response(jsonify({'users': users_json}), 200)
@@ -397,6 +398,7 @@ class PostsView(Resource):
 
 @app.route('/api/get_preview')
 def get_three_preview():
+    # TODO catch if preview less then 3
     try:
         post_id = request.args.get('post_id')
         first, second, third = NewsPreview.query.filter(NewsPreview.id != post_id, func.random())[:3]

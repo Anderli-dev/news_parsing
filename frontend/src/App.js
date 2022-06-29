@@ -7,6 +7,7 @@ import {Logout} from "./actions/Logout";
 import {Register} from "./pages/Register";
 import {AddPost} from "./pages/AddPost";
 import {PostDetail} from "./pages/PostDetail";
+import {Users} from "./pages/Users";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
                   <Route path="/" element={<Home/>}/>
                   <Route path="add-post" element={<AddPost/>}/>
                   <Route path="post/:id" element={<PostDetail/>}/>
+                  <Route path="/users" element={<Users/>}/>
               </Route>
               <Route path="/login" element={<Login/>}/>
               <Route path="/register" element={<Register/>}/>

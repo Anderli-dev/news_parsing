@@ -42,7 +42,7 @@ export function SideNavBar(props){
                         <Nav.Link href="/add-post" eventKey="1" style={navLink}>Posts</Nav.Link>
                     </Nav.Item>
                     <Nav.Item className="w-100">
-                        <Nav.Link eventKey="2" style={navLink}>Users</Nav.Link>
+                        <Nav.Link href="/users" eventKey="2" style={navLink}>Users</Nav.Link>
                     </Nav.Item>
                     <Nav.Item className="w-100">
                         <Nav.Link eventKey="3" style={navLink}>Roles</Nav.Link>
