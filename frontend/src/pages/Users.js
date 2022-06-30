@@ -36,7 +36,10 @@ export function Users(){
         <div className="mt-4">
             <h1 className="mb-4">Users list</h1>
             <div className='d-flex align-items-center justify-content-between'>
-                <div><p className='ms-3'>Username</p></div>
+                <div className='d-flex'>
+                    <div><p className='ms-3'>#</p></div>
+                    <div><p className='ms-3'>Username</p></div>
+                </div>
                 <div style={{width: '60px'}}><p className='me-3'>Role</p></div>
             </div>
             {
@@ -47,8 +50,11 @@ export function Users(){
                                 key={item.id}
                                 className='mb-3 d-flex align-items-center justify-content-between'
                                 style={{backgroundColor: '#fff', height: '48px'}}>
-                                <div><p style={{color:'#000'}} className='m-0 ms-3'>{item.username}</p></div>
-                                <div style={{width: '60px'}}><p style={{color:'#000'}} className='m-0 me-3'>{item.role}</p></div>
+                                <div className='d-flex'>
+                                    <div><p style={{color:'#000'}} className='m-0 ms-3'>{item.id}</p></div>
+                                    <div><p style={{color:'#000'}} className='m-0 ms-3'>{item.username}</p></div>
+                                </div>
+                                <div style={{width: '60px'}} className=''><p style={{color:'#000'}} className='m-0 me-3'>{item.role}</p></div>
                             </div>
                         </a>
                     )
