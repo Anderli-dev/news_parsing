@@ -194,9 +194,8 @@ class LogoutView(AuthResource):
 
 
 # Role and permissions
-class RoleView(AdminResource):
+class RolesView(AdminResource):
     def get(self):
-
         roles = Role.query.all()
 
         roles_json = []
@@ -208,6 +207,18 @@ class RoleView(AdminResource):
             roles_json.append(role_data)
 
         return make_response(jsonify({'roles': roles_json}), 200)
+
+
+class RoleView(AdminResource):
+    def get(self, role_id):
+        role = Role.query.filter_by(id=role_id).first()
+        if role:
+            role_data = {}
+            role_data['id'] = role.id
+            role_data['name'] = role.name
+            return make_response(jsonify({'role': role_data}), 200)
+        else:
+            return make_response(jsonify({'error': 'Role not exist'}), 404)
 
     def post(self):
         data = request.get_json()
@@ -315,6 +326,8 @@ class UserView(AuthResource):
                     user_data['id'] = user_get.id
                     user_data['username'] = user_get.username
                     user_data['password'] = user_get.password
+                    role = Role.query.filter_by(id=user_get.role_id).first()
+                    user_data['role'] = role.name
                     return make_response(jsonify({'user': user_data}), 200)
             else:
                 return make_response(jsonify({'error': 'User not exist'}), 404)
