@@ -336,25 +336,17 @@ class UserView(AuthResource):
 
     @scope("user:update")
     def put(self, user_id):
-        token = request.headers['x-access-token']
-        data = jwt.decode(token, app.config['SECRET_KEY'])
-
-        auth_user = User.query.filter_by(id=data['id']).first()
-        role_admin = Role.query.filter_by(name='Admin').first()
-
-        if user_id == str(data['id']) or auth_user.role_id == role_admin.id:
-            user_get = User.query.filter_by(id=user_id).first()
-            data = request.get_json()
-            if user_get:
-                user_data = {}
-                user_data['id'] = data['id']
-                user_data['username'] = data['username']
-                user_data['password'] = data['password']
-                return make_response(jsonify({'user': user_data}), 200)
-            else:
-                return make_response(jsonify({'error': 'User not exist'}), 404)
-        else:
-            return make_response(jsonify({'error': 'You do not have the permission'}), 403)
+        data = request.get_json()
+        print(data)
+        try:
+            user = User.query.filter_by(id=user_id).first()
+            user.username = data['username']
+            user.role_id = Role.query.filter_by(name=data['role']).first().id
+            db.session.commit()
+            return make_response(jsonify({'msg': 'Success'}), 200)
+        except Exception as e:
+            print(e)
+            return make_response(jsonify({'Error': 'User update error'}), 403)
 
     @scope("user:delete")
     def delete(self, user_id):
