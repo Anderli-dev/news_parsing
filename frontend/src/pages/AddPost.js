@@ -243,6 +243,7 @@ export function AddPost(){
                     <div>
                         <div className='col-12'>
                             <MDBBtn type='submit' className="me-2">Submit form</MDBBtn>
+                            {/*TODO add reset options*/}
                             <MDBBtn type='reset'>Reset form</MDBBtn>
                         </div>
                     </div>

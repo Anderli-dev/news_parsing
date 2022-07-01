@@ -8,6 +8,7 @@ import {Register} from "./pages/Register";
 import {AddPost} from "./pages/AddPost";
 import {PostDetail} from "./pages/PostDetail";
 import {Users} from "./pages/Users";
+import {User} from "./pages/User";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
                   <Route path="add-post" element={<AddPost/>}/>
                   <Route path="post/:id" element={<PostDetail/>}/>
                   <Route path="/users" element={<Users/>}/>
+                  <Route path="/user/:id" element={<User/>}/>
               </Route>
               <Route path="/login" element={<Login/>}/>
               <Route path="/register" element={<Register/>}/>

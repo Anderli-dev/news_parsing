@@ -6,6 +6,7 @@ import {MDBTable, MDBTableHead} from "mdb-react-ui-kit";
 
 
 export function Users(){
+    // TODO add search
     const [users, setUsersList] = useState([]);
     const [isData, setIsData] = useState(false);
 
