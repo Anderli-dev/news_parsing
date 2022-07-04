@@ -1,8 +1,7 @@
 import {useParams} from "react-router-dom";
 import Cookies from "js-cookie";
 import axios from "axios";
-import {Component, useEffect, useState} from "react";
-import data from "bootstrap/js/src/dom/data";
+import {useEffect, useState} from "react";
 
 export function User(){
     const [user, setUser] = useState([]);

@@ -1,8 +1,6 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import axios from "axios";
-import {useEffect, useState} from "react";
 import Cookies from "js-cookie";
-import {MDBTable, MDBTableHead} from "mdb-react-ui-kit";
 
 
 export function Users(){
