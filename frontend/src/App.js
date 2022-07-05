@@ -10,6 +10,7 @@ import {PostDetail} from "./pages/PostDetail";
 import {Users} from "./pages/Users";
 import {User} from "./pages/User";
 import {Roles} from "./pages/Roles";
+import {Role} from "./pages/Role";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
                   <Route path="/users" element={<Users/>}/>
                   <Route path="/user/:id" element={<User/>}/>
                   <Route path="/roles" element={<Roles/>}/>
+                  <Route path="/role/:id" element={<Role/>}/>
               </Route>
               <Route path="/login" element={<Login/>}/>
               <Route path="/register" element={<Register/>}/>

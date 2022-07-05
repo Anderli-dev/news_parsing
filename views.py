@@ -259,21 +259,24 @@ class PermissionView(AdminResource):
             return make_response(jsonify({'error': 'Something went wrong'}), 403)
 
 
-class RolePermissionView(AdminResource):
-    def get(self):
-        roles_permissions = RolePermission.query.all()
+class RolePermissionsView(AdminResource):
+    def get(self, role_id):
+        roles_permissions = RolePermission.query.filter_by(role_id=role_id)
 
-        roles_permissions_json = []
+        role_permissions_json = []
 
-        for role_permission in roles_permissions:
-            roles_permissions_data = {}
-            roles_permissions_data['id'] = role_permission.id
-            # TODO add if role or permission exist
-            roles_permissions_data['role_id'] = role_permission.role_id
-            roles_permissions_data['permission_id'] = role_permission.permission_id
-            roles_permissions_json.append(roles_permissions_data)
+        try:
+            for role_permission in roles_permissions:
+                permissions_data = {}
+                permission = Permission.query.filter_by(id=role_permission.permission_id).first()
+                permissions_data['id'] = permission.id
+                permissions_data['name'] = permission.name
+                role_permissions_json.append(permissions_data)
 
-        return make_response(jsonify({'role_permission': roles_permissions_json}), 200)
+            return make_response(jsonify({'role_permissions': role_permissions_json}), 200)
+        except Exception as e:
+            print(e)
+            return make_response(jsonify({'error': 'something went wrong'}), 403)
 
     def post(self):
         data = request.get_json()
