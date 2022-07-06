@@ -232,7 +232,7 @@ class RoleView(AdminResource):
             return make_response(jsonify({'error': 'Something went wrong'}), 403)
 
 
-class PermissionView(AdminResource):
+class PermissionsView(AdminResource):
     def get(self):
         permissions = Permission.query.all()
 
@@ -246,6 +246,8 @@ class PermissionView(AdminResource):
 
         return make_response(jsonify({'permissions': permissions_json}), 200)
 
+
+class PermissionView(AdminResource):
     def post(self):
         data = request.get_json()
         try:
@@ -264,6 +266,9 @@ class RolePermissionsView(AdminResource):
         roles_permissions = RolePermission.query.filter_by(role_id=role_id)
 
         role_permissions_json = []
+        not_applied_permissions_json = []
+
+        not_applied_permissions = Permission.query
 
         try:
             for role_permission in roles_permissions:
@@ -272,8 +277,17 @@ class RolePermissionsView(AdminResource):
                 permissions_data['id'] = permission.id
                 permissions_data['name'] = permission.name
                 role_permissions_json.append(permissions_data)
+                not_applied_permissions = not_applied_permissions.filter(Permission.id != role_permission.permission_id)
 
-            return make_response(jsonify({'role_permissions': role_permissions_json}), 200)
+            for permission in not_applied_permissions.all():
+                permissions_data = {}
+                permission = Permission.query.filter_by(id=permission.id).first()
+                permissions_data['id'] = permission.id
+                permissions_data['name'] = permission.name
+                not_applied_permissions_json.append(permissions_data)
+
+            return make_response(jsonify({'role_permissions': role_permissions_json,
+                                          'not_applied_permissions': not_applied_permissions_json}), 200)
         except Exception as e:
             print(e)
             return make_response(jsonify({'error': 'something went wrong'}), 403)
