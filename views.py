@@ -295,15 +295,38 @@ class RolePermissionsView(AdminResource):
     def post(self):
         data = request.get_json()
         try:
-            roles_permissions = data['roles_permissions']
-            for role_permission in roles_permissions:
-                role_id = role_permission['role_id']
-                permission_id = role_permission['permission_id']
-                db.session.add(RolePermission(role_id=role_id, permission_id=permission_id))
+            role_id = data['role_id']
+            role_allowed_permissions = RolePermission.query.filter(
+                RolePermission.role_id == role_id,
+                RolePermission.permission_id.notin_([i['id'] for i in data['role_permissions']])
+                ).all()
+            role_permissions = data['role_permissions']
 
-            db.session.commit()
-            return make_response(jsonify({'message': 'To role added permissions successful'}), 200)
-        except:
+            def check_permissions():
+                if not role_allowed_permissions:
+                    allowed_permissions = RolePermission.query.filter(
+                        RolePermission.role_id == role_id,
+                    ).all()
+
+                    for role_permission in role_permissions:
+                        if int(role_permission['id']) not in [int(x.permission_id) for x in allowed_permissions]:
+                            permission_id = role_permission['id']
+                            db.session.add(RolePermission(role_id=role_id, permission_id=permission_id))
+                    db.session.commit()
+                    return make_response(jsonify({'message': 'To role added permissions successful'}), 200)
+                else:
+
+                    for role_allowed_permission in role_allowed_permissions:
+                        db.session.delete(role_allowed_permission)
+                        role_allowed_permissions.remove(role_allowed_permission)
+                        db.session.commit()
+
+                    check_permissions()
+
+            check_permissions()
+
+        except Exception as e:
+            print(e)
             return make_response(jsonify({'error': 'Something went wrong'}), 403)
 
 
