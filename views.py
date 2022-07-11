@@ -103,17 +103,6 @@ class AdminResource(AuthResource):
     method_decorators = [is_admin]
 
 
-# Main pages
-class Home(Resource):
-    def get(self):
-        return {'Header': 'Hello world!'}, 200
-
-
-class AdminView(AuthResource):
-    def get(self):
-        return {'Page': 'its admin'}, 200
-
-
 # Authentication and authorization
 class RegistrationView(Resource):
     def options(self):
@@ -195,6 +184,7 @@ class LogoutView(AuthResource):
 
 # Role and permissions
 class RolesView(AdminResource):
+    @scope('roles:read')
     def get(self):
         roles = Role.query.all()
 
@@ -210,6 +200,7 @@ class RolesView(AdminResource):
 
 
 class RoleView(AdminResource):
+    @scope('role:read')
     def get(self, role_id):
         role = Role.query.filter_by(id=role_id).first()
         if role:
@@ -220,6 +211,7 @@ class RoleView(AdminResource):
         else:
             return make_response(jsonify({'error': 'Role not exist'}), 404)
 
+    @scope('role:create')
     def post(self):
         data = request.get_json()
         try:
@@ -233,6 +225,7 @@ class RoleView(AdminResource):
 
 
 class PermissionsView(AdminResource):
+    @scope('permissions:read')
     def get(self):
         permissions = Permission.query.all()
 
@@ -248,6 +241,7 @@ class PermissionsView(AdminResource):
 
 
 class PermissionView(AdminResource):
+    @scope('permission:create')
     def post(self):
         data = request.get_json()
         try:
@@ -262,6 +256,7 @@ class PermissionView(AdminResource):
 
 
 class RolePermissionsView(AdminResource):
+    @scope('role_permissions:read')
     def get(self, role_id):
         roles_permissions = RolePermission.query.filter_by(role_id=role_id)
 
@@ -292,6 +287,7 @@ class RolePermissionsView(AdminResource):
             print(e)
             return make_response(jsonify({'error': 'something went wrong'}), 403)
 
+    @scope('role_permissions:create')
     def post(self):
         data = request.get_json()
         try:
@@ -412,6 +408,7 @@ class UserView(AuthResource):
 # News actions
 # TODO add auth res
 class ImageUploader(Resource):
+    @scope('img:create')
     def post(self):
         file = request.files['file']
         filename = secure_filename(file.filename)
@@ -443,6 +440,7 @@ class PostsView(Resource):
 
 
 @app.route('/api/get_preview')
+# TODO add auth res and permission
 def get_three_preview():
     # TODO catch if preview less then 3
     try:
@@ -465,6 +463,7 @@ def get_three_preview():
 
 class PostPreviewView(Resource):
     @token_required
+    @scope('post_preview:create')
     def post(self):
         # TODO limit image size
         if 'img' not in request.files:
@@ -510,6 +509,7 @@ class PostPreviewView(Resource):
 
 class PostView(Resource):
     @token_required
+    @scope('post:create')
     def post(self):
         try:
             post = News(title=request.form.get('title_post'),

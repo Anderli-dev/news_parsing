@@ -1,9 +1,5 @@
 from views import *
 
-# page routes
-api.add_resource(Home, '/')
-api.add_resource(AdminView, '/admin')
-
 # user routes
 api.add_resource(UsersView, '/api/users')
 api.add_resource(UserView, '/api/user/<user_id>')
