@@ -306,6 +306,7 @@ class RolePermissionsView(AdminResource):
                 if not role_allowed_permissions:
                     allowed_permissions = RolePermission.query.filter(
                         RolePermission.role_id == role_id,
+                        RolePermission.permission_id.in_([i['id'] for i in data['role_permissions']])
                     ).all()
 
                     for role_permission in role_permissions:

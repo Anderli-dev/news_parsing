@@ -6,6 +6,7 @@ import {PermissionsModal} from '../components/PrermissionsModal'
 import {AiOutlinePlus} from "react-icons/ai";
 import {CreateWhiteIco} from "../actions/CreateWhiteIco";
 import {switchPermission} from "../actions/SwitchPermission";
+import {Scrollbars} from "react-custom-scrollbars"
 
 
 export function Role(){
@@ -98,46 +99,49 @@ export function Role(){
     return(
         <div className='mt-4'>
             <p className='fs-2'>Role №{id}</p>
-            <form className='d-inline-flex flex-column'
+            <form className=''
                   onSubmit={onSubmit}
             >
-                <div className='d-flex align-items-center'>
-                    <label className='m-0 fs-5'>Role:</label>
-                    <fieldset disabled>
-                    <input type="text"
-                           className='form-control ms-2'
-                           name="role"
-                           value={role_name}
-                           onChange={onChange}
-                    />
-                    </fieldset>
-                </div>
-                <div className='d-flex align-items-center mt-3'>
-                    <label className='fs-5'>Permissions:</label>
-                    <div className='ms-2 d-flex h-50'>
-                        <select className="form-select py-1 h-50"
-                                // onChange={(e) => setRole(e.target.value)} name='role'
-                        >
-                            {rolePermissions.map(item => {
-                                return <option value={item.name}>{item.name}</option>
-                                }
-                            )}
-                        </select>
-                        <div>
-                            <button type="button" onClick={toggleShow} className='m-0 ms-1 h-100' style={{backgroundColor: 'inherit', border: 'none'}}>
+                <div className='d-flex flex-row align-items-top'>
+                    <div className='d-flex align-items-top'>
+                        <label className='m-0 fs-5'>Role:</label>
+                        <fieldset disabled>
+                            <input type="text"
+                                   className='form-control ms-2'
+                                   name="role"
+                                   value={role_name}
+                                   onChange={onChange}
+                            />
+                        </fieldset>
+                    </div>
+                    <div className='d-flex ms-4'>
+                        <div className='d-flex flex-column'>
+                            <label className='fs-5'>Permissions:</label>
+                            <button type="button" onClick={toggleShow} className='m-0 ms-1 h-100 align-self-end' style={{backgroundColor: 'inherit', border: 'none'}}>
                                 {CreateWhiteIco(<AiOutlinePlus size={'1.7em'}/>)}
                             </button>
-                            <PermissionsModal
-                                centredModal={centredModal}
-                                setCentredModal={setCentredModal}
-                                toggleShow={toggleShow}
+                        </div>
+                        <div className='ms-2 d-flex h-100'>
+                            <Scrollbars style={{width:'200px', height: '10vh'}} className="list-group list-group-numbered py-1">
+                                {rolePermissions.map(item => {
+                                        return <li className='list-group-item' value={item.name}>{item.name}</li>
+                                    }
+                                )}
+                            </Scrollbars>
+                            <div>
 
-                                notAppliedPermissions={notAppliedPermissions}
-                                rolePermissions={rolePermissions}
+                                <PermissionsModal
+                                    centredModal={centredModal}
+                                    setCentredModal={setCentredModal}
+                                    toggleShow={toggleShow}
 
-                                switchToApplied={switchToApplied}
-                                switchToNotApplied={switchToNotApplied}
-                            />
+                                    notAppliedPermissions={notAppliedPermissions}
+                                    rolePermissions={rolePermissions}
+
+                                    switchToApplied={switchToApplied}
+                                    switchToNotApplied={switchToNotApplied}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
