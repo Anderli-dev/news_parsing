@@ -13,25 +13,25 @@ import {Roles} from "./pages/Roles";
 import {Role} from "./pages/Role";
 
 function App() {
-  return (
-      <Router>
-          <Routes>
-              <Route element={ <Layout/> }>
-                  <Route path="/" element={<Home/>}/>
-                  <Route path="add-post" element={<AddPost/>}/>
-                  <Route path="post/:id" element={<PostDetail/>}/>
-                  <Route path="/users" element={<Users/>}/>
-                  <Route path="/user/:id" element={<User/>}/>
-                  <Route path="/roles" element={<Roles/>}/>
-                  <Route path="/role/:id" element={<Role/>}/>
-              </Route>
-              <Route path="/login" element={<Login/>}/>
-              <Route path="/register" element={<Register/>}/>
-              <Route path="" element={<Logout/>}/>
-              {/*<Route path="*" element={<PageNotFound/>}/>*/}
-          </Routes>
-      </Router>
-  );
+    return (
+        <Router>
+            <Routes>
+                <Route element={ <Layout/> }>
+                    <Route path="/" element={<Home/>}/>
+                    <Route path="add-post" element={<AddPost/>}/>
+                    <Route path="post/:id" element={<PostDetail/>}/>
+                    <Route path="/users" element={<Users/>}/>
+                    <Route path="/user/:id" element={<User/>}/>
+                    <Route path="/roles" element={<Roles/>}/>
+                    <Route path="/role/:id" element={<Role/>}/>
+                </Route>
+                <Route path="/login" element={<Login/>}/>
+                <Route path="/register" element={<Register/>}/>
+                <Route path="" element={<Logout/>}/>
+                {/*<Route path="*" element={<PageNotFound/>}/>*/}
+            </Routes>
+        </Router>
+    );
 }
 
 export default App;
