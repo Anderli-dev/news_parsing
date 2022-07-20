@@ -1,5 +1,4 @@
 import datetime
-import errno
 import os
 from functools import wraps
 from pathlib import Path
@@ -158,7 +157,7 @@ class LoginView(Resource):
 
         if check_password_hash(user.password, auth.password):
             token = jwt.encode(
-                {'id': user.id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},
+                {'id': user.id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)},
                 app.config['SECRET_KEY']
             )
 

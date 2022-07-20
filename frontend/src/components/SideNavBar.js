@@ -25,6 +25,7 @@ export function SideNavBar(props){
         borderBottomRightRadius: "25px"}
 
     const onClick = (e) => {
+        // TODO if close tab set 0
         localStorage.setItem('sideTabIndex', parseInt(e.target.getAttribute('data-rr-ui-event-key')))
     }
 
