@@ -4,7 +4,6 @@ import Layout from "./components/Layout";
 import SessionLayout from "./components/SessionLayout";
 import {Home} from "./pages/Home";
 import {Login} from "./pages/Login";
-import {Logout} from "./actions/Logout";
 import {Register} from "./pages/Register";
 import {AddPost} from "./pages/AddPost";
 import {PostDetail} from "./pages/PostDetail";
@@ -12,6 +11,7 @@ import {Users} from "./pages/Users";
 import {User} from "./pages/User";
 import {Roles} from "./pages/Roles";
 import {Role} from "./pages/Role";
+import {Page404} from "./pages/404";
 
 function App() {
     return (
@@ -34,7 +34,7 @@ function App() {
 
                 <Route path="/login" element={<Login/>}/>
                 <Route path="/register" element={<Register/>}/>
-                {/*<Route path="*" element={<PageNotFound/>}/>*/}
+                <Route path="*" element={<Page404/>}/>
             </Routes>
         </Router>
     );
