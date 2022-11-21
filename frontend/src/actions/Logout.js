@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 export function Logout () {
     // TODO when logout set seide nav bar to 0
     const token = Cookies.get('x-access-token');
-    Cookies.remove("x-access-token")
+    Cookies.remove('x-access-token');
     localStorage.removeItem("user")
     const headers = {
             'x-access-token': token,

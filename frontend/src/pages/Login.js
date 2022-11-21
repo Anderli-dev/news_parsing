@@ -3,6 +3,7 @@ import login_img from '../login.jpg'
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
+import jwt_decode from "jwt-decode";
 
 export function Login(){
     const [formData, setFormData] = useState({
@@ -21,6 +22,7 @@ export function Login(){
         const headers = {
             'Accept': "application/json",
             'Content-Type': "application/json; charset=UTF-8",
+            'x-access-token': Cookies.get('x-access-token'),
         };
 
         try {
@@ -33,6 +35,9 @@ export function Login(){
                 }).then(response => {
                     if (response.status === 200) {
                         Cookies.set("x-access-token", response.data['token'])
+                        Cookies.set("session", 1)
+                        const decoded = jwt_decode(response.data['token']);
+                        console.log(decoded)
                         localStorage.setItem('user', username);
                         navigate("/")
                     }

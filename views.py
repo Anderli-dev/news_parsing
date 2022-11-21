@@ -157,7 +157,7 @@ class LoginView(Resource):
 
         if check_password_hash(user.password, auth.password):
             token = jwt.encode(
-                {'id': user.id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)},
+                {'id': user.id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(weeks=1)},
                 app.config['SECRET_KEY']
             )
 
@@ -179,6 +179,9 @@ class LogoutView(AuthResource):
                 return make_response(jsonify({'error': 'Logout error'}), 403)
         else:
             return make_response(jsonify({'error': 'Token is missing'}), 403)
+
+def check_role_permission():
+    pass
 
 
 # Role and permissions
