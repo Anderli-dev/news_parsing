@@ -19,11 +19,11 @@ function App() {
             <Routes>
                 <Route element={<ProtectedRoute/>}>
                     <Route element={ <Layout/> }>
-                        <Route path="/add-post" element={<AddPost/>}/>
-                        <Route path="/users" element={<Users/>}/>
-                        <Route path="/user/:id" element={<User/>}/>
-                        <Route path="/roles" element={<Roles/>}/>
-                        <Route path="/role/:id" element={<Role/>}/>
+                        <Route path="/post" element={<AddPost permission={'post:update'}/>}/>
+                        <Route path="/users" element={<Users permission={'users:read'}/>}/>
+                        <Route path="/user/:id" element={<User permission={'user:read'}/>}/>
+                        <Route path="/roles" element={<Roles permission={'roles:read'}/>}/>
+                        <Route path="/role/:id" element={<Role permission={'role:read'}/>}/>
                     </Route>
                 </Route>
 

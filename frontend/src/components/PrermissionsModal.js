@@ -1,5 +1,6 @@
 import {
-    MDBBtn, MDBModal,
+    MDBBtn,
+    MDBModal,
     MDBModalBody,
     MDBModalContent,
     MDBModalDialog,
@@ -7,6 +8,7 @@ import {
     MDBModalHeader,
     MDBModalTitle
 } from "mdb-react-ui-kit";
+import React from 'react'
 import {Scrollbars} from "react-custom-scrollbars"
 
 export function PermissionsModal(props){

@@ -3,7 +3,8 @@ import login_img from '../login.jpg'
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
-import jwt_decode from "jwt-decode";
+import { useDispatch } from 'react-redux'
+import {setPermissions} from "../store/userPermisions";
 
 export function Login(){
     const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ export function Login(){
     });
 
     const navigate = useNavigate()
+    const dispatch = useDispatch()
 
     const { username, password } = formData;
     const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -19,10 +21,9 @@ export function Login(){
     const loginSubmit = async e => {
         // user login
         e.preventDefault()
-        const headers = {
+        let headers = {
             'Accept': "application/json",
             'Content-Type': "application/json; charset=UTF-8",
-            'x-access-token': Cookies.get('x-access-token'),
         };
 
         try {
@@ -36,13 +37,20 @@ export function Login(){
                     if (response.status === 200) {
                         Cookies.set("x-access-token", response.data['token'])
                         Cookies.set("session", 1)
-                        const decoded = jwt_decode(response.data['token']);
-                        console.log(decoded)
                         localStorage.setItem('user', username);
                         navigate("/")
                     }
                 })
                 .catch(error => console.log(error.response))
+
+            headers['x-access-token']=Cookies.get('x-access-token')
+            await axios.get(`${process.env.REACT_APP_API_URL}/api/user/permissions`,{headers: headers,})
+                .then(response => {
+                    if (response.status === 200) {
+                        dispatch(setPermissions(response.data['user_permissions']))
+                    }})
+                .catch(error => console.log(error.response))
+
         } catch (err) {
             console.log(err.response)
         }

@@ -4,15 +4,19 @@ import {MDBBtn, MDBCardBody, MDBCardImage, MDBCardText, MDBCardTitle} from "mdb-
 import moment from 'moment';
 import {MdShare, MdFacebook, MdArrowForward} from "react-icons/md";
 import {SiTwitter} from "react-icons/si";
+import Cookies from "js-cookie";
+import {useSelector} from "react-redux";
 
 export function Home(){
     const [posts, setPosts] = useState([]);
     const [isData, setIsData] = useState(false);
+    const permissions = useSelector((state) => state.permissions.list)
 
     function getPosts(){
         const headers = {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
+            'x-access-token': Cookies.get('x-access-token'),
         };
         try {
             axios.get(`${process.env.REACT_APP_API_URL}/api/posts`, {

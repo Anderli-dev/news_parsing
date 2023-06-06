@@ -1,7 +1,7 @@
 import {useParams} from "react-router-dom";
 import Cookies from "js-cookie";
 import axios from "axios";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {PermissionsModal} from '../components/PrermissionsModal'
 import {AiOutlinePlus} from "react-icons/ai";
 import {CreateWhiteIco} from "../actions/CreateWhiteIco";

@@ -1,7 +1,6 @@
 import {Nav} from "react-bootstrap";
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {Motion, spring} from 'react-motion';
-
 
 export function SideNavBar(props){
     const index = useState(localStorage.getItem('sideTabIndex'))
@@ -29,6 +28,27 @@ export function SideNavBar(props){
         localStorage.setItem('sideTabIndex', parseInt(e.target.getAttribute('data-rr-ui-event-key')))
     }
 
+    const Tabs = (<>
+        <Nav.Item className="w-100">
+            <Nav.Link href="/" eventKey="0" style={navLink}>News</Nav.Link>
+        </Nav.Item>
+        <Nav.Item className="w-100" permission={'post:update'}>
+            <Nav.Link href="/post" eventKey="1" style={navLink}>Posts</Nav.Link>
+        </Nav.Item>
+        <Nav.Item className="w-100" permission={'users:read'}>
+            <Nav.Link href="/users" eventKey="2" style={navLink}>Users</Nav.Link>
+        </Nav.Item>
+        <Nav.Item className="w-100" permission={'roles:read'}>
+            <Nav.Link href="/roles" eventKey="3" style={navLink}>Roles</Nav.Link>
+        </Nav.Item>
+    </>)
+
+    useEffect(() => {
+        Tabs.props.children.forEach(tab =>{
+            console.log(tab.props.permission)
+        })
+    }, []);
+
     return(
         <>
             <Motion style={motionStyle}>
@@ -45,21 +65,9 @@ export function SideNavBar(props){
                         defaultActiveKey={index[0]}
                         onClick={e=>onClick(e)}
                         className="flex-column align-items-start position-fixed vh-100 pt-2">
-                        <Nav.Item className="w-100">
-                            <Nav.Link href="/" eventKey="0" style={navLink}>News</Nav.Link>
-                        </Nav.Item>
-                        <Nav.Item className="w-100">
-                            <Nav.Link href="/add-post" eventKey="1" style={navLink}>Posts</Nav.Link>
-                        </Nav.Item>
-                        <Nav.Item className="w-100">
-                            <Nav.Link href="/users" eventKey="2" style={navLink}>Users</Nav.Link>
-                        </Nav.Item>
-                        <Nav.Item className="w-100">
-                            <Nav.Link href="/roles" eventKey="3" style={navLink}>Roles</Nav.Link>
-                        </Nav.Item>
-                        <Nav.Item className="w-100">
-                            <Nav.Link eventKey="4" style={navLink}>Permissions</Nav.Link>
-                        </Nav.Item>
+
+                        {Tabs}
+
                     </Nav>)}
             </Motion>
         </>

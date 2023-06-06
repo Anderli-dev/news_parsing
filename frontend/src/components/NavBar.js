@@ -12,7 +12,7 @@ export function NavBar() {
     const isAuth = Cookies.get("x-access-token")
     const location = useLocation()
     const [username] = useState(localStorage.getItem('user'))
-    const [open, setOpen] = useState(false)
+    const [isOpen, setOpen] = useState(false)
 
     return (
         <>
@@ -24,7 +24,7 @@ export function NavBar() {
                     className="p-1 fixed-top">
                 <div className="ps-3 pe-5 d-flex w-100">
                     <Navbar.Brand className="fs-4 d-flex">
-                        <div className="menu-ico " onClick={() => setOpen(!open)}>{<MdOutlineMenu/>}</div>
+                        <div className="menu-ico " onClick={() => setOpen(!isOpen)}>{<MdOutlineMenu/>}</div>
                     </Navbar.Brand>
                     <Navbar.Brand className="fs-4 d-flex">
                         <Link to="/" style={{color: "#fff"}} className="noselect">News parsing</Link>
@@ -61,7 +61,7 @@ export function NavBar() {
                 </div>
             </Navbar>
 
-            <SideNavBar isOpen={open}/>
+            <SideNavBar isOpen={isOpen}/>
         </>
     )
 }

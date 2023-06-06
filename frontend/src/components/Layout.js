@@ -7,7 +7,7 @@ export default () => {
         <>
             <NavBar/>
             <div className="container" style={{ paddingTop: "59px"}}>
-                <Outlet />
+                <Outlet/>
             </div>
         </>
     );
