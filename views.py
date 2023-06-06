@@ -242,21 +242,6 @@ class PermissionsView(AdminResource):
         return make_response(jsonify({'permissions': permissions_json}), 200)
 
 
-class PermissionView(AdminResource):
-    @scope('permission:create')
-    def post(self):
-        data = request.get_json()
-        try:
-            permissions = data['permissions']
-            for permission in permissions:
-                db.session.add(Permission(name=permission))
-
-            db.session.commit()
-            return make_response(jsonify({'message': 'Permission created successful'}), 200)
-        except:
-            return make_response(jsonify({'error': 'Something went wrong'}), 403)
-
-
 class RolePermissionsView(AdminResource):
     @scope('role_permissions:read')
     def get(self, role_id):
@@ -405,6 +390,26 @@ class UserView(AuthResource):
                 return make_response(jsonify({'error': 'User not exist'}), 404)
         else:
             return make_response(jsonify({'error': 'You do not have the permission'}), 403)
+
+
+class UserPermissionView(AuthResource):
+    def get(self):
+        token = request.headers['x-access-token']
+        data = jwt.decode(token, app.config['SECRET_KEY'])
+        current_user = User.query.filter_by(id=data['id']).first()
+        user_permissions = RolePermission.query.filter_by(role_id=current_user.role_id)
+
+        user_permissions_json = []
+
+        try:
+            for role_permission in user_permissions:
+                permission = Permission.query.filter_by(id=role_permission.permission_id).first()
+                user_permissions_json.append(permission.name)
+
+            return make_response(jsonify({'user_permissions': user_permissions_json}), 200)
+
+        except:
+            return make_response(jsonify({'error': 'Something went wrong'}), 403)
 
 
 # News actions

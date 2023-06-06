@@ -3,11 +3,11 @@ from views import *
 # user routes
 api.add_resource(UsersView, '/api/users')
 api.add_resource(UserView, '/api/user/<user_id>')
+api.add_resource(UserPermissionView, '/api/user/permissions')
 
 # role and permission routes
 api.add_resource(RolesView, '/api/roles')
 api.add_resource(RoleView, '/api/role', '/api/role/<role_id>')
-api.add_resource(PermissionView, '/api/permission')
 api.add_resource(PermissionsView, '/api/permissions')
 api.add_resource(RolePermissionsView, '/api/role-permissions', '/api/role-permissions/<role_id>')
 
