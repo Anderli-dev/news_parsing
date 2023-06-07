@@ -12,18 +12,20 @@ import {User} from "./pages/User";
 import {Roles} from "./pages/Roles";
 import {Role} from "./pages/Role";
 import {Page404} from "./pages/404";
+import {useSelector} from "react-redux";
 
 function App() {
+    const permissions = useSelector((state) => state.permissions.list)
     return (
         <Router>
             <Routes>
                 <Route element={<ProtectedRoute/>}>
                     <Route element={ <Layout/> }>
-                        <Route path="/post" element={<AddPost permission={'post:update'}/>}/>
-                        <Route path="/users" element={<Users permission={'users:read'}/>}/>
-                        <Route path="/user/:id" element={<User permission={'user:read'}/>}/>
-                        <Route path="/roles" element={<Roles permission={'roles:read'}/>}/>
-                        <Route path="/role/:id" element={<Role permission={'role:read'}/>}/>
+                        {permissions.includes('post:update')&&<Route path="/post" element={<AddPost/>}/>}
+                        {permissions.includes('users:read')&&<Route path="/users" element={<Users/>}/>}
+                        {permissions.includes('user:read')&&<Route path="/user/:id" element={<User/>}/>}
+                        {permissions.includes('roles:read')&&<Route path="/roles" element={<Roles/>}/>}
+                        {permissions.includes('role:read')&&<Route path="/role/:id" element={<Role/>}/>}
                     </Route>
                 </Route>
 

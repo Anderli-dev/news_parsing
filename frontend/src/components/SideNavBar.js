@@ -1,9 +1,11 @@
 import {Nav} from "react-bootstrap";
 import React, {useState, useEffect} from "react";
 import {Motion, spring} from 'react-motion';
+import {useSelector} from "react-redux";
 
 export function SideNavBar(props){
     const index = useState(localStorage.getItem('sideTabIndex'))
+    const permissions = useSelector((state) => state.permissions.list)
 
     const motionStyle =
         props.isOpen?
@@ -32,22 +34,22 @@ export function SideNavBar(props){
         <Nav.Item className="w-100">
             <Nav.Link href="/" eventKey="0" style={navLink}>News</Nav.Link>
         </Nav.Item>
-        <Nav.Item className="w-100" permission={'post:update'}>
-            <Nav.Link href="/post" eventKey="1" style={navLink}>Posts</Nav.Link>
-        </Nav.Item>
-        <Nav.Item className="w-100" permission={'users:read'}>
-            <Nav.Link href="/users" eventKey="2" style={navLink}>Users</Nav.Link>
-        </Nav.Item>
-        <Nav.Item className="w-100" permission={'roles:read'}>
-            <Nav.Link href="/roles" eventKey="3" style={navLink}>Roles</Nav.Link>
-        </Nav.Item>
+        {permissions.includes('post:update') &&
+            <Nav.Item className="w-100" permission={'post:update'}>
+                <Nav.Link href="/post" eventKey="1" style={navLink}>Posts</Nav.Link>
+            </Nav.Item>
+        }
+        {permissions.includes('users:read')&&
+            <Nav.Item className="w-100" permission={'users:read'}>
+                <Nav.Link href="/users" eventKey="2" style={navLink}>Users</Nav.Link>
+            </Nav.Item>
+        }
+        {permissions.includes('roles:read') &&
+            <Nav.Item className="w-100" permission={'roles:read'}>
+                <Nav.Link href="/roles" eventKey="3" style={navLink}>Roles</Nav.Link>
+            </Nav.Item>
+        }
     </>)
-
-    useEffect(() => {
-        Tabs.props.children.forEach(tab =>{
-            console.log(tab.props.permission)
-        })
-    }, []);
 
     return(
         <>
