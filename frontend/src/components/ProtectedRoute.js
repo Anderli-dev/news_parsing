@@ -6,11 +6,14 @@ import moment from "moment";
 import {Logout} from "../actions/Logout";
 import {MDBBtn} from "mdb-react-ui-kit";
 import {Page404} from "../pages/404";
+import {clearPermissions} from "../store/userPermisions";
+import {useDispatch} from "react-redux";
 
 export default () => {
     const [isTokenValid, setIsTokenValid] = useState(null)
     const [isLoggedIn, setIsLoggedIn] = useState(true)
     const token = Cookies.get('x-access-token')
+    const dispatch = useDispatch()
 
     const Check_auth_satus = () => {
         if(token){
@@ -26,14 +29,17 @@ export default () => {
                     Cookies.set("session", 0)
                     setIsTokenValid(false)
                     Logout()
+                    dispatch(clearPermissions())
                 }
             }
             else {
                 setIsTokenValid(false)
+                dispatch(clearPermissions())
             }
         }
         else {
             setIsLoggedIn(false)
+            dispatch(clearPermissions())
         }
 
     }
