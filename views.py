@@ -180,12 +180,13 @@ class LogoutView(AuthResource):
         else:
             return make_response(jsonify({'error': 'Token is missing'}), 403)
 
+
 def check_role_permission():
     pass
 
 
 # Role and permissions
-class RolesView(AdminResource):
+class RolesView(AuthResource):
     @scope('roles:read')
     def get(self):
         roles = Role.query.all()
@@ -201,7 +202,7 @@ class RolesView(AdminResource):
         return make_response(jsonify({'roles': roles_json}), 200)
 
 
-class RoleView(AdminResource):
+class RoleView(AuthResource):
     @scope('role:read')
     def get(self, role_id):
         role = Role.query.filter_by(id=role_id).first()
@@ -217,16 +218,25 @@ class RoleView(AdminResource):
     def post(self):
         data = request.get_json()
         try:
-            role_name = data['role']
+            role_name = data['role_name']
             role = Role(name=role_name)
+            print(role.id)
             db.session.add(role)
             db.session.commit()
+
+            for permission in data['role_permissions']:
+                perm = Permission.query.filter_by(name=str(permission['name'])).first()
+                role_permission = RolePermission(role_id=role.id,
+                                                 permission_id=perm.id)
+                db.session.add(role_permission)
+                db.session.commit()
+
             return make_response(jsonify({'message': 'Role created successful'}), 200)
         except:
             return make_response(jsonify({'error': 'Something went wrong'}), 403)
 
 
-class PermissionsView(AdminResource):
+class PermissionsView(AuthResource):
     @scope('permissions:read')
     def get(self):
         permissions = Permission.query.all()
@@ -242,7 +252,7 @@ class PermissionsView(AdminResource):
         return make_response(jsonify({'permissions': permissions_json}), 200)
 
 
-class RolePermissionsView(AdminResource):
+class RolePermissionsView(AuthResource):
     @scope('role_permissions:read')
     def get(self, role_id):
         roles_permissions = RolePermission.query.filter_by(role_id=role_id)
@@ -315,7 +325,7 @@ class RolePermissionsView(AdminResource):
 
 
 # User actions
-class UsersView(AdminResource):
+class UsersView(AuthResource):
     @scope('users:read')
     def get(self):
 

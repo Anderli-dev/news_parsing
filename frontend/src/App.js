@@ -10,6 +10,7 @@ import {PostDetail} from "./pages/PostDetail";
 import {Users} from "./pages/Users";
 import {User} from "./pages/User";
 import {Roles} from "./pages/Roles";
+import {RoleCreate} from "./pages/RoleCreate";
 import {Role} from "./pages/Role";
 import {Page404} from "./pages/404";
 import {useSelector} from "react-redux";
@@ -26,6 +27,7 @@ function App() {
                         {permissions.includes('user:read')&&<Route path="/user/:id" element={<User/>}/>}
                         {permissions.includes('roles:read')&&<Route path="/roles" element={<Roles/>}/>}
                         {permissions.includes('role:read')&&<Route path="/role/:id" element={<Role/>}/>}
+                        {permissions.includes('role:create')&&<Route path="/role-create" element={<RoleCreate/>}/>}
                     </Route>
                 </Route>
 

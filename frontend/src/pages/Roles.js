@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
+import {MDBBtn} from "mdb-react-ui-kit";
 
 
 export function Roles(){
@@ -33,13 +34,10 @@ export function Roles(){
 
     return(
         <div className="mt-4">
-            <h1 className="mb-4">Roles list</h1>
-            {/*<div className='d-flex align-items-center justify-content-between'>*/}
-            {/*    <div className='d-flex'>*/}
-            {/*        <div><p className='ms-3'>#</p></div>*/}
-            {/*        <div><p className='ms-3'>Name</p></div>*/}
-            {/*    </div>*/}
-            {/*</div>*/}
+            <div className="d-flex justify-content-between">
+                <h1 className="mb-4">Roles list</h1>
+                <MDBBtn href="/role-create" className="mb-4 py-3"><p className="m-0">Add role</p></MDBBtn>
+            </div>
             <div className='d-flex'>
                 {
                     roles.map(item =>

@@ -108,7 +108,7 @@ export function Role(){
                         <fieldset disabled>
                             <input type="text"
                                    className='form-control ms-2'
-                                   name="role"
+                                   name="role_name"
                                    value={role_name}
                                    onChange={onChange}
                             />
