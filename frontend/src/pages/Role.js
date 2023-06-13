@@ -1,4 +1,4 @@
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import Cookies from "js-cookie";
 import axios from "axios";
 import React, {useEffect, useState} from "react";
@@ -18,6 +18,10 @@ export function Role(){
         role_name: "",
     });
     const { role_name } = formData;
+
+    const navigate = useNavigate()
+
+
     const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
     function switchToApplied(e, id) {
@@ -91,6 +95,19 @@ export function Role(){
         }
     }
 
+    const delRole = () => {
+        try {
+            axios.delete(`${process.env.REACT_APP_API_URL}/api/role/`+id,{
+                headers: headers,})
+                .then(response => {
+                    console.log(response); navigate("/roles")})
+                .catch(error => console.log(error))
+        } catch (err) {
+            console.log(err)
+        }
+
+    }
+
     useEffect(() => {
         getRole();
         getRolePermissions();
@@ -99,59 +116,69 @@ export function Role(){
     return(
         <div className='mt-4'>
             <p className='fs-2'>Role №{id}</p>
-            <form className=''
-                  onSubmit={onSubmit}
-            >
-                <div className='d-flex flex-row align-items-top'>
-                    <div className='d-flex align-items-top'>
-                        <label className='m-0 fs-5'>Role:</label>
-                        <fieldset disabled>
-                            <input type="text"
-                                   className='form-control ms-2'
-                                   name="role_name"
-                                   value={role_name}
-                                   onChange={onChange}
-                            />
-                        </fieldset>
-                    </div>
-                    <div className='d-flex ms-4'>
-                        <div className='d-flex flex-column'>
-                            <label className='fs-5'>Permissions:</label>
-                            <button type="button" onClick={toggleShow} className='m-0 ms-1 h-100 align-self-end' style={{backgroundColor: 'inherit', border: 'none'}}>
-                                {CreateWhiteIco(<AiOutlinePlus size={'1.7em'}/>)}
-                            </button>
-                        </div>
-                        <div className='ms-2 d-flex h-100'>
-                            <Scrollbars style={{width:'200px', height: '10vh'}} className="list-group list-group-numbered py-1">
-                                {rolePermissions.map(item => {
-                                        return <li className='list-group-item' value={item.name}>{item.name}</li>
-                                    }
-                                )}
-                            </Scrollbars>
-                            <div>
-
-                                <PermissionsModal
-                                    centredModal={centredModal}
-                                    setCentredModal={setCentredModal}
-                                    toggleShow={toggleShow}
-
-                                    notAppliedPermissions={notAppliedPermissions}
-                                    rolePermissions={rolePermissions}
-
-                                    switchToApplied={switchToApplied}
-                                    switchToNotApplied={switchToNotApplied}
+            <div className="d-flex justify-content-between">
+                <form className='d-flex flex-column'
+                      onSubmit={onSubmit}
+                >
+                    <div className='d-flex flex-row align-items-top'>
+                        <div className='d-flex align-items-top'>
+                            <label className='m-0 fs-5'>Role:</label>
+                            <fieldset>
+                                <input type="text"
+                                       className='form-control ms-2'
+                                       name="role_name"
+                                       value={role_name}
+                                       onChange={onChange}
                                 />
+                            </fieldset>
+                        </div>
+                        <div className='d-flex ms-4'>
+                            <div className='d-flex flex-column'>
+                                <label className='fs-5'>Permissions:</label>
+                                <button type="button" onClick={toggleShow} className='m-0 ms-1 h-100 align-self-end' style={{backgroundColor: 'inherit', border: 'none'}}>
+                                    {CreateWhiteIco(<AiOutlinePlus size={'1.7em'}/>)}
+                                </button>
+                            </div>
+                            <div className='ms-2 d-flex h-100'>
+                                <Scrollbars style={{width:'200px', height: '10vh'}} className="list-group list-group-numbered py-1">
+                                    {rolePermissions.map(item => {
+                                            return <li className='list-group-item' value={item.name}>{item.name}</li>
+                                        }
+                                    )}
+                                </Scrollbars>
+                                <div>
+
+                                    <PermissionsModal
+                                        centredModal={centredModal}
+                                        setCentredModal={setCentredModal}
+                                        toggleShow={toggleShow}
+
+                                        notAppliedPermissions={notAppliedPermissions}
+                                        rolePermissions={rolePermissions}
+
+                                        switchToApplied={switchToApplied}
+                                        switchToNotApplied={switchToNotApplied}
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div className="d-flex justify-content-start mt-3">
-                    <button type="submit" className="d-flex justify-content-center btn btn-primary btn-block mb-4" style={{width: '150px'}}>
-                        Save changes
+                    <div className="d-flex justify-content-between mt-3">
+                        <button type="submit" className="btn btn-primary mb-4" style={{width: '150px'}}>
+                            Save changes
+                        </button>
+                    </div>
+                </form>
+                <div className="d-flex flex-column-reverse">
+                    <button type="button"
+                            className="btn btn-danger mb-4"
+                            style={{width: '150px'}}
+                            onClick={delRole}>
+                        Delete role
                     </button>
                 </div>
-            </form>
+            </div>
         </div>
     )
 }

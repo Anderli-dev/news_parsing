@@ -235,6 +235,16 @@ class RoleView(AuthResource):
         except:
             return make_response(jsonify({'error': 'Something went wrong'}), 403)
 
+    @scope("role:delete")
+    def delete(self, role_id):
+        role = Role.query.filter_by(id=role_id).first()
+        if role:
+            db.session.delete(role)
+            db.session.commit()
+            return make_response(jsonify({'success': 'Delete success'}), 200)
+        else:
+            return make_response(jsonify({'error': 'Role not exist'}), 404)
+
 
 class PermissionsView(AuthResource):
     @scope('permissions:read')

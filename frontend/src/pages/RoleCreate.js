@@ -9,6 +9,7 @@ import {switchPermission} from "../actions/SwitchPermission";
 import axios from "axios";
 import {useEffect} from "react";
 import Cookies from "js-cookie";
+import {useNavigate} from "react-router-dom";
 
 export function RoleCreate(){
     const [rolePermissions, setRolePermissions] = useState([]);
@@ -25,6 +26,8 @@ export function RoleCreate(){
         };
 
     const { role_name } = formData;
+
+    const navigate = useNavigate()
 
     const onChange = e => {
         setFormData(
@@ -69,7 +72,7 @@ export function RoleCreate(){
             axios.post(`${process.env.REACT_APP_API_URL}/api/role`, data,{
                 headers: headers,})
                 .then(response => {
-                    console.log(response)})
+                    console.log(response);navigate("/roles")})
                 .catch(error => console.log(error))
         } catch (err) {
             console.log(err)
