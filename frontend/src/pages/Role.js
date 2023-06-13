@@ -3,10 +3,10 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import React, {useEffect, useState} from "react";
 import {PermissionsModal} from '../components/PrermissionsModal'
-import {AiOutlinePlus} from "react-icons/ai";
+import {AiOutlineMenuUnfold} from "react-icons/ai";
 import {CreateWhiteIco} from "../actions/CreateWhiteIco";
 import {switchPermission} from "../actions/SwitchPermission";
-import {Scrollbars} from "react-custom-scrollbars"
+import {MDBCard, MDBCardBody, MDBCardHeader, MDBCardText, MDBCardTitle} from "mdb-react-ui-kit";
 
 
 export function Role(){
@@ -80,6 +80,7 @@ export function Role(){
     const toggleShow = () => setCentredModal(!centredModal);
 
     function onSubmit(){
+        // TODO send request when role name changed
         const data = {
             role_id: id,
             role_permissions: rolePermissions
@@ -117,10 +118,10 @@ export function Role(){
         <div className='mt-4'>
             <p className='fs-2'>Role №{id}</p>
             <div className="d-flex justify-content-between">
-                <form className='d-flex flex-column'
+                <form className='d-flex flex-column justify-content-between'
                       onSubmit={onSubmit}
                 >
-                    <div className='d-flex flex-row align-items-top'>
+                    <div className='d-flex flex-column'>
                         <div className='d-flex align-items-top'>
                             <label className='m-0 fs-5'>Role:</label>
                             <fieldset>
@@ -132,51 +133,60 @@ export function Role(){
                                 />
                             </fieldset>
                         </div>
-                        <div className='d-flex ms-4'>
-                            <div className='d-flex flex-column'>
-                                <label className='fs-5'>Permissions:</label>
-                                <button type="button" onClick={toggleShow} className='m-0 ms-1 h-100 align-self-end' style={{backgroundColor: 'inherit', border: 'none'}}>
-                                    {CreateWhiteIco(<AiOutlinePlus size={'1.7em'}/>)}
+                        <div>
+                            <div className='mt-3'>
+                                <button type="button"
+                                        onClick={toggleShow}
+                                        className='m-0 ms-1 w-100 h-100 align-self-end d-flex justify-content-center btn btn-outline-light'
+                                >
+                                    <p className='m-0 me-2'>Open permissions menu</p>
+                                    {CreateWhiteIco(<AiOutlineMenuUnfold size={'1.7em'}/>)}
                                 </button>
                             </div>
                             <div className='ms-2 d-flex h-100'>
-                                <Scrollbars style={{width:'200px', height: '10vh'}} className="list-group list-group-numbered py-1">
-                                    {rolePermissions.map(item => {
-                                            return <li className='list-group-item' value={item.name}>{item.name}</li>
-                                        }
-                                    )}
-                                </Scrollbars>
-                                <div>
+                                <PermissionsModal
+                                    centredModal={centredModal}
+                                    setCentredModal={setCentredModal}
+                                    toggleShow={toggleShow}
 
-                                    <PermissionsModal
-                                        centredModal={centredModal}
-                                        setCentredModal={setCentredModal}
-                                        toggleShow={toggleShow}
+                                    notAppliedPermissions={notAppliedPermissions}
+                                    rolePermissions={rolePermissions}
 
-                                        notAppliedPermissions={notAppliedPermissions}
-                                        rolePermissions={rolePermissions}
-
-                                        switchToApplied={switchToApplied}
-                                        switchToNotApplied={switchToNotApplied}
-                                    />
-                                </div>
+                                    switchToApplied={switchToApplied}
+                                    switchToNotApplied={switchToNotApplied}
+                                />
                             </div>
                         </div>
                     </div>
 
-                    <div className="d-flex justify-content-between mt-3">
-                        <button type="submit" className="btn btn-primary mb-4" style={{width: '150px'}}>
+                    <div className="d-flex justify-content-between mt-4">
+                        <button type="submit" className="btn btn-primary" style={{width: '150px'}}>
                             Save changes
                         </button>
                     </div>
                 </form>
-                <div className="d-flex flex-column-reverse">
+                <div className="d-flex flex-column justify-content-between w-25">
+                    <MDBCard background='light' className='text-black' >
+                        <MDBCardHeader>Role Info</MDBCardHeader>
+                        <MDBCardBody>
+                            <MDBCardTitle className="fs-5 m-0">Role users count:</MDBCardTitle>
+                            <MDBCardText>
+                                0000
+                            </MDBCardText>
+                            <MDBCardTitle className="fs-5 m-0">More info:</MDBCardTitle>
+                            <MDBCardText>
+                                Bla-Bla-Bla
+                            </MDBCardText>
+                        </MDBCardBody>
+                    </MDBCard>
+                    <div className="d-flex justify-content-end">
                     <button type="button"
-                            className="btn btn-danger mb-4"
+                            className="btn btn-danger mt-4"
                             style={{width: '150px'}}
                             onClick={delRole}>
                         Delete role
                     </button>
+                    </div>
                 </div>
             </div>
         </div>

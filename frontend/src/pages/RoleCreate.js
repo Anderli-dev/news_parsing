@@ -1,7 +1,7 @@
 import React from "react"
 import {MDBBtn, MDBInput} from "mdb-react-ui-kit";
 import {CreateWhiteIco} from "../actions/CreateWhiteIco";
-import {AiOutlinePlus} from "react-icons/ai";
+import {AiOutlineMenuUnfold, AiOutlinePlus} from "react-icons/ai";
 import {Scrollbars} from "react-custom-scrollbars";
 import {PermissionsModal} from "../components/PrermissionsModal";
 import {useState} from "react";
@@ -86,36 +86,32 @@ export function RoleCreate(){
     return(
         <div className="mt-4">
             <p className='fs-2'>Create Role</p>
-            <form onSubmit={onSubmit}>
-                <div className='d-flex align-items-top'>
-                    <label className='m-0 fs-5'>Role:</label>
-                    <fieldset>
-                        {/*TODO add validation*/}
-                        <input type="text"
-                               className='form-control ms-2'
-                               name="role_name"
-                               value={role_name}
-                               onChange={onChange}
-                        />
-                    </fieldset>
-                </div>
-
-                <div className='d-flex my-3'>
-                    <div className='d-flex flex-column'>
-                        <label className='fs-5'>Permissions:</label>
-                        <button type="button" onClick={toggleShow} className='m-0 ms-1 h-100 align-self-end' style={{backgroundColor: 'inherit', border: 'none'}}>
-                            {CreateWhiteIco(<AiOutlinePlus size={'1.7em'}/>)}
-                        </button>
+            <div className="d-flex">
+                <form onSubmit={onSubmit} className="d-flex flex-column">
+                    <div className='d-flex align-items-top'>
+                        <label className='m-0 fs-5'>Role:</label>
+                        <fieldset>
+                            {/*TODO add validation*/}
+                            <input type="text"
+                                   className='form-control ms-2'
+                                   name="role_name"
+                                   value={role_name}
+                                   onChange={onChange}
+                            />
+                        </fieldset>
                     </div>
-                    <div className='ms-2 d-flex h-100'>
-                        <Scrollbars style={{width:'200px', height: '10vh'}} className="list-group list-group-numbered py-1">
-                            {rolePermissions.map(item => {
-                                    return <li className='list-group-item' value={item.name}>{item.name}</li>
-                                }
-                            )}
-                        </Scrollbars>
-                        <div>
 
+                    <div>
+                        <div className='mt-3'>
+                            <button type="button"
+                                    onClick={toggleShow}
+                                    className='m-0 ms-1 w-100 h-100 align-self-end d-flex justify-content-center btn btn-outline-light'
+                            >
+                                <p className='m-0 me-2'>Open permissions menu</p>
+                                {CreateWhiteIco(<AiOutlineMenuUnfold size={'1.7em'}/>)}
+                            </button>
+                        </div>
+                        <div className='ms-2 d-flex h-100'>
                             <PermissionsModal
                                 centredModal={centredModal}
                                 setCentredModal={setCentredModal}
@@ -129,14 +125,14 @@ export function RoleCreate(){
                             />
                         </div>
                     </div>
-                </div>
 
-                <div>
-                    <MDBBtn type='submit' className="me-2">Submit</MDBBtn>
-                    {/*TODO add reset options*/}
-                    <MDBBtn type='reset'>Reset</MDBBtn>
-                </div>
-            </form>
+                    <div className="mt-4 d-flex justify-content-between">
+                        <MDBBtn type='submit' className="me-2">Add</MDBBtn>
+                        {/*TODO add reset options*/}
+                        <MDBBtn type='reset'>Reset</MDBBtn>
+                    </div>
+                </form>
+            </div>
         </div>
     )
 }

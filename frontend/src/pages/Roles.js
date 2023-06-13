@@ -34,9 +34,13 @@ export function Roles(){
 
     return(
         <div className="mt-4">
-            <div className="d-flex justify-content-between">
-                <h1 className="mb-4">Roles list</h1>
-                <MDBBtn href="/role-create" className="mb-4 py-3"><p className="m-0">Add role</p></MDBBtn>
+            <div className="d-flex justify-content-between mb-4">
+                <h1 className="m-0">Roles list</h1>
+                <div className="align-self-center">
+                    <a href="/role-create" className="btn btn-primary " role="button">
+                        <p className="m-0">Add role</p>
+                    </a>
+                </div>
             </div>
             <div className='d-flex'>
                 {
@@ -45,9 +49,12 @@ export function Roles(){
                             <a href={'role/'+item.id}>
                                 <div
                                     key={item.id}
-                                    className='me-3 d-flex align-items-center'
-                                    style={{backgroundColor: '#fff', height: '48px'}}>
-                                    <div><p style={{color:'#000'}} className='m-0 ms-3 me-3'>{item.name}</p></div>
+                                    className='me-3 d-flex align-items-center btn-light'
+                                    style={{ height: '48px'}}
+                                    >
+                                    <div>
+                                        <p className='m-0 ms-3 me-3'>{item.name}</p>
+                                    </div>
                                 </div>
                             </a>
                         )

@@ -21,6 +21,7 @@ export function PermissionsModal(props){
                     </MDBModalHeader>
                     <MDBModalBody className='d-flex'>
                         <div className='border-end border-dark w-50'>
+                            <p className="m-0 h6 text-primary mb-1">Not applied permissions</p>
                             <Scrollbars style={{width:'100%', height: '30vh'}} autoHide>
                                 {props.notAppliedPermissions.map(item => (
                                     <button
@@ -35,6 +36,7 @@ export function PermissionsModal(props){
                             </Scrollbars>
                         </div>
                         <div className='ms-3 w-50'>
+                            <p className="m-0 h6 text-primary mb-1">Applied permissions</p>
                             <Scrollbars style={{width:'100%', height: '30vh'}} autoHide>
                                 {props.rolePermissions.map(item => (
                                     <button
