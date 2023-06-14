@@ -63,17 +63,19 @@ export function RoleCreate(){
         }
     }
 
-    function onSubmit(){
+    async function onSubmit(e){
+        e.preventDefault()
         const data = {
             role_name: role_name,
             role_permissions: rolePermissions
         }
         try {
-            axios.post(`${process.env.REACT_APP_API_URL}/api/role`, data,{
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/role`, data,{
                 headers: headers,})
                 .then(response => {
-                    console.log(response);navigate("/roles")})
+                    console.log(response);})
                 .catch(error => console.log(error))
+            navigate("/roles")
         } catch (err) {
             console.log(err)
         }

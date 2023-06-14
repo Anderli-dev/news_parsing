@@ -207,9 +207,11 @@ class RoleView(AuthResource):
     def get(self, role_id):
         role = Role.query.filter_by(id=role_id).first()
         if role:
+            role_users = User.query.filter_by(role_id=role.id).count()
             role_data = {}
             role_data['id'] = role.id
             role_data['name'] = role.name
+            role_data['role_users'] = role_users
             return make_response(jsonify({'role': role_data}), 200)
         else:
             return make_response(jsonify({'error': 'Role not exist'}), 404)
@@ -220,7 +222,6 @@ class RoleView(AuthResource):
         try:
             role_name = data['role_name']
             role = Role(name=role_name)
-            print(role.id)
             db.session.add(role)
             db.session.commit()
 
@@ -239,6 +240,9 @@ class RoleView(AuthResource):
     def delete(self, role_id):
         role = Role.query.filter_by(id=role_id).first()
         if role:
+            role_users = User.query.filter_by(role_id=role.id).all()
+            for user in role_users:
+                user.role_id = Role.query.filter_by(name='BaseUser').first().id
             db.session.delete(role)
             db.session.commit()
             return make_response(jsonify({'success': 'Delete success'}), 200)
