@@ -1,5 +1,5 @@
 import React from "react"
-import {MDBBtn, MDBInput} from "mdb-react-ui-kit";
+import {MDBBtn, MDBInput, MDBTextArea} from "mdb-react-ui-kit";
 import {CreateWhiteIco} from "../actions/CreateWhiteIco";
 import {AiOutlineMenuUnfold, AiOutlinePlus} from "react-icons/ai";
 import {Scrollbars} from "react-custom-scrollbars";
@@ -18,6 +18,7 @@ export function RoleCreate(){
     const [isData, setIsData] = useState(false);
     const [formData, setFormData] = useState({
         role_name: "",
+        role_description:"",
     });
     const headers = {
             'Accept': 'application/json',
@@ -25,13 +26,19 @@ export function RoleCreate(){
             'x-access-token': Cookies.get('x-access-token'),
         };
 
-    const { role_name } = formData;
+    const { role_name, role_description } = formData;
 
     const navigate = useNavigate()
 
     const onChange = e => {
         setFormData(
             {...formData, [e.target.name]: e.target.value})
+    }
+
+    const onReset = e =>{
+        setFormData({...formData, role_name: "", role_description: ""})
+        setRolePermissions([])
+        getPermissions()
     }
 
     function switchToApplied(e, id) {
@@ -67,6 +74,7 @@ export function RoleCreate(){
         e.preventDefault()
         const data = {
             role_name: role_name,
+            role_description: role_description,
             role_permissions: rolePermissions
         }
         try {
@@ -88,50 +96,65 @@ export function RoleCreate(){
     return(
         <div className="mt-4">
             <p className='fs-2'>Create Role</p>
-            <div className="d-flex">
+            <div>
                 <form onSubmit={onSubmit} className="d-flex flex-column">
-                    <div className='d-flex align-items-top'>
-                        <label className='m-0 fs-5'>Role:</label>
-                        <fieldset>
-                            {/*TODO add validation*/}
-                            <input type="text"
-                                   className='form-control ms-2'
-                                   name="role_name"
-                                   value={role_name}
-                                   onChange={onChange}
-                            />
-                        </fieldset>
-                    </div>
+                    <div className="d-flex justify-content-between">
+                        <div>
+                            <div>
+                                <p className='m-0 mb-2'>Role:</p>
+                                <fieldset>
+                                    {/*TODO add validation*/}
+                                    <input type="text"
+                                           className='form-control'
+                                           name="role_name"
+                                           value={role_name}
+                                           onChange={onChange}
+                                    />
+                                </fieldset>
+                            </div>
 
-                    <div>
-                        <div className='mt-3'>
-                            <button type="button"
-                                    onClick={toggleShow}
-                                    className='m-0 ms-1 w-100 h-100 align-self-end d-flex justify-content-center btn btn-outline-light'
-                            >
-                                <p className='m-0 me-2'>Open permissions menu</p>
-                                {CreateWhiteIco(<AiOutlineMenuUnfold size={'1.7em'}/>)}
-                            </button>
+                            <div>
+                                <div className='mt-3'>
+                                    <button type="button"
+                                            onClick={toggleShow}
+                                            className='m-0 align-self-end d-flex justify-content-center btn btn-outline-light'
+                                    >
+                                        <p className='m-0 me-2'>Open permissions menu</p>
+                                        {CreateWhiteIco(<AiOutlineMenuUnfold size={'1.7em'}/>)}
+                                    </button>
+                                </div>
+                                <div className='ms-2 d-flex h-100'>
+                                    <PermissionsModal
+                                        centredModal={centredModal}
+                                        setCentredModal={setCentredModal}
+                                        toggleShow={toggleShow}
+
+                                        notAppliedPermissions={notAppliedPermissions}
+                                        rolePermissions={rolePermissions}
+
+                                        switchToApplied={switchToApplied}
+                                        switchToNotApplied={switchToNotApplied}
+                                    />
+                                </div>
+                            </div>
                         </div>
-                        <div className='ms-2 d-flex h-100'>
-                            <PermissionsModal
-                                centredModal={centredModal}
-                                setCentredModal={setCentredModal}
-                                toggleShow={toggleShow}
 
-                                notAppliedPermissions={notAppliedPermissions}
-                                rolePermissions={rolePermissions}
-
-                                switchToApplied={switchToApplied}
-                                switchToNotApplied={switchToNotApplied}
+                        <div className="w-50">
+                            <p className="m-0 mb-2">Description</p>
+                            <textarea id='textAreaExample'
+                                      className=" form-control"
+                                      style={{resize:"none"}}
+                                      rows={6}
+                                      name="role_description"
+                                      value={role_description}
+                                      onChange={onChange}
                             />
                         </div>
                     </div>
 
                     <div className="mt-4 d-flex justify-content-between">
-                        <MDBBtn type='submit' className="me-2">Add</MDBBtn>
-                        {/*TODO add reset options*/}
-                        <MDBBtn type='reset'>Reset</MDBBtn>
+                        <MDBBtn type='submit' className="me-2">Add role</MDBBtn>
+                        <MDBBtn type='reset' onClick={onReset}>Reset</MDBBtn>
                     </div>
                 </form>
             </div>

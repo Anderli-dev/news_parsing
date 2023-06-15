@@ -222,7 +222,8 @@ class RoleView(AuthResource):
         data = request.get_json()
         try:
             role_name = data['role_name']
-            role = Role(name=role_name)
+            role_description = data['role_description']
+            role = Role(name=role_name, description=role_description)
             db.session.add(role)
             db.session.commit()
 
