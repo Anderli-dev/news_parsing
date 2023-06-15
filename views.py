@@ -212,6 +212,7 @@ class RoleView(AuthResource):
             role_data['id'] = role.id
             role_data['name'] = role.name
             role_data['role_users'] = role_users
+            role_data['description'] = role.description
             return make_response(jsonify({'role': role_data}), 200)
         else:
             return make_response(jsonify({'error': 'Role not exist'}), 404)

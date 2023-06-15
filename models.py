@@ -12,7 +12,7 @@ class User(db.Model):
 
 
 class NewsPreview(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
 
     img = db.Column(db.Text, nullable=False)
 
@@ -40,6 +40,7 @@ class News(db.Model):
 class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60))
+    description = db.Column(db.Text)
 
 
 class Permission(db.Model):

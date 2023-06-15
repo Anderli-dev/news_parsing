@@ -17,8 +17,9 @@ export function Role(){
     const [formData, setFormData] = useState({
         role_name: "",
         role_users: 0,
+        role_description:"",
     });
-    const { role_name, role_users } = formData;
+    const { role_name, role_users, role_description } = formData;
 
     const navigate = useNavigate()
 
@@ -51,7 +52,8 @@ export function Role(){
                         setIsData(true);
                         setFormData({ ...formData,
                             "role_name": response.data["role"].name,
-                            "role_users": response.data["role"].role_users});
+                            "role_users": response.data["role"].role_users,
+                            "role_description": response.data["role"].description});
                     }
                 })
                 .catch(error => console.log(error))
@@ -178,7 +180,7 @@ export function Role(){
                             </MDBCardText>
                             <MDBCardTitle className="fs-5 m-0">Description:</MDBCardTitle>
                             <MDBCardText>
-                                Bla-Bla-Bla
+                                {role_description}
                             </MDBCardText>
                         </MDBCardBody>
                     </MDBCard>
