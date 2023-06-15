@@ -237,6 +237,20 @@ class RoleView(AuthResource):
         except:
             return make_response(jsonify({'error': 'Something went wrong'}), 403)
 
+    @scope("role:update")
+    def put(self, role_id):
+        data = request.get_json()
+        role = Role.query.filter_by(id=role_id).first()
+        if role:
+            if data.get('role_name'):
+                role.name = data['role_name']
+            if data.get('description'):
+                role.description = data['description']
+            db.session.commit()
+            return make_response(jsonify({'success': 'Role updated successfully'}), 200)
+        else:
+            return make_response(jsonify({'error': 'Role not exist'}), 404)
+
     @scope("role:delete")
     def delete(self, role_id):
         role = Role.query.filter_by(id=role_id).first()

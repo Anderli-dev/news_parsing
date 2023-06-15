@@ -1,0 +1,13 @@
+.clear-textarea{
+    width: 100%;
+    border: none;
+    background-color: inherit;
+    padding: 0;
+    resize: none;
+    height: inherit;
+}
+
+.clear-textarea:focus{
+    border: none;
+    outline: none;
+}

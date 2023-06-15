@@ -1,19 +1,21 @@
 import {useNavigate, useParams} from "react-router-dom";
 import Cookies from "js-cookie";
 import axios from "axios";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {PermissionsModal} from '../components/PrermissionsModal'
-import {AiOutlineMenuUnfold} from "react-icons/ai";
+import {AiOutlineEdit, AiOutlineMenuUnfold} from "react-icons/ai";
 import {CreateWhiteIco} from "../actions/CreateWhiteIco";
 import {switchPermission} from "../actions/SwitchPermission";
 import {MDBCard, MDBCardBody, MDBCardHeader, MDBCardText, MDBCardTitle} from "mdb-react-ui-kit";
-
+import '../static/css/description-textarea.css'
+import TextareaAutosize from 'react-textarea-autosize';
 
 export function Role(){
     const [rolePermissions, setRolePermissions] = useState([]);
     const [notAppliedPermissions, setNotAppliedPermissions] = useState([]);
     const [centredModal, setCentredModal] = useState(false);
     const [isData, setIsData] = useState(false);
+    const [isDescEdit, setIsDescEdit] = useState(false);
     const [formData, setFormData] = useState({
         role_name: "",
         role_users: 0,
@@ -23,8 +25,27 @@ export function Role(){
 
     const navigate = useNavigate()
 
+    const {id} = useParams();
 
-    const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+    const [nameIsChanged, setNameIsChanged] = useState(false)
+    const [descIsChanged, setDescIsChanged] = useState(false)
+
+    const headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'x-access-token': Cookies.get('x-access-token'),
+        };
+
+    const onNameChange = e => {
+        setNameIsChanged(true)
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    }
+const textareaRef = useRef(null);
+    const onDescChange = e => {
+        setDescIsChanged(true)
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    }
 
     function switchToApplied(e, id) {
         switchPermission(e, id, notAppliedPermissions, setNotAppliedPermissions, rolePermissions, setRolePermissions)
@@ -33,14 +54,6 @@ export function Role(){
     function switchToNotApplied(e, id) {
         switchPermission(e, id, rolePermissions, setRolePermissions, notAppliedPermissions, setNotAppliedPermissions)
     }
-
-    const headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'x-access-token': Cookies.get('x-access-token'),
-        };
-
-    const {id} = useParams();
 
     function getRole(){
         try {
@@ -85,8 +98,7 @@ export function Role(){
     const toggleShow = () => setCentredModal(!centredModal);
 
     function onSubmit(){
-        // TODO send request when role name changed
-        const data = {
+        let data = {
             role_id: id,
             role_permissions: rolePermissions
         }
@@ -98,6 +110,25 @@ export function Role(){
                 .catch(error => console.log(error))
         } catch (err) {
             console.log(err)
+        }
+
+        if(nameIsChanged || descIsChanged) {
+            data = {}
+            if (nameIsChanged) {
+                data.role_name = role_name
+            }
+            if (descIsChanged) {
+                data.description = role_description
+            }
+            try {
+                axios.put(`${process.env.REACT_APP_API_URL}/api/role/`+id, data,{
+                    headers: headers,})
+                    .then(response => {
+                        console.log(response)})
+                    .catch(error => console.log(error))
+            } catch (err) {
+                console.log(err)
+            }
         }
     }
 
@@ -134,7 +165,7 @@ export function Role(){
                                        className='form-control ms-2'
                                        name="role_name"
                                        value={role_name}
-                                       onChange={onChange}
+                                       onChange={onNameChange}
                                 />
                             </fieldset>
                         </div>
@@ -173,15 +204,47 @@ export function Role(){
                 <div className="d-flex flex-column justify-content-between w-25">
                     <MDBCard background='light' className='text-black' >
                         <MDBCardHeader>Role Info</MDBCardHeader>
-                        <MDBCardBody>
-                            <MDBCardTitle className="fs-5 m-0">Role users count:</MDBCardTitle>
-                            <MDBCardText>
+                        <MDBCardBody className="pb-3">
+                            <MDBCardTitle className="fs-5 m-0 mb-1">Role users count:</MDBCardTitle>
+                            <MDBCardText className="mb-2">
                                 {role_users}
                             </MDBCardText>
-                            <MDBCardTitle className="fs-5 m-0">Description:</MDBCardTitle>
-                            <MDBCardText>
-                                {role_description}
-                            </MDBCardText>
+                            <MDBCardTitle className="fs-5 m-0 d-flex mb-1">
+                                <button className="border-0 p-0 pe-1"
+                                        style={{backgroundColor: "inherit"}}
+                                        onClick={async ()=>{
+                                            // using await for display textarea and after this set focus
+                                            await setIsDescEdit(!isDescEdit);
+                                            if(!isDescEdit) {
+                                                // if edit description set focus to end of text
+                                                textareaRef.current.setSelectionRange(
+                                                    textareaRef.current.value.length,
+                                                    textareaRef.current.value.length)
+                                                textareaRef.current.focus()
+                                            }
+                                        }
+                                        }
+                                >
+                                    <AiOutlineEdit style={{marginTop: '-2px'}}/>
+                                </button>
+                                <p className="m-0">Description:</p>
+                            </MDBCardTitle>
+                                {isDescEdit ?
+                                    <>
+                                        <TextareaAutosize
+                                            rows={1}
+                                            ref={textareaRef}
+                                            name="role_description"
+                                            onChange={onDescChange}
+                                            defaultValue={role_description}
+                                            className="clear-textarea"
+                                        />
+                                    </>
+                                    :
+                                    <MDBCardText className="pb-2">
+                                        {role_description}
+                                    </MDBCardText>
+                                }
                         </MDBCardBody>
                     </MDBCard>
                     <div className="d-flex justify-content-end">
