@@ -3,6 +3,7 @@ from views import *
 # user routes
 api.add_resource(UsersView, '/api/users')
 api.add_resource(UserView, '/api/user/<user_id>')
+api.add_resource(UsersSearchView, '/api/user/search')
 api.add_resource(UserPermissionView, '/api/user/permissions')
 
 # role and permission routes

@@ -374,6 +374,26 @@ class UsersView(AuthResource):
         return make_response(jsonify({'users': users_json}), 200)
 
 
+class UsersSearchView(AuthResource):
+    @scope('users:read')
+    def post(self):
+        data = request.get_json()
+
+        users = User.query.filter(User.username.like('%'+data['username']+'%')).all()
+
+        users_json = []
+
+        for user in users:
+            user_data = {}
+            user_data['id'] = user.id
+            user_data['username'] = user.username
+            user_data['password'] = user.password
+            user_data['role'] = Role.query.filter_by(id=user.role_id).first().name
+            users_json.append(user_data)
+
+        return make_response(jsonify({'users': users_json}), 200)
+
+
 class UserView(AuthResource):
     @scope("user:read")
     def get(self, user_id):
