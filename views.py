@@ -408,10 +408,21 @@ class UserView(AuthResource):
             if user_get:
                     user_data = {}
                     user_data['id'] = user_get.id
+                    if user_get.name is not None:
+                        user_data['name'] = user_get.name
+                    if user_get.surname is not None:
+                        user_data['surname'] = user_get.surname
+                    if user_get.email is not None:
+                        user_data['email'] = user_get.email
                     user_data['username'] = user_get.username
                     user_data['password'] = user_get.password
                     role = Role.query.filter_by(id=user_get.role_id).first()
                     user_data['role'] = role.name
+                    user_data['count_of_posts'] = NewsPreview.query.filter_by(user_id=user_get.id).count()
+                    if user_data['count_of_posts'] == 0:
+                        user_data['last_posted_at'] = "User doesn't post yet"
+                    else:
+                        user_data['last_posted_at'] = NewsPreview.query.order_by(NewsPreview.posted_at).first().posted_at
                     return make_response(jsonify({'user': user_data}), 200)
             else:
                 return make_response(jsonify({'error': 'User not exist'}), 404)
@@ -421,10 +432,12 @@ class UserView(AuthResource):
     @scope("user:update")
     def put(self, user_id):
         data = request.get_json()
-        print(data)
         try:
             user = User.query.filter_by(id=user_id).first()
             user.username = data['username']
+            user.name = data['name']
+            user.surname = data['surname']
+            user.email = data['email']
             user.role_id = Role.query.filter_by(name=data['role']).first().id
             db.session.commit()
             return make_response(jsonify({'msg': 'Success'}), 200)

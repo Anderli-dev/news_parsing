@@ -41,7 +41,7 @@ export function Role(){
         setNameIsChanged(true)
         setFormData({ ...formData, [e.target.name]: e.target.value });
     }
-const textareaRef = useRef(null);
+    const textareaRef = useRef(null);
     const onDescChange = e => {
         setDescIsChanged(true)
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -142,7 +142,6 @@ const textareaRef = useRef(null);
         } catch (err) {
             console.log(err)
         }
-
     }
 
     useEffect(() => {
