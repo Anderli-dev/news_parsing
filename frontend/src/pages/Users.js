@@ -8,7 +8,6 @@ import {BiReset} from "react-icons/bi";
 
 
 export function Users(){
-    // TODO add search
     const [users, setUsersList] = useState([]);
     const [isData, setIsData] = useState(false);
     const [searchUserName, setSearchUserName] = useState("")
@@ -87,31 +86,36 @@ export function Users(){
                 </div>
             </div>
 
-            <div className='d-flex align-items-center justify-content-between'>
-                <div className='d-flex'>
-                    <div><p className='ms-3'>#</p></div>
-                    <div><p className='ms-3'>Username</p></div>
-                </div>
-                <div style={{width: '60px'}}><p className='me-3'>Role</p></div>
-            </div>
-            {
-                users.map(item =>
-                    (
-                        <a href={'user/'+item.id}>
-                            <div
-                                key={item.id}
-                                className='mb-3 d-flex align-items-center justify-content-between'
-                                style={{backgroundColor: '#fff', height: '48px'}}>
-                                <div className='d-flex'>
-                                    <div><p style={{color:'#000'}} className='m-0 ms-3'>{item.id}</p></div>
-                                    <div><p style={{color:'#000'}} className='m-0 ms-3'>{item.username}</p></div>
-                                </div>
-                                <div style={{width: '60px'}} className=''><p style={{color:'#000'}} className='m-0 me-3'>{item.role}</p></div>
-                            </div>
-                        </a>
+            <table className="table table-hover" style={{color: "white"}}>
+
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Username</th>
+                        <th scope="col">Role</th>
+                    </tr>
+                </thead>
+
+                <tbody className="table-group-divider">
+                {
+                    users.map(item =>
+                        (
+                            <a href={'user/'+item.id} className="w-100" style={{display: "contents", }}>
+                                <tr
+                                    key={item.id}
+                                    className=""
+                                    style={{color: "white"}}
+                                >
+                                    <th scope="row"><p className='m-0 p-3'>{item.id}</p></th>
+                                    <td><p className='m-0 p-3'>{item.username}</p></td>
+                                    <td><p className='m-0 p-3'>{item.role}</p></td>
+                                </tr>
+                            </a>
+                        )
                     )
-                )
-            }
+                }
+                </tbody>
+            </table>
         </div>
     )
 }

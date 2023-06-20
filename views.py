@@ -587,6 +587,22 @@ class PostPreviewView(Resource):
             return make_response(jsonify({'title': preview.title, 'img': preview.img}), 200)
 
 
+class PostsPreviewView(AuthResource):
+    @scope('posts:read')
+    def get(self):
+        posts = NewsPreview.query.all()
+
+        posts_json = []
+
+        for post in posts:
+            post_data = {}
+            post_data['preview_id'] = post.id
+            post_data['posted_at'] = post.posted_at
+            post_data['title'] = post.title
+            posts_json.append(post_data)
+        return make_response(jsonify({'posts': posts_json}), 200)
+
+
 class PostView(Resource):
     @token_required
     @scope('post:create')

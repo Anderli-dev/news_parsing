@@ -34,9 +34,9 @@ export function SideNavBar(props){
         <Nav.Item className="w-100">
             <Nav.Link href="/" eventKey="0" style={navLink}>News</Nav.Link>
         </Nav.Item>
-        {permissions.includes('post:update') &&
-            <Nav.Item className="w-100" permission={'post:update'}>
-                <Nav.Link href="/post" eventKey="1" style={navLink}>Posts</Nav.Link>
+        {permissions.includes('posts:read') &&
+            <Nav.Item className="w-100" permission={'posts:read'}>
+                <Nav.Link href="/posts" eventKey="1" style={navLink}>Posts</Nav.Link>
             </Nav.Item>
         }
         {permissions.includes('users:read')&&

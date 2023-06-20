@@ -4,7 +4,6 @@ import Cookies from "js-cookie";
 
 
 export function Roles(){
-    // TODO add search
     const [roles, setRolesList] = useState([]);
     const [isData, setIsData] = useState(false);
 
@@ -36,7 +35,7 @@ export function Roles(){
             <div className="d-flex justify-content-between mb-4">
                 <h1 className="m-0">Roles list</h1>
                 <div className="align-self-center">
-                    <a href="/role-create" className="btn btn-primary " role="button">
+                    <a href="/role/create" className="btn btn-primary " role="button">
                         <p className="m-0">Add role</p>
                     </a>
                 </div>
