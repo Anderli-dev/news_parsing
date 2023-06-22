@@ -10,12 +10,18 @@ import {BiReset} from "react-icons/bi";
 export function Posts(){
     const [posts, setPostsList] = useState([]);
     const [isData, setIsData] = useState(false);
+    const [searchTitle, setSearchTitle] = useState("")
 
     const headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'x-access-token': Cookies.get('x-access-token'),
     };
+    const handleKeyDown = e => {
+        if (e.key === 'Enter') {
+            searchPosts()
+        }
+    }
 
     const getPosts = () => {
         try{
@@ -24,6 +30,23 @@ export function Posts(){
                 .then(response => {
                     if (!response.data['posts'].length) {setIsData(false);}
                     else {setIsData(true); setPostsList(response.data['posts']);}
+                })
+                .catch(error => console.log(error))
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
+    const searchPosts = () =>{
+        const data = {
+            title:searchTitle
+        }
+        try {
+            axios.post(`${process.env.REACT_APP_API_URL}/api/post/search`, data, {
+                headers: headers,})
+                .then(response => {
+                    if (!response.data['posts'].length) {setIsData(false);}
+                    else {setPostsList(response.data['posts'])}
                 })
                 .catch(error => console.log(error))
         } catch (err) {
@@ -54,17 +77,17 @@ export function Posts(){
                                   type='text'
                                   aria-describedby='textExample1'
                                   contrast
-                                  // value={searchUserName}
-                                  // onKeyDown={handleKeyDown}
-                                  // onChange={e=>setSearchUserName(e.target.value)}
+                                  value={searchTitle}
+                                  onKeyDown={handleKeyDown}
+                                  onChange={e=>setSearchTitle(e.target.value)}
                         />
                         <button style={{border: "none", backgroundColor: "inherit"}}
                                 className="ps-2"
-                                // onClick={searchUsers}
+                                onClick={searchPosts}
                         >{CreateWhiteIco(<BsSearch size={'1.5em'}/>)}</button>
                         <button style={{border: "none", backgroundColor: "inherit"}}
                                 className="p-0 ps-1"
-                                // onClick={getUsers}
+                                onClick={getPosts}
                         >{CreateWhiteIco(<BiReset size={'1.5em'}/>)}</button>
                     </div>
                 </div>
@@ -79,7 +102,7 @@ export function Posts(){
 
             {
                     posts.map(item => (
-                        <a href={'post/'+item.preview_id}>
+                        <a href={'post/'+item.preview_id+'/edit'}>
                             <div
                                 key={item.preview_id}
                                 className='mb-3 d-flex align-items-center justify-content-between'

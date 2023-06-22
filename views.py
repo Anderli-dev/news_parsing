@@ -579,12 +579,51 @@ class PostPreviewView(Resource):
             print(e)
             return make_response(jsonify({'error': 'something went wrong'}), 403)
 
+    def put(self):
+        if 'img' in request.files:
+            file = request.files['img']
+            if file.filename == '':
+                return make_response(jsonify({'error': 'No selected file'}), 403)
+
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(BASE_DIR, app.config['UPLOAD_FOLDER'], filename))
+
+        try:
+            data = request.form
+            date_without_timezone = str(data['posted_at'].split('+')[0])
+            date = datetime.datetime.strptime(date_without_timezone, '%Y-%m-%dT%H:%M:%S')
+
+            token = request.headers['x-access-token']
+            token_data = jwt.decode(token, app.config['SECRET_KEY'])
+
+            preview = NewsPreview.query.filter_by(id=int(data['id'])).first()
+
+            if 'img' in request.files:
+                preview.img = secure_filename(file.filename)
+            preview.title = data['title']
+            preview.posted_at = date
+            preview.preview = data['preview']
+            preview.user_id = token_data['id']
+
+            db.session.commit()
+
+            return make_response(jsonify({'msg': 'success saved preview', 'previewId': preview.id}), 200)
+        except Exception as e:
+            print(e)
+            return make_response(jsonify({'error': 'something went wrong'}), 403)
+
     def get(self, id):
         try:
             preview = NewsPreview.query.filter_by(id=id).first()
-            return make_response(jsonify({'title': preview.title, 'img': preview.img}), 200)
-        except:
-            return make_response(jsonify({'title': preview.title, 'img': preview.img}), 200)
+            return make_response(jsonify({'title': preview.title,
+                                          'img': preview.img,
+                                          'preview': preview.preview,
+                                          'posted_at': preview.posted_at,
+                                          'post_id': News.query.filter_by(preview_id=id).first().id}), 200)
+        except Exception as e:
+            print(e)
+            return make_response(jsonify({'error': 'something went wrong'}), 403)
 
 
 class PostsPreviewView(AuthResource):
@@ -604,6 +643,12 @@ class PostsPreviewView(AuthResource):
 
 
 class PostView(Resource):
+
+    def get(self, id):
+        post = News.query.filter_by(id=id).first()
+
+        return make_response(jsonify({'title': post.title, 'body': post.text}), 200)
+
     @token_required
     @scope('post:create')
     def post(self):
@@ -619,7 +664,46 @@ class PostView(Resource):
             print(e)
             return make_response(jsonify({'error': 'something went wrong'}), 403)
 
-    def get(self, id):
-        post = News.query.filter_by(id=id).first()
+    def put(self):
+        try:
+            post = News.query.filter_by(id=request.form.get('post_id')).first()
+            post.title = request.form.get('title_post'),
+            post.text = request.form.get('text'),
+            post.preview_id = request.form.get('preview_id')
+            db.session.commit()
 
-        return make_response(jsonify({'title': post.title, 'body': post.text}), 200)
+            return make_response(jsonify({'msg': 'post success saved'}), 200)
+        except Exception as e:
+            print(e)
+            return make_response(jsonify({'error': 'something went wrong'}), 403)
+
+    @scope("post:delete")
+    def delete(self, post_id):
+        post_get = News.query.filter_by(id=post_id).first()
+        if post_get:
+            post_preview_get = NewsPreview.query.filter_by(id=post_get.preview_id).first()
+            db.session.delete(post_get)
+            db.session.delete(post_preview_get)
+            db.session.commit()
+            return make_response(jsonify({'success': 'Delete success'}), 200)
+        else:
+            return make_response(jsonify({'error': 'Post not exist'}), 404)
+
+
+class PostsSearchView(AuthResource):
+    @scope('posts:read')
+    def post(self):
+        data = request.get_json()
+
+        posts = NewsPreview.query.filter(NewsPreview.title.like('%'+data['title']+'%')).all()
+
+        posts_json = []
+
+        for post in posts:
+            post_data = {}
+            post_data['preview_id'] = post.id
+            post_data['posted_at'] = post.posted_at
+            post_data['title'] = post.title
+            posts_json.append(post_data)
+
+        return make_response(jsonify({'posts': posts_json}), 200)

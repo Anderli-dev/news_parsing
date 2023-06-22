@@ -15,6 +15,7 @@ import {Role} from "./pages/Role";
 import {Page404} from "./pages/404";
 import {useSelector} from "react-redux";
 import {Posts} from "./pages/Posts";
+import {PostEdit} from "./pages/PostEdit";
 
 function App() {
     const permissions = useSelector((state) => state.permissions.list)
@@ -24,6 +25,7 @@ function App() {
                 <Route element={<ProtectedRoute/>}>
                     <Route element={ <Layout/> }>
                         {permissions.includes('posts:read')&&<Route path="/posts" element={<Posts/>}/>}
+                        {permissions.includes('post:update')&&<Route path="/post/:id/edit" element={<PostEdit/>}/>}
                         {permissions.includes('post:update')&&<Route path="/post/create" element={<AddPost/>}/>}
                         {permissions.includes('users:read')&&<Route path="/users" element={<Users/>}/>}
                         {permissions.includes('user:read')&&<Route path="/user/:id" element={<User/>}/>}

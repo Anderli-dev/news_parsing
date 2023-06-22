@@ -1,25 +1,54 @@
-import React, {useRef, useState} from "react";
-import {MDBBtn, MDBFile, MDBInput, MDBSwitch, MDBTextArea, MDBTypography, MDBValidationItem} from 'mdb-react-ui-kit';
+import React, {useEffect, useRef, useState} from "react";
+import {
+    MDBBtn,
+    MDBFile,
+    MDBInput,
+    MDBModal,
+    MDBModalBody,
+    MDBModalContent,
+    MDBModalDialog,
+    MDBModalHeader,
+    MDBModalTitle,
+    MDBSwitch,
+    MDBTextArea,
+    MDBTypography,
+    MDBValidationItem
+} from 'mdb-react-ui-kit';
 import axios from "axios";
 import Cookies from "js-cookie";
-import { Editor } from '@tinymce/tinymce-react';
+import {Editor} from '@tinymce/tinymce-react';
 import moment from 'moment';
 import {DataTimePicker} from "../components/DataTimePicker";
 import '../static/css/add-post.css'
+import {useNavigate, useParams} from "react-router-dom";
+import {TbHandClick} from "react-icons/tb";
+import {BiReset} from "react-icons/bi";
+import {CreateWhiteIco} from "../actions/CreateWhiteIco";
 
-
-
-export function AddPost(){
-    const [formData, setFormData] = useState({
+export function PostEdit(){
+    const [previewData, setPreviewData] = useState({
         title_preview: '',
+        img: '',
         preview: '',
-        title_post: '',
     });
-    const { title_preview, preview, title_post } = formData;
+    const [postedAt, setPostedAt] = useState("")
+    const [postData, setPostData] = useState({
+        post_id: "",
+        title_post: "",
+        body: "",
+    })
+    const { title_preview, img, preview } = previewData;
+    const { post_id, title_post, body } = postData;
     const [checked, setChecked] = useState(false);
+    const [basicModal, setBasicModal] = useState(false);
+    const [imgIsSelected, setImgIsSelected] = useState(false);
     const [selectedImg, setSelectedImg] = useState(null);
+
     const datetime = useRef(null);
-    const [date, setDate] = useState(moment().format("YYYY[-]MM[-]DD[T]h[:]m[:]s"));
+
+    const {id} = useParams();
+
+    const navigate = useNavigate()
 
     const [headers] = useState(
         {
@@ -31,8 +60,38 @@ export function AddPost(){
 
     const editorRef = useRef(null);
 
-    const onChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+    const imgModel = () => {
+        return(
+            <>
+                <MDBModal show={basicModal} setShow={setBasicModal} tabIndex='-1'>
+                    <MDBModalDialog centered size='lg'>
+                        <MDBModalContent>
+                            <MDBModalHeader>
+                                <MDBModalTitle style={{color:"black"}}>Current image</MDBModalTitle>
+                                <MDBBtn className='btn-close' color='none' type="button" onClick={toggleShow}></MDBBtn>
+                            </MDBModalHeader>
+                            <MDBModalBody>
+                                {imgIsSelected?
+                                    <img src={selectedImg} alt=""/>
+                                    :
+                                    <img src={`../../uploads/${img}`} alt=""/>
+                                }
+                            </MDBModalBody>
+                        </MDBModalContent>
+                    </MDBModalDialog>
+                </MDBModal>
+            </>
+        )
+    }
+
+    const toggleShow = () => setBasicModal(!basicModal);
+
+    const onPreviewChange = (e) => {
+        setPreviewData({ ...previewData, [e.target.name]: e.target.value });
+    };
+
+    const onPostChange = (e) => {
+        setPostData({ ...postData, [e.target.name]: e.target.value });
     };
 
     const switchChange = (e) => {
@@ -40,27 +99,30 @@ export function AddPost(){
     };
 
     const handleImgSelect = (e) => {
-        setSelectedImg(e.target.files[0])
+        if(e.target.files[0]) {
+            setSelectedImg(URL.createObjectURL(e.target.files[0]))
+            setImgIsSelected(true)
+        }
+        else {
+            setImgIsSelected(false)
+        }
+        // setSelectedImg(e.target.files[0])
     }
 
     const previewSubmit = async e => {
-        e.preventDefault()
-
         let formData = new FormData();
         let imagefile = document.querySelector('#img');
-        formData.append("img", imagefile.files[0]);
+        if(imgIsSelected){
+            formData.append("img", imagefile.files[0]);
+        }
         formData.append("title", title_preview)
         formData.append("preview", preview)
         // TODO add auto time
-        formData.append("posted_at", date.toString())
+        formData.append("posted_at", moment(postedAt.toString()).format("YYYY[-]MM[-]DD[T]h[:]m[:]s"))
+        formData.append("id", id)
 
         try {
-            await axios.post(`${process.env.REACT_APP_API_URL}/api/preview`, formData, {headers: headers,})
-                .then(response => {
-                    if (response.status === 200) {
-                        console.log('Success')
-                    }
-                })
+            await axios.put(`${process.env.REACT_APP_API_URL}/api/preview`, formData, {headers: headers,})
                 .catch(error => console.log(error.response))
         } catch (err) {
             console.log(err.response)
@@ -68,38 +130,34 @@ export function AddPost(){
     };
 
     const allSubmit = async e =>{
-        e.preventDefault()
 
         let formData = new FormData();
         let imagefile = document.querySelector('#img');
-        formData.append("img", imagefile.files[0]);
+        if(imgIsSelected){
+            formData.append("img", imagefile.files[0]);
+        }
         formData.append("title", title_preview)
         formData.append("preview", preview)
         // TODO add auto time
-        formData.append("posted_at", date.toString())
-        let previewId
+        formData.append("posted_at", moment(postedAt.toString()).format("YYYY[-]MM[-]DD[T]h[:]m[:]s"))
+        formData.append("id", id)
+
         try {
-            await axios.post(`${process.env.REACT_APP_API_URL}/api/preview`, formData, {headers: headers,})
-                .then(response => {
-                    if (response.status === 200) {
-                        console.log('Success')
-                        previewId = response.data['previewId']
-                    }
-                })
+            await axios.put(`${process.env.REACT_APP_API_URL}/api/preview`, formData, {headers: headers,})
                 .catch(error => console.log(error.response))
         } catch (err) {
             console.log(err.response)
         }
 
         let data = {
-            // TODO remove spaces from title_post
             title_post: title_post === '' ? title_preview : title_post,
             text: window.tinymce.activeEditor.getContent(),
-            previewId: previewId
+            preview_id: id,
+            post_id: post_id
         }
 
         try {
-            await axios.post(`${process.env.REACT_APP_API_URL}/api/post`, data, {headers: headers,})
+            await axios.put(`${process.env.REACT_APP_API_URL}/api/post`, data, {headers: headers,})
                 .then(response => {
                     if (response.status === 200) {
                         console.log('Success')
@@ -111,11 +169,67 @@ export function AddPost(){
         }
     }
 
-    return(
-        <div className="mt-4">
-            <h1 className="mb-4">Add post</h1>
-                <form className="g-3 " onSubmit={checked ? previewSubmit: allSubmit}>
+    const getData = async () =>{
+        let postId
+        try {
+             await axios.get(`${process.env.REACT_APP_API_URL}/api/preview/`+ id,{
+                headers: headers,
+            })
+                .then(response => {
+                    postId = response.data["post_id"]
+                    setPostedAt(response.data['posted_at']);
+                    setPreviewData({ ...previewData,
+                        ["title_preview"]: response.data["title"],
+                        ["img"]: response.data["img"],
+                        ["preview"]: response.data["preview"]})
+                })
+                .catch(error => console.log(error.response))
+        }
+        catch (err) {
+            console.log(err)
+        }
 
+        try {
+            axios.get(`${process.env.REACT_APP_API_URL}/api/post/`+ postId,{
+                headers: headers,
+            })
+                .then(response => {
+                    setPostData({ ...postData,
+                        ["title_post"]: response.data["title"],
+                        ["body"]: response.data["body"],
+                        ["post_id"]:postId})
+                })
+                .catch(error => console.log(error.response))
+        }
+        catch (err) {
+            console.log(err)
+        }
+    }
+
+    const resetImg = () => {
+        setImgIsSelected(false)
+    }
+
+    const onDeleteClick = () => {
+        try {
+            axios.delete(`${process.env.REACT_APP_API_URL}/api/post/`+id,{
+                headers: headers,})
+                .then(response => {
+                    console.log(response); navigate("/users")})
+                .catch(error => console.log(error))
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
+    useEffect(()=>{
+        getData()
+    }, [])
+
+    return(
+        <div className="mt-4 mb-5">
+            <h1 className="mb-4">Edit post №{post_id}</h1>
+                <form className="g-3 " onSubmit={checked ? previewSubmit: allSubmit}>
 
                     <div className="d-flex phone-preview">
                         <div className="data">
@@ -124,28 +238,53 @@ export function AddPost(){
                                     style={{color: '#fff'}}
                                     value={title_preview}
                                     name='title_preview'
-                                    onChange={onChange}
                                     id='validationCustom01'
                                     required
                                     label='Preview title'
                                     labelStyle={{color:"rgb(147 147 147)"}}
+                                    onChange={onPreviewChange}
                                 />
                             </MDBValidationItem>
 
                             <p className="m-0" style={{color:"rgb(147 147 147)"}}>Chose posted date</p>
-                            <DataTimePicker
-                                ref={datetime}
-                                selected={date}
-                                onChange={date => setDate(date)}
-                                initialValue={moment()}
-                            />
+
+                            {postedAt&&
+                                // without this construction, time is not showing
+                                <DataTimePicker
+                                    ref={datetime}
+                                    selected={moment(postedAt).format("MM-DD-YYYY")}
+                                    onChange={posted_at => setPostedAt(posted_at)}
+                                    initialValue={moment(postedAt)}
+                                />
+                            }
 
                             <MDBValidationItem className='file-container mb-4'>
+                                <div className="d-flex justify-content-between">
+                                    <p className="m-0" style={{color: "rgb(147, 147, 147)"}}>Chose preview image</p>
+                                    <div className="d-flex">
+                                        <button type="button"
+                                                onClick={toggleShow}
+                                                className="m-0"
+                                                style={{backgroundColor: "inherit", color: "#fff", border: "none"}}
+                                        >Current image<TbHandClick/></button>
+                                        {imgIsSelected&&
+                                            <button type="button"
+                                                    style={{backgroundColor: "inherit", color: "#fff", border: "none"}}
+                                                    onClick={resetImg}
+                                            >
+                                                {CreateWhiteIco(<BiReset/>)}
+                                            </button>}
+                                    </div>
+                                </div>
+                                <div>
+                                    {imgModel()}
+                                </div>
                                 <MDBFile onChange={handleImgSelect}
-                                         label='Chose preview image'
                                          labelStyle={{color:"rgb(147 147 147)"}}
-                                         id='img' />
+                                         id='img'
+                                />
                             </MDBValidationItem>
+
                         </div>
 
                         <MDBValidationItem className='mb-4 w-100'>
@@ -153,7 +292,7 @@ export function AddPost(){
                                 style={{color: '#fff', height: '215px'}}
                                 value={preview}
                                 name='preview'
-                                onChange={onChange}
+                                onChange={onPreviewChange}
                                 id='validationCustom01'
                                 required
                                 label='Preview'
@@ -175,7 +314,7 @@ export function AddPost(){
                                     style={{color: '#fff'}}
                                     value={title_post}
                                     name='title_post'
-                                    onChange={onChange}
+                                    onChange={onPostChange}
                                     id='validationCustom01'
                                     label='Post title'
                                     labelStyle={{color:"rgb(147 147 147)"}}
@@ -192,10 +331,11 @@ export function AddPost(){
                                 <p className='fw-bolder'>Note:&nbsp;</p>you can leave title blank empty
                             </MDBTypography>
 
-                            <div className='mb-4'>
+                            <div>
                                 <Editor
                                     id='editor'
                                     apiKey='q2irgy2e9k2t4yqb3oiv28zg3vi2cli0pvhb8drka4xy3dly'
+                                    initialValue={body}
                                     onInit={(evt, editor) => editorRef.current = editor}
                                     init={{
                                         selector: 'textarea#editor',
@@ -243,9 +383,13 @@ export function AddPost(){
 
                     <div>
                         <div className='col-12'>
-                            <MDBBtn type='submit' className="me-2">Submit form</MDBBtn>
-                            {/*TODO add reset options*/}
-                            <MDBBtn type='reset'>Reset form</MDBBtn>
+                            <MDBBtn onClick={allSubmit} className="me-2">Submit form</MDBBtn>
+                            <MDBBtn type="button"
+                                    className="btn btn-danger mt-4"
+                                    onClick={onDeleteClick}
+                            >
+                                Delete
+                            </MDBBtn>
                         </div>
                     </div>
                 </form>
