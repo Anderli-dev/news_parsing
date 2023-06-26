@@ -1,11 +1,12 @@
 import {Nav} from "react-bootstrap";
-import React, {useState, useEffect} from "react";
+import React from "react";
 import {Motion, spring} from 'react-motion';
 import {useSelector} from "react-redux";
 
 export function SideNavBar(props){
-    const index = useState(localStorage.getItem('sideTabIndex'))
     const permissions = useSelector((state) => state.permissions.list)
+    const currentTabKey = useSelector((state) => state.currentTab.tabKey)
+    const tabKey = useSelector((state) => state.tabsKey.tabs)
 
     const motionStyle =
         props.isOpen?
@@ -25,29 +26,32 @@ export function SideNavBar(props){
         borderTopRightRadius: "25px",
         borderBottomRightRadius: "25px"}
 
-    const onClick = (e) => {
-        // TODO if close tab set 0
-        localStorage.setItem('sideTabIndex', parseInt(e.target.getAttribute('data-rr-ui-event-key')))
+
+    const CustomNavItem = ({to, children, ...props}) =>{
+        return (
+            <Nav.Item className="w-100">
+                <Nav.Link href={to}
+                          className={currentTabKey === props.eventKey ? "bg-primary text-light" : ""}
+                          style={navLink}
+                          {...props}
+                >
+                    {children}
+                </Nav.Link>
+            </Nav.Item>
+        )
     }
 
     const Tabs = (<>
-        <Nav.Item className="w-100">
-            <Nav.Link href="/" eventKey="0" style={navLink}>News</Nav.Link>
-        </Nav.Item>
+        <CustomNavItem to="/" eventKey={tabKey.home}>News</CustomNavItem>
+
         {permissions.includes('posts:read') &&
-            <Nav.Item className="w-100" permission={'posts:read'}>
-                <Nav.Link href="/posts" eventKey="1" style={navLink}>Posts</Nav.Link>
-            </Nav.Item>
+            <CustomNavItem to="/posts" eventKey={tabKey.posts}>Posts</CustomNavItem>
         }
-        {permissions.includes('users:read')&&
-            <Nav.Item className="w-100" permission={'users:read'}>
-                <Nav.Link href="/users" eventKey="2" style={navLink}>Users</Nav.Link>
-            </Nav.Item>
+        {permissions.includes('users:read') &&
+            <CustomNavItem to="/users" eventKey={tabKey.users}>Users</CustomNavItem>
         }
         {permissions.includes('roles:read') &&
-            <Nav.Item className="w-100" permission={'roles:read'}>
-                <Nav.Link href="/roles" eventKey="3" style={navLink}>Roles</Nav.Link>
-            </Nav.Item>
+            <CustomNavItem to="/roles" eventKey={tabKey.roles}>Roles</CustomNavItem>
         }
     </>)
 
@@ -64,8 +68,6 @@ export function SideNavBar(props){
                             zIndex:"999"
                         }}
                         variant="pills"
-                        defaultActiveKey={index[0]}
-                        onClick={e=>onClick(e)}
                         className="flex-column align-items-start position-fixed vh-100 pt-2">
 
                         {Tabs}

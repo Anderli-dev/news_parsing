@@ -5,12 +5,15 @@ import moment from 'moment';
 import {MdShare, MdFacebook, MdArrowForward} from "react-icons/md";
 import {SiTwitter} from "react-icons/si";
 import Cookies from "js-cookie";
-import {useSelector} from "react-redux";
+import {setTab} from "../store/sideNavTab";
+import {useDispatch, useSelector} from "react-redux";
 
 export function Home(){
     const [posts, setPosts] = useState([]);
     const [isData, setIsData] = useState(false);
-    const permissions = useSelector((state) => state.permissions.list)
+
+    const tabKey = useSelector((state) => state.tabsKey.tabs.home)
+    const dispatch = useDispatch()
 
     function getPosts(){
         const headers = {
@@ -29,9 +32,10 @@ export function Home(){
         } catch (err) {
             console.log(err)
         }
-        }
+    }
 
     useEffect(() => {
+        dispatch(setTab(tabKey))
         getPosts();
     }, []);
 

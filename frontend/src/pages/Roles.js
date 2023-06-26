@@ -1,11 +1,16 @@
 import React, {useEffect, useState} from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
+import {setTab} from "../store/sideNavTab";
+import {useDispatch, useSelector} from "react-redux";
 
 
 export function Roles(){
     const [roles, setRolesList] = useState([]);
     const [isData, setIsData] = useState(false);
+
+    const tabKey = useSelector((state) => state.tabsKey.tabs.roles)
+    const dispatch = useDispatch()
 
     function getRoles(){
         const headers = {
@@ -27,6 +32,7 @@ export function Roles(){
     }
 
     useEffect(() => {
+        dispatch(setTab(tabKey))
         getRoles();
     }, []);
 

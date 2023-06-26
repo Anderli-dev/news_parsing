@@ -24,14 +24,30 @@ function App() {
             <Routes>
                 <Route element={<ProtectedRoute/>}>
                     <Route element={ <Layout/> }>
-                        {permissions.includes('posts:read')&&<Route path="/posts" element={<Posts/>}/>}
-                        {permissions.includes('post:update')&&<Route path="/post/:id/edit" element={<PostEdit/>}/>}
-                        {permissions.includes('post:update')&&<Route path="/post/create" element={<AddPost/>}/>}
-                        {permissions.includes('users:read')&&<Route path="/users" element={<Users/>}/>}
-                        {permissions.includes('user:read')&&<Route path="/user/:id" element={<User/>}/>}
-                        {permissions.includes('roles:read')&&<Route path="/roles" element={<Roles/>}/>}
-                        {permissions.includes('role:read')&&<Route path="/role/:id" element={<Role/>}/>}
-                        {permissions.includes('role:create')&&<Route path="/role/create" element={<RoleCreate/>}/>}
+                        {permissions.includes('posts:read')&&
+                            <Route path="/posts"
+                                   element={<Posts/>}/>}
+                        {permissions.includes('post:update')&&
+                            <Route path="/post/:id/edit"
+                                   element={<PostEdit/>}/>}
+                        {permissions.includes('post:create')&&
+                            <Route path="/post/create"
+                                   element={<AddPost/>}/>}
+                        {permissions.includes('users:read')&&
+                            <Route path="/users"
+                                   element={<Users/>}/>}
+                        {permissions.includes('user:read')&&
+                            <Route path="/user/:id"
+                                   element={<User/>}/>}
+                        {permissions.includes('roles:read')&&
+                            <Route path="/roles"
+                                   element={<Roles/>}/>}
+                        {permissions.includes('role:read')&&
+                            <Route path="/role/:id"
+                                   element={<Role/>}/>}
+                        {permissions.includes('role:create')&&
+                            <Route path="/role/create"
+                                   element={<RoleCreate />}/>}
                     </Route>
                 </Route>
 

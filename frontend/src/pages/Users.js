@@ -5,12 +5,17 @@ import {MDBInput} from "mdb-react-ui-kit";
 import {BsSearch} from "react-icons/bs";
 import {CreateWhiteIco} from "../actions/CreateWhiteIco";
 import {BiReset} from "react-icons/bi";
+import {useDispatch, useSelector} from "react-redux";
+import {setTab} from "../store/sideNavTab";
 
 
-export function Users(){
+export function Users(props){
     const [users, setUsersList] = useState([]);
     const [isData, setIsData] = useState(false);
     const [searchUserName, setSearchUserName] = useState("")
+
+    const tabKey = useSelector((state) => state.tabsKey.tabs.users)
+    const dispatch = useDispatch()
 
     const headers = {
         'Accept': 'application/json',
@@ -56,6 +61,7 @@ export function Users(){
     }
 
     useEffect(() => {
+        dispatch(setTab(tabKey))
         getUsers();
     }, []);
 
@@ -100,10 +106,8 @@ export function Users(){
                 {
                     users.map(item =>
                         (
-                            <a href={'user/'+item.id} className="w-100" style={{display: "contents", }}>
+                            <a key={item.id} href={'user/'+item.id} className="w-100" style={{display: "contents", }}>
                                 <tr
-                                    key={item.id}
-                                    className=""
                                     style={{color: "white"}}
                                 >
                                     <th scope="row"><p className='m-0 p-3'>{item.id}</p></th>

@@ -5,12 +5,17 @@ import {MDBBtn, MDBInput} from "mdb-react-ui-kit";
 import {CreateWhiteIco} from "../actions/CreateWhiteIco";
 import {BsSearch} from "react-icons/bs";
 import {BiReset} from "react-icons/bi";
+import {setTab} from "../store/sideNavTab";
+import {useDispatch, useSelector} from "react-redux";
 
 
 export function Posts(){
     const [posts, setPostsList] = useState([]);
     const [isData, setIsData] = useState(false);
     const [searchTitle, setSearchTitle] = useState("")
+
+    const tabKey = useSelector((state) => state.tabsKey.tabs.posts)
+    const dispatch = useDispatch()
 
     const headers = {
         'Accept': 'application/json',
@@ -54,7 +59,9 @@ export function Posts(){
         }
     }
 
+
     useEffect(() => {
+        dispatch(setTab(tabKey))
         getPosts();
     }, []);
 
