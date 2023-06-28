@@ -3,19 +3,15 @@ import {Outlet} from 'react-router-dom';
 import jwt_decode from "jwt-decode";
 import Cookies from "js-cookie";
 import moment from "moment";
-import {Logout} from "../actions/Logout";
 import {MDBBtn} from "mdb-react-ui-kit";
 import {Page404} from "../pages/404";
-import {clearPermissions} from "../store/userPermisions";
-import {useDispatch} from "react-redux";
 
 export default () => {
     const [isTokenValid, setIsTokenValid] = useState(null)
     const [isLoggedIn, setIsLoggedIn] = useState(true)
     const token = Cookies.get('x-access-token')
-    const dispatch = useDispatch()
 
-    const Check_auth_satus = () => {
+    const CheckAuthSatus = () => {
         if(token){
             if (Cookies.get('session') === '1'){
                 const decoded = jwt_decode(token);
@@ -26,26 +22,20 @@ export default () => {
                     setIsTokenValid(true)
                 } else {
                     //    show modal
-                    Cookies.set("session", 0)
                     setIsTokenValid(false)
-                    Logout()
-                    dispatch(clearPermissions())
                 }
             }
             else {
                 setIsTokenValid(false)
-                dispatch(clearPermissions())
             }
         }
         else {
             setIsLoggedIn(false)
-            dispatch(clearPermissions())
         }
-
     }
 
     useEffect(() => {
-        Check_auth_satus()
+        CheckAuthSatus()
     }, []);
 
     return (

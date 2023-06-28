@@ -1,14 +1,13 @@
 import React, {useState} from "react";
 import {Nav, Navbar} from "react-bootstrap";
 import Cookies from "js-cookie";
-import {useLocation, Link} from "react-router-dom";
+import {Link, useLocation} from "react-router-dom";
 import {Logout} from "../actions/Logout";
 import {CreateWhiteIco} from "../actions/CreateWhiteIco";
 import {MdOutlineLogin, MdOutlineLogout, MdOutlineMenu} from "react-icons/md";
 import '../static/css/nav-bar.css'
 import {SideNavBar} from "./SideNavBar";
 import {useDispatch} from "react-redux";
-import {clearPermissions} from "../store/userPermisions";
 
 export function NavBar() {
     const isAuth = Cookies.get("x-access-token")
@@ -30,7 +29,7 @@ export function NavBar() {
                         <div className="menu-ico " onClick={() => setOpen(!isOpen)}>{<MdOutlineMenu/>}</div>
                     </Navbar.Brand>
                     <Navbar.Brand className="fs-4 d-flex">
-                        <Link to="/" style={{color: "#fff"}} className="noselect">News parsing</Link>
+                        <a href="/" style={{color: "#fff"}} className="noselect">News parsing</a>
                     </Navbar.Brand>
                     <Navbar.Collapse id="basic-navbar-nav" className="flex-grow-0 d-flex w-100">
                         <Nav className="w-100">
@@ -39,7 +38,7 @@ export function NavBar() {
                                     <>
                                         <div className={"d-flex ms-auto"}>
                                             <p className="m-0 p-2">Hi,{username}!</p>
-                                            <Nav.Link className="d-flex" as={"a"} href="/" onClick={()=>{Logout(); dispatch(clearPermissions())}}>
+                                            <Nav.Link className="d-flex" as={"a"} href="/" onClick={()=>{Logout(dispatch)}}>
                                                 Logout
                                                 <div className="ms-1" style={{marginTop: "-1px"}}><MdOutlineLogout/></div>
                                             </Nav.Link>

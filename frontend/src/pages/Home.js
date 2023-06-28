@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import axios from "axios";
 import {MDBBtn, MDBCardBody, MDBCardImage, MDBCardText, MDBCardTitle} from "mdb-react-ui-kit";
 import moment from 'moment';
-import {MdShare, MdFacebook, MdArrowForward} from "react-icons/md";
+import {MdArrowForward, MdFacebook, MdShare} from "react-icons/md";
 import {SiTwitter} from "react-icons/si";
 import Cookies from "js-cookie";
 import {setTab} from "../store/sideNavTab";
