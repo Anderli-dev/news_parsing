@@ -22,7 +22,7 @@ export default () => {
                     Logout(dispatch)
                 }
             }
-            if(Cookies.get('session') === '0'){
+            if(Cookies.get('session') === '0' || !Cookies.get('session')){
                 dispatch(clearPermissions());
             }
     }
