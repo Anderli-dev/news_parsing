@@ -7,11 +7,13 @@ import {CreateWhiteIco} from "../actions/CreateWhiteIco";
 import {BiReset} from "react-icons/bi";
 import {useDispatch, useSelector} from "react-redux";
 import {setTab} from "../store/sideNavTab";
+import {RotatingLines} from "react-loader-spinner";
 
 
 export function Users(props){
     const [users, setUsersList] = useState([]);
     const [isData, setIsData] = useState(false);
+    const [isSearch, setIsSearch] =  useState(true);
     const [searchUserName, setSearchUserName] = useState("")
 
     const tabKey = useSelector((state) => state.tabsKey.tabs.users)
@@ -26,8 +28,10 @@ export function Users(props){
     const handleKeyDown = e => {
         if (e.key === 'Enter') {
             searchUsers()
+            setIsSearch(true)
         }
     }
+
     function getUsers(){
 
         try {
@@ -35,7 +39,7 @@ export function Users(props){
                 headers: headers,})
                 .then(response => {
                     if (!response.data['users'].length) {setIsData(false);}
-                    else {setIsData(true); setUsersList(response.data['users'])}
+                    else {setIsData(true);setIsSearch(false); setUsersList(response.data['users'])}
                 })
                 .catch(error => console.log(error))
         } catch (err) {
@@ -52,7 +56,7 @@ export function Users(props){
                 headers: headers,})
                 .then(response => {
                     if (!response.data['users'].length) {setIsData(false);}
-                    else {setUsersList(response.data['users'])}
+                    else {setIsSearch(false); setUsersList(response.data['users'])}
                 })
                 .catch(error => console.log(error))
         } catch (err) {
@@ -84,42 +88,62 @@ export function Users(props){
                         />
                         <button style={{border: "none", backgroundColor: "inherit"}}
                                 className="ps-2"
-                                onClick={searchUsers}>{CreateWhiteIco(<BsSearch size={'1.5em'}/>)}</button>
+                                onClick={()=>{searchUsers();setIsSearch(true)}}>{CreateWhiteIco(<BsSearch size={'1.5em'}/>)}</button>
                         <button style={{border: "none", backgroundColor: "inherit"}}
                                 className="p-0 ps-1"
-                                onClick={getUsers}>{CreateWhiteIco(<BiReset size={'1.5em'}/>)}</button>
+                                onClick={()=>{getUsers();setIsSearch(true)}}>{CreateWhiteIco(<BiReset size={'1.5em'}/>)}</button>
                     </div>
                 </div>
             </div>
 
-            <table className="table table-hover" style={{color: "white"}}>
+            <div className="table table-hover" style={{color: "white"}}>
 
-                <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Username</th>
-                        <th scope="col">Role</th>
-                    </tr>
-                </thead>
+                <div>
+                    <div className="d-flex justify-content-between">
+                        <div className="d-flex ps-3">
+                            <div className='m-0 pe-3'>#</div>
+                            <div className='m-0 ps-3'>Username</div>
+                        </div>
+                        <div>Role</div>
+                    </div>
+                </div>
 
-                <tbody className="table-group-divider">
-                {
-                    users.map(item =>
-                        (
-                            <a key={item.id} href={'user/'+item.id} className="w-100" style={{display: "contents", }}>
-                                <tr
-                                    style={{color: "white"}}
-                                >
-                                    <th scope="row"><p className='m-0 p-3'>{item.id}</p></th>
-                                    <td><p className='m-0 p-3'>{item.username}</p></td>
-                                    <td><p className='m-0 p-3'>{item.role}</p></td>
-                                </tr>
-                            </a>
-                        )
-                    )
+                {isSearch?
+                    <div className={"d-flex align-items-center justify-content-center pt-3"}>
+                        <RotatingLines
+                            strokeWidth="5"
+                            strokeColor="#3B71CA"
+                            animationDuration="0.75"
+                            width="100"
+                            visible={true}
+                        />
+                    </div>
+                    :
+                    <div className="table-group-divider">
+                        {
+                            users.map(item =>
+                                (
+                                    <a key={item.id} href={'user/'+item.id} className="w-100" style={{display: "contents", }}>
+                                        <div
+                                            className="d-flex p-0 flex-column"
+                                            style={{color: "white"}}
+                                        >
+                                            <div className="d-flex justify-content-between">
+                                                <div className="d-flex">
+                                                    <p className='m-0 p-3'>{item.id}</p>
+                                                    <p className='m-0 p-3'>{item.username}</p>
+                                                </div>
+                                                <p className='m-0 p-3'>{item.role}</p>
+                                            </div>
+                                            <span className="align-self-center" style={{backgroundColor: "#757575", height:"1px", width: "100%"}}/>
+                                        </div>
+                                    </a>
+                                )
+                            )
+                        }
+                    </div>
                 }
-                </tbody>
-            </table>
+            </div>
         </div>
     )
 }
