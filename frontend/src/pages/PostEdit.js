@@ -24,6 +24,7 @@ import {useNavigate, useParams} from "react-router-dom";
 import {TbHandClick} from "react-icons/tb";
 import {BiReset} from "react-icons/bi";
 import {CreateWhiteIco} from "../actions/CreateWhiteIco";
+import {RotatingLines} from "react-loader-spinner";
 
 export function PostEdit(){
     const [previewData, setPreviewData] = useState({
@@ -43,6 +44,10 @@ export function PostEdit(){
     const [basicModal, setBasicModal] = useState(false);
     const [imgIsSelected, setImgIsSelected] = useState(false);
     const [selectedImg, setSelectedImg] = useState(null);
+
+    const [isLoading, setIsLoading] = useState(true);
+    const [isPreviewLoading, setIsPreviewLoading] = useState(true);
+
 
     const datetime = useRef(null);
 
@@ -67,14 +72,30 @@ export function PostEdit(){
                     <MDBModalDialog centered size='lg'>
                         <MDBModalContent>
                             <MDBModalHeader>
-                                <MDBModalTitle style={{color:"black"}}>Current image</MDBModalTitle>
-                                <MDBBtn className='btn-close' color='none' type="button" onClick={toggleShow}></MDBBtn>
+                                <MDBModalTitle style={{color: "black"}}>Current image</MDBModalTitle>
+                                <MDBBtn className='btn-close' color='none' type="button"
+                                        onClick={toggleShow}></MDBBtn>
                             </MDBModalHeader>
                             <MDBModalBody>
-                                {imgIsSelected?
-                                    <img src={selectedImg} alt=""/>
+                                {isPreviewLoading ?
+                                    <div className={"d-flex align-items-center justify-content-center py-3"}>
+                                        <RotatingLines
+                                            strokeWidth="5"
+                                            strokeColor="#3B71CA"
+                                            animationDuration="0.75"
+                                            width="100"
+                                            visible={true}
+                                        />
+                                    </div>
                                     :
-                                    <img src={`../../uploads/${img}`} alt=""/>
+                                    <>
+                                        {
+                                            imgIsSelected ?
+                                                <img src={selectedImg} alt=""/>
+                                                :
+                                                <img src={`../../uploads/${img}`} alt=""/>
+                                        }
+                                    </>
                                 }
                             </MDBModalBody>
                         </MDBModalContent>
@@ -182,6 +203,7 @@ export function PostEdit(){
                         ["title_preview"]: response.data["title"],
                         ["img"]: response.data["img"],
                         ["preview"]: response.data["preview"]})
+                    setIsPreviewLoading(false)
                 })
                 .catch(error => console.log(error.response))
         }
@@ -198,6 +220,7 @@ export function PostEdit(){
                         ["title_post"]: response.data["title"],
                         ["body"]: response.data["body"],
                         ["post_id"]:postId})
+                    setIsLoading(false)
                 })
                 .catch(error => console.log(error.response))
         }
@@ -231,31 +254,41 @@ export function PostEdit(){
             <h1 className="mb-4">Edit post №{post_id}</h1>
                 <form className="g-3 " onSubmit={checked ? previewSubmit: allSubmit}>
 
-                    <div className="d-flex phone-preview">
+                    <div className="d-flex phone-preview placeholder-glow">
                         <div className="data">
                             <MDBValidationItem className='mb-4'>
                                 <MDBInput
                                     style={{color: '#fff'}}
-                                    value={title_preview}
+                                    value={isPreviewLoading?"Loading...":title_preview}
                                     name='title_preview'
                                     id='validationCustom01'
                                     required
                                     label='Preview title'
+                                    className={isPreviewLoading&&"placeholder"}
                                     labelStyle={{color:"rgb(147 147 147)"}}
-                                    onChange={onPreviewChange}
+                                    onChange={isPreviewLoading? null :onPreviewChange}
                                 />
                             </MDBValidationItem>
 
                             <p className="m-0" style={{color:"rgb(147 147 147)"}}>Chose posted date</p>
 
-                            {postedAt&&
+                            {postedAt?
                                 // without this construction, time is not showing
                                 <DataTimePicker
                                     ref={datetime}
                                     selected={moment(postedAt).format("MM-DD-YYYY")}
-                                    onChange={posted_at => setPostedAt(posted_at)}
+                                    onChange={posted_at => isPreviewLoading? null :setPostedAt(posted_at)}
                                     initialValue={moment(postedAt)}
                                 />
+                                :
+                                <div className="mb-4">
+                                    <MDBInput
+                                        style={{color: '#fff', marginBottom:"-1px"}}
+                                        value={"Loading..."}
+                                        className="placeholder"
+                                        labelStyle={{color:"rgb(147 147 147)"}}
+                                    />
+                                </div>
                             }
 
                             <MDBValidationItem className='file-container mb-4'>
@@ -280,6 +313,7 @@ export function PostEdit(){
                                     {imgModel()}
                                 </div>
                                 <MDBFile onChange={handleImgSelect}
+                                         disabled={isLoading&&true}
                                          labelStyle={{color:"rgb(147 147 147)"}}
                                          id='img'
                                 />
@@ -290,11 +324,12 @@ export function PostEdit(){
                         <MDBValidationItem className='mb-4 w-100'>
                             <MDBTextArea
                                 style={{color: '#fff', height: '215px'}}
-                                value={preview}
+                                value={isPreviewLoading?"Loading...":preview}
                                 name='preview'
-                                onChange={onPreviewChange}
+                                onChange={isPreviewLoading? null :onPreviewChange}
                                 id='validationCustom01'
                                 required
+                                className={isPreviewLoading&&"placeholder"}
                                 label='Preview'
                                 labelStyle={{color:"rgb(147 147 147)"}}
                             />
@@ -303,20 +338,21 @@ export function PostEdit(){
 
 
                     <div className="mb-4">
-                        <MDBSwitch checked={checked} onChange={switchChange} id='flexSwitchCheckDefault' label='Only preview' />
+                        <MDBSwitch checked={checked} onChange={switchChange} disabled={isLoading&&true} id='flexSwitchCheckDefault' label='Only preview' />
                     </div>
 
 
                     {!checked &&
-                        <div>
+                        <div className="placeholder-glow">
                             <MDBValidationItem className='mb-2'>
                                 <MDBInput
                                     style={{color: '#fff'}}
-                                    value={title_post}
+                                    value={isLoading?"Loading...":title_post}
                                     name='title_post'
-                                    onChange={onPostChange}
+                                    onChange={isPreviewLoading? null :onPostChange}
                                     id='validationCustom01'
                                     label='Post title'
+                                    className={isLoading&&"placeholder"}
                                     labelStyle={{color:"rgb(147 147 147)"}}
                                 />
                             </MDBValidationItem>
@@ -327,15 +363,15 @@ export function PostEdit(){
                                 className='d-flex'
                                 style={{backgroundColor: 'rgb(46 46 46)', height:'45px'}}
                             >
-                                {/*TODO remove p element*/}
                                 <p className='fw-bolder'>Note:&nbsp;</p>you can leave title blank empty
                             </MDBTypography>
 
-                            <div>
+                            <div className={isLoading&&"placeholder"}>
                                 <Editor
                                     id='editor'
                                     apiKey='q2irgy2e9k2t4yqb3oiv28zg3vi2cli0pvhb8drka4xy3dly'
                                     initialValue={body}
+                                    disabled={isLoading&&true}
                                     onInit={(evt, editor) => editorRef.current = editor}
                                     init={{
                                         selector: 'textarea#editor',
@@ -383,10 +419,11 @@ export function PostEdit(){
 
                     <div>
                         <div className='col-12'>
-                            <MDBBtn onClick={allSubmit} className="me-2">Submit form</MDBBtn>
+                            <MDBBtn onClick={allSubmit} disabled={isLoading&&true} className="me-2">Submit form</MDBBtn>
                             <MDBBtn type="button"
                                     className="btn btn-danger mt-4"
                                     onClick={onDeleteClick}
+                                    disabled={isLoading&&true}
                             >
                                 Delete
                             </MDBBtn>

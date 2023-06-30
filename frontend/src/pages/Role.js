@@ -14,7 +14,6 @@ export function Role(){
     const [rolePermissions, setRolePermissions] = useState([]);
     const [notAppliedPermissions, setNotAppliedPermissions] = useState([]);
     const [centredModal, setCentredModal] = useState(false);
-    const [isData, setIsData] = useState(false);
     const [isDescEdit, setIsDescEdit] = useState(false);
     const [formData, setFormData] = useState({
         role_name: "",
@@ -22,6 +21,9 @@ export function Role(){
         role_description:"",
     });
     const { role_name, role_users, role_description } = formData;
+
+    const [isRoleLoading, setIsRoleLoading] = useState(true);
+    const [isPermLoading, setIsPermLoading] = useState(true);
 
     const navigate = useNavigate()
 
@@ -60,9 +62,9 @@ export function Role(){
             axios.get(`${process.env.REACT_APP_API_URL}/api/role/`+id, {
                 headers: headers,})
                 .then(response => {
-                    if (!response.data['role']) {setIsData(false);}
+                    if (!response.data['role']) {setIsRoleLoading(true);}
                     else {
-                        setIsData(true);
+                        setIsRoleLoading(false);
                         setFormData({ ...formData,
                             "role_name": response.data["role"].name,
                             "role_users": response.data["role"].role_users,
@@ -81,10 +83,10 @@ export function Role(){
                 headers: headers,})
                 .then(response => {
                     if (!response.data['role_permissions'] && !response.data['not_applied_permissions']) {
-                        setIsData(false);
+                        setIsPermLoading(true);
                     }
                     else {
-                        setIsData(true);
+                        setIsPermLoading(false);
                         setRolePermissions(response.data['role_permissions']);
                         setNotAppliedPermissions(response.data['not_applied_permissions']);
                     }
@@ -156,15 +158,15 @@ export function Role(){
                 <form className='d-flex flex-column justify-content-between'
                       onSubmit={onSubmit}
                 >
-                    <div className='d-flex flex-column'>
+                    <div className='d-flex flex-column placeholder-glow'>
                         <div className='d-flex align-items-top'>
-                            <label className='m-0 fs-5'>Role:</label>
-                            <fieldset>
+                            <label className='m-0 fs-5 me-2'>Role:</label>
+                            <fieldset className={isRoleLoading&&"placeholder"}>
                                 <input type="text"
-                                       className='form-control ms-2'
+                                       className='form-control'
                                        name="role_name"
-                                       value={role_name}
-                                       onChange={onNameChange}
+                                       value={isRoleLoading?"Loading...":role_name}
+                                       onChange={isRoleLoading? null :onNameChange}
                                 />
                             </fieldset>
                         </div>
@@ -172,6 +174,7 @@ export function Role(){
                             <div className='mt-3'>
                                 <button type="button"
                                         onClick={toggleShow}
+                                        disabled={isPermLoading && true}
                                         className='m-0 ms-1 w-100 h-100 align-self-end d-flex justify-content-center btn btn-outline-light'
                                 >
                                     <p className='m-0 me-2'>Open permissions menu</p>
@@ -195,37 +198,42 @@ export function Role(){
                     </div>
 
                     <div className="d-flex justify-content-between mt-4">
-                        <button type="submit" className="btn btn-primary" style={{width: '150px'}}>
+                        <button type="submit" className="btn btn-primary" style={{width: '150px'}} disabled={isRoleLoading&&true}>
                             Save changes
                         </button>
                     </div>
                 </form>
+
                 <div className="d-flex flex-column justify-content-between w-25">
-                    <MDBCard background='light' className='text-black' >
+                    <MDBCard background='light' className='text-black placeholder-glow' >
                         <MDBCardHeader>Role Info</MDBCardHeader>
                         <MDBCardBody className="pb-3">
                             <MDBCardTitle className="fs-5 m-0 mb-1">Role users count:</MDBCardTitle>
-                            <MDBCardText className="mb-2">
+                            <MDBCardText className={isRoleLoading?"placeholder w-50 mb-2":"mb-2"}>
                                 {role_users}
                             </MDBCardText>
+
                             <MDBCardTitle className="fs-5 m-0 d-flex mb-1">
-                                <button className="border-0 p-0 pe-1"
-                                        style={{backgroundColor: "inherit"}}
-                                        onClick={async ()=>{
-                                            // using await for display textarea and after this set focus
-                                            await setIsDescEdit(!isDescEdit);
-                                            if(!isDescEdit) {
-                                                // if edit description set focus to end of text
-                                                textareaRef.current.setSelectionRange(
-                                                    textareaRef.current.value.length,
-                                                    textareaRef.current.value.length)
-                                                textareaRef.current.focus()
+                                {!isRoleLoading &&
+
+                                    <button className="border-0 p-0 pe-1"
+                                            style={{backgroundColor: "inherit"}}
+                                            onClick={async () => {
+                                                // using await for display textarea and after this set focus
+                                                await setIsDescEdit(!isDescEdit);
+                                                if (!isDescEdit) {
+                                                    // if edit description set focus to end of text
+                                                    textareaRef.current.setSelectionRange(
+                                                        textareaRef.current.value.length,
+                                                        textareaRef.current.value.length)
+                                                    textareaRef.current.focus()
+                                                }
                                             }
-                                        }
-                                        }
-                                >
-                                    <AiOutlineEdit style={{marginTop: '-2px'}}/>
-                                </button>
+                                            }
+                                    >
+                                        <AiOutlineEdit style={{marginTop: '-2px'}}/>
+                                    </button>
+                                }
                                 <p className="m-0">Description:</p>
                             </MDBCardTitle>
                                 {isDescEdit ?
@@ -240,7 +248,7 @@ export function Role(){
                                         />
                                     </>
                                     :
-                                    <MDBCardText className="pb-2">
+                                    <MDBCardText className={isRoleLoading?"placeholder w-50 mb-2":"mb-2"}>
                                         {role_description}
                                     </MDBCardText>
                                 }
@@ -250,7 +258,9 @@ export function Role(){
                     <button type="button"
                             className="btn btn-danger mt-4"
                             style={{width: '150px'}}
-                            onClick={delRole}>
+                            onClick={delRole}
+                            disabled={isRoleLoading&&true}
+                    >
                         Delete role
                     </button>
                     </div>

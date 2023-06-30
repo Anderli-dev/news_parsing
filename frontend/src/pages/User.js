@@ -10,7 +10,8 @@ export function User(){
     //TODO add role id instead role
     const [role, setRole] = useState('')
     const [roles, setRoles] = useState([]);
-    const [isData, setIsData] = useState(false);
+    const [isUserLoading, setIsUserLoading] = useState(true);
+    const [isRolesLoading, setIsRolesLoading] = useState(true);
     const [formData, setFormData] = useState({
         username: "",
         name: "",
@@ -35,9 +36,9 @@ export function User(){
             axios.get(`${process.env.REACT_APP_API_URL}/api/user/`+id, {
                 headers: headers,})
                 .then(response => {
-                    if (!response.data['user']) {setIsData(false);}
+                    if (!response.data['user']) {setIsUserLoading(true);}
                     else {
-                        setIsData(true);
+                        setIsUserLoading(false);
                         setUser(response.data['user']);
                         setFormData({ ...formData,
                             "username": response.data["user"].username,
@@ -58,8 +59,8 @@ export function User(){
             axios.get(`${process.env.REACT_APP_API_URL}/api/roles`, {
                 headers: headers,})
                 .then(response => {
-                    if (!response.data['roles']) {setIsData(false);}
-                    else {setIsData(true); setRoles(response.data['roles'])}
+                    if (!response.data['roles']) {setIsRolesLoading(true);}
+                    else {setIsRolesLoading(false); setRoles(response.data['roles'])}
                 })
                 .catch(error => console.log(error))
         } catch (err) {
@@ -109,25 +110,40 @@ export function User(){
             <div className="d-flex justify-content-between">
                 <form className='d-inline-flex flex-column justify-content-between' onSubmit={onSubmit}>
                     <div className="d-flex">
-                        <div className="d-flex flex-column">
-                            <MDBInput onChange={onChange} name="name" wrapperClass="mb-3" label='Name' id='typeText' type='text' contrast value={name}/>
-                            <MDBInput onChange={onChange} name="surname" wrapperClass="mb-3" label='Surname' id='typeText' type='text' contrast value={surname}/>
-                            <MDBInput onChange={onChange} name="email" label='Email' id='typeEmail' type='email' contrast value={email}/>
+                        <div className="d-flex flex-column placeholder-glow">
+                            <MDBInput onChange={isUserLoading? null :onChange}
+                                      name="name"
+                                      className={isUserLoading&&"placeholder"}
+                                      wrapperClass="mb-3" label='Name' id='typeText' type='text' contrast value={isUserLoading?"Loading...":name}/>
+                            <MDBInput onChange={isUserLoading? null :onChange}
+                                      name="surname"
+                                      className={isUserLoading&&"placeholder"}
+                                      wrapperClass="mb-3" label='Surname' id='typeText' type='text' contrast value={isUserLoading?"Loading...":surname}/>
+                            <MDBInput onChange={isUserLoading? null :onChange}
+                                      name="email"
+                                      className={isUserLoading&&"placeholder"}
+                                      label='Email' id='typeEmail' type='email' contrast value={isUserLoading?"Loading...":email}/>
                         </div>
-                        <div className="ms-4">
+                        <div className="ms-4 placeholder-glow">
                             <div className='d-flex align-items-center'>
-                                <label className='m-0 fs-5'>Username:</label>
-                                <input type="text"
-                                       className='form-control ms-2'
-                                       name="username"
-                                       value={username}
-                                       onChange={onChange}
-                                       required/>
+                                <label className='m-0 fs-5 me-2'>Username:</label>
+                                <div className={isUserLoading&&"placeholder"}>
+                                    <input type="text"
+                                           className='form-control '
+                                           name="username"
+                                           value={isUserLoading?"Loading...":username}
+                                           onChange={isUserLoading? null : onChange}
+                                           required/>
+                                </div>
                             </div>
                             <div className='d-flex align-items-center mt-3'>
-                                <label className='fs-5'>Role:</label>
-                                <div className='ms-2'>
-                                    <select className="form-select py-1" value={role} onChange={(e) => setRole(e.target.value)} name='role'>
+                                <label className='fs-5 me-2'>Role:</label>
+                                <div className={isUserLoading&&"placeholder"} >
+                                    <select className="form-select py-1 placeholder-glow"
+                                            disabled={isRolesLoading&&true}
+                                            value={role}
+                                            onChange={(e) => isUserLoading? null : setRole(e.target.value)}
+                                            name='role'>
                                         {roles.map(item => {
                                                 return <option value={item.name}>{item.name}</option>
                                             }
@@ -139,22 +155,22 @@ export function User(){
                     </div>
 
                     <div className="d-flex justify-content-between mt-3">
-                        <button type="submit" className="d-flex justify-content-center btn btn-primary btn-block mb-4" style={{width: '150px'}}>
+                        <button type="submit" className="d-flex justify-content-center btn btn-primary btn-block mb-4" disabled={isUserLoading&&true} style={{width: '150px'}}>
                             Save changes
                         </button>
                     </div>
                 </form>
                 <div className="w-50 d-flex flex-column ">
                     <div >
-                        <MDBCard shadow='0' border='light' style={{backgroundColor: "inherit"}} className='mb-3 '>
+                        <MDBCard shadow='0' border='light' style={{backgroundColor: "inherit"}} className='mb-3 placeholder-glow'>
                             <MDBCardHeader>Activity info</MDBCardHeader>
                             <MDBCardBody>
                                 <MDBCardTitle>Count of posts</MDBCardTitle>
-                                <MDBCardText>
+                                <MDBCardText className={isUserLoading&&"placeholder w-50"}>
                                     {user.count_of_posts}
                                 </MDBCardText>
                                 <MDBCardTitle>Last posted at</MDBCardTitle>
-                                <MDBCardText>
+                                <MDBCardText className={isUserLoading&&"placeholder w-50"}>
                                     {user.last_posted_at}
                                 </MDBCardText>
                             </MDBCardBody>
@@ -162,7 +178,7 @@ export function User(){
                     </div>
 
                     <div className="d-flex justify-content-end">
-                        <button onClick={onDeleteClick} className="btn btn-danger mb-4">
+                        <button onClick={onDeleteClick} disabled={isUserLoading&&true} className="btn btn-danger mb-4">
                             Delete user
                         </button>
                     </div>
