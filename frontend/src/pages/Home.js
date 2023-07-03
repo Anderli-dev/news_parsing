@@ -7,7 +7,7 @@ import {SiTwitter} from "react-icons/si";
 import Cookies from "js-cookie";
 import {setTab} from "../store/sideNavTab";
 import {useDispatch, useSelector} from "react-redux";
-import {RotatingLines} from "react-loader-spinner";
+import {HomeLoadingPost} from "../components/HomeLoadingPost";
 
 export function Home(){
     const [posts, setPosts] = useState([]);
@@ -43,15 +43,13 @@ export function Home(){
     return(
         <div className="dark d-flex flex-column align-items-center pt-4">
             {isLoading?
-                <div className={"d-flex align-items-center justify-content-center pt-3"}>
-                    <RotatingLines
-                        strokeWidth="5"
-                        strokeColor="#3B71CA"
-                        animationDuration="0.75"
-                        width="100"
-                        visible={true}
-                    />
-                </div>
+                <>
+                    <HomeLoadingPost/>
+                    <HomeLoadingPost/>
+                    <HomeLoadingPost/>
+                    <HomeLoadingPost/>
+                    <HomeLoadingPost/>
+                </>
                 :
                 <>
                     {posts.map(item => (

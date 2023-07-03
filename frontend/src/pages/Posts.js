@@ -112,7 +112,7 @@ export function Posts(){
             </div>
 
             {isSearch?
-                <div className={"d-flex align-items-center justify-content-center"}>
+                <div className={"d-flex align-items-center justify-content-center"} style={{height: "50vh"}}>
                     <RotatingLines
                         strokeWidth="5"
                         strokeColor="#3B71CA"

@@ -49,7 +49,7 @@ export function Roles(){
             </div>
 
             {isLoading ?
-                <div className={"d-flex align-items-center justify-content-center pt-3"}>
+                <div className={"d-flex align-items-center justify-content-center pt-3"} style={{height: "50vh"}}>
                     <RotatingLines
                         strokeWidth="5"
                         strokeColor="#3B71CA"

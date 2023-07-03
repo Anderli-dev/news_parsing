@@ -1,4 +1,3 @@
-import {Blocks} from "react-loader-spinner";
 import React from "react";
 
 export const LoadingPreview = () => {
