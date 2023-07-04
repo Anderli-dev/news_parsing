@@ -2,7 +2,7 @@ import {useNavigate, useParams} from "react-router-dom";
 import Cookies from "js-cookie";
 import axios from "axios";
 import React, {useEffect, useRef, useState} from "react";
-import {PermissionsModal} from '../components/PrermissionsModal'
+import {PermissionsModal} from '../components/Modals/PrermissionsModal'
 import {AiOutlineEdit, AiOutlineMenuUnfold} from "react-icons/ai";
 import {CreateWhiteIco} from "../actions/CreateWhiteIco";
 import {switchPermission} from "../actions/SwitchPermission";

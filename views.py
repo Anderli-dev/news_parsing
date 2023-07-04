@@ -148,22 +148,21 @@ class LoginView(Resource):
         auth = request.authorization
 
         if not auth or not auth.username or not auth.password:
-            return make_response(jsonify({'error': 'Could not verify'}), 401)
+            return make_response(jsonify({'error': 'No authorization data!'}), 401)
 
         user = User.query.filter_by(username=auth.username).first()
 
         if not user:
-            return make_response(jsonify({'error': 'Could not verify'}), 401)
+            return make_response(jsonify({'error': 'Wrong username!'}), 401)
 
         if check_password_hash(user.password, auth.password):
             token = jwt.encode(
                 {'id': user.id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(weeks=1)},
                 app.config['SECRET_KEY']
             )
-
             return make_response(jsonify({'token': token.decode('UTF-8')}), 200)
-
-        return make_response(jsonify({'error': 'Could not verify'}), 401)
+        else:
+            return make_response(jsonify({'error': 'Wrong password!'}), 401)
 
 
 class LogoutView(AuthResource):

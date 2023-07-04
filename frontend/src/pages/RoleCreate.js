@@ -3,7 +3,7 @@ import {MDBBtn, MDBInput, MDBTextArea} from "mdb-react-ui-kit";
 import {CreateWhiteIco} from "../actions/CreateWhiteIco";
 import {AiOutlineMenuUnfold, AiOutlinePlus} from "react-icons/ai";
 import {Scrollbars} from "react-custom-scrollbars";
-import {PermissionsModal} from "../components/PrermissionsModal";
+import {PermissionsModal} from "../components/Modals/PrermissionsModal";
 import {useState} from "react";
 import {switchPermission} from "../actions/SwitchPermission";
 import axios from "axios";

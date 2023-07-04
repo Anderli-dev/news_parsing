@@ -5,12 +5,15 @@ import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from 'react-redux'
 import {setPermissions} from "../store/userPermisions";
+import {ErrorLoginModal} from "../components/Modals/ErrorLoginModal";
 
 export function Login(){
     const [formData, setFormData] = useState({
         username: "",
         password: ""
     });
+    const [isError, setIsError] = useState(false)
+    const [errMsg, setErrMsg] = useState("")
 
     const navigate = useNavigate()
     const dispatch = useDispatch()
@@ -41,7 +44,12 @@ export function Login(){
                         navigate("/")
                     }
                 })
-                .catch(error => console.log(error.response))
+                .catch(async error => {
+                    setIsError(false)
+                    setIsError(true)
+                    setErrMsg(error.response.data.error)
+                    setTimeout(() => {!isError&&setIsError(false)}, 5000)
+                })
 
             headers['x-access-token']=Cookies.get('x-access-token')
             await axios.get(`${process.env.REACT_APP_API_URL}/api/user/permissions`,{headers: headers,})
@@ -58,6 +66,8 @@ export function Login(){
 
     return(
         <div>
+            {isError && <ErrorLoginModal errMsg={errMsg}/>}
+
             <div className="vh-100" style={{backgroundColor: "#202124"}}>
                 <div className="container py-5 h-100">
                     <div className="row d-flex justify-content-center align-items-center h-100">
@@ -87,7 +97,9 @@ export function Login(){
                                                            onChange={onChange}
                                                            name="username"
                                                            className="form-control form-control-lg"
-                                                           style={{border: "1px solid #bdbdbd"}}/>
+                                                           style={{border: "1px solid #bdbdbd"}}
+                                                           required
+                                                    />
                                                     <label className="form-label"
                                                            htmlFor="form2Example27"
                                                            style={{transform: "none", marginTop: "-21px",  marginLeft: "-10px"}}>
@@ -102,7 +114,8 @@ export function Login(){
                                                         name="password"
                                                         className={"form-control form-control-lg"}
                                                         style={{border: "1px solid #bdbdbd"}}
-                                                        required/>
+                                                        required
+                                                    />
                                                     <label className="form-label"
                                                            style={{transform: "none", marginTop: "-28px", marginLeft: "-10px"}}
                                                            htmlFor="form2Example27">Password</label>
@@ -117,7 +130,7 @@ export function Login(){
                                                 <a className="small text-muted" href="#!">Forgot password?</a>
                                                 <p className="mb-5 pb-lg-2" style={{color: "#393f81"}}>Don't have an
                                                     account?
-                                                    <a href="#!" style={{color: "#393f81"}}>Register here</a></p>
+                                                    <a href="#!" style={{color: "#393f81"}} className="ms-2">Register here</a></p>
                                                 <a href="#!" className="small text-muted">Terms of use.</a>
                                                 <a href="#!" className="small text-muted">Privacy policy</a>
                                             </form>
