@@ -14,6 +14,7 @@ export class DataTimePicker extends React.Component {
                 renderDay={this.renderDay}
                 renderMonth={this.renderMonth}
                 renderYear={this.renderYear}
+                renderInput={this.renderInput}
                 renderView={(undefined, renderDefault) =>
                     this.renderView(renderDefault)
                 }
@@ -42,5 +43,8 @@ export class DataTimePicker extends React.Component {
     renderYear(props, year, selectedDate) {
         // Just display the last 2 digits of the year in the years view
         return <td {...props}>{year}</td>;
+    }
+    renderInput(props, openCalendar, closeCalendar){
+        return <input {...props} onChange={null}></input>
     }
 }

@@ -25,6 +25,7 @@ import {TbHandClick} from "react-icons/tb";
 import {BiReset} from "react-icons/bi";
 import {CreateWhiteIco} from "../actions/CreateWhiteIco";
 import {RotatingLines} from "react-loader-spinner";
+import {ValidationField} from "../components/ValidationField";
 
 export function PostEdit(){
     const [previewData, setPreviewData] = useState({
@@ -42,14 +43,16 @@ export function PostEdit(){
     const { post_id, title_post, body } = postData;
     const [checked, setChecked] = useState(false);
     const [basicModal, setBasicModal] = useState(false);
-    const [imgIsSelected, setImgIsSelected] = useState(false);
     const [selectedImg, setSelectedImg] = useState(null);
 
     const [isLoading, setIsLoading] = useState(true);
     const [isPreviewLoading, setIsPreviewLoading] = useState(true);
 
+    const [errorFields, setErrorFields] = useState({});
 
     const datetime = useRef(null);
+    const editorRef = useRef(null);
+    const fileInputRef = useRef(null);
 
     const {id} = useParams();
 
@@ -63,7 +66,6 @@ export function PostEdit(){
         }
     )
 
-    const editorRef = useRef(null);
 
     const imgModel = () => {
         return(
@@ -90,8 +92,8 @@ export function PostEdit(){
                                     :
                                     <>
                                         {
-                                            imgIsSelected ?
-                                                <img src={selectedImg} alt=""/>
+                                            selectedImg ?
+                                                <img src={URL.createObjectURL(selectedImg)} alt=""/>
                                                 :
                                                 <img src={`../../uploads/${img}`} alt=""/>
                                         }
@@ -107,12 +109,33 @@ export function PostEdit(){
 
     const toggleShow = () => setBasicModal(!basicModal);
 
-    const onPreviewChange = (e) => {
-        setPreviewData({ ...previewData, [e.target.name]: e.target.value });
-    };
+    const resetImg = () => {
+        setSelectedImg(null)
+        fileInputRef.current.value = null;
+    }
 
-    const onPostChange = (e) => {
-        setPostData({ ...postData, [e.target.name]: e.target.value });
+    const onChange = (e) => {
+         const errMsg =
+            ( e.target.name ==='title_preview' && "Preview title max length 255 symbols!") ||
+            ( e.target.name ==='preview' && 'Preview max length 255 symbols!')||
+            ( e.target.name ==='title_post' && "Post title max length 255 symbols!")
+
+        if(e.target.value.length > 255){
+            setErrorFields({...errorFields, [e.target.name]: errMsg});
+            return
+        }
+        else if(errorFields[e.target.name]){
+            const arr = {...errorFields}
+            delete arr[e.target.name]
+            setErrorFields({...arr});
+        }
+
+        if( e.target.name ==='title_post'){
+            setPostData({ ...postData, [e.target.name]: e.target.value });
+        }
+        else {
+            setPreviewData({ ...previewData, [e.target.name]: e.target.value });
+        }
     };
 
     const switchChange = (e) => {
@@ -120,25 +143,40 @@ export function PostEdit(){
     };
 
     const handleImgSelect = (e) => {
-        if(e.target.files[0]) {
-            setSelectedImg(URL.createObjectURL(e.target.files[0]))
-            setImgIsSelected(true)
+        setSelectedImg(null)
+
+        if (fileInputRef.current.files[0] || fileInputRef.current.files[0] === selectedImg) {
+            if (!fileInputRef.current.files[0].type.includes('image/')) {
+                setSelectedImg(null)
+                setErrorFields({...errorFields, [e.target.name]: 'Uploaded file type is not image!'});
+                resetImg()
+                return
+            } else if (fileInputRef.current.files[0].size > 2097152) {
+                setErrorFields({...errorFields, [e.target.name]: 'Image size is too big!'});
+                resetImg()
+                return
+            } else if (fileInputRef.current.files[0].name.length > 65534) {
+                setSelectedImg(null)
+                setErrorFields({...errorFields, [e.target.name]: 'Image name is too long!'});
+                resetImg()
+                return
+            }
+            if (errorFields[e.target.name]) {
+                const arr = {...errorFields}
+                delete arr[e.target.name]
+                setErrorFields({...arr});
+            }
+            setSelectedImg(fileInputRef.current.files[0])
         }
-        else {
-            setImgIsSelected(false)
-        }
-        // setSelectedImg(e.target.files[0])
     }
 
-    const previewSubmit = async e => {
+    const previewSubmit = async () => {
         let formData = new FormData();
-        let imagefile = document.querySelector('#img');
-        if(imgIsSelected){
-            formData.append("img", imagefile.files[0]);
+        if(selectedImg !== null){
+            formData.append("img", selectedImg);
         }
         formData.append("title", title_preview)
         formData.append("preview", preview)
-        // TODO add auto time
         formData.append("posted_at", moment(postedAt.toString()).format("YYYY[-]MM[-]DD[T]h[:]m[:]s"))
         formData.append("id", id)
 
@@ -150,16 +188,14 @@ export function PostEdit(){
         }
     };
 
-    const allSubmit = async e =>{
+    const allSubmit = async () =>{
 
         let formData = new FormData();
-        let imagefile = document.querySelector('#img');
-        if(imgIsSelected){
-            formData.append("img", imagefile.files[0]);
+        if(selectedImg){
+            formData.append("img", selectedImg);
         }
         formData.append("title", title_preview)
         formData.append("preview", preview)
-        // TODO add auto time
         formData.append("posted_at", moment(postedAt.toString()).format("YYYY[-]MM[-]DD[T]h[:]m[:]s"))
         formData.append("id", id)
 
@@ -171,7 +207,7 @@ export function PostEdit(){
         }
 
         let data = {
-            title_post: title_post === '' ? title_preview : title_post,
+            title_post: title_post.split(' ').join('') === '' ? title_preview : title_post,
             text: window.tinymce.activeEditor.getContent(),
             preview_id: id,
             post_id: post_id
@@ -229,10 +265,6 @@ export function PostEdit(){
         }
     }
 
-    const resetImg = () => {
-        setImgIsSelected(false)
-    }
-
     const onDeleteClick = () => {
         try {
             axios.delete(`${process.env.REACT_APP_API_URL}/api/post/`+id,{
@@ -256,8 +288,9 @@ export function PostEdit(){
 
                     <div className="d-flex phone-preview placeholder-glow">
                         <div className="data">
-                            <MDBValidationItem className='mb-4'>
-                                <MDBInput
+                            <MDBValidationItem>
+                                <ValidationField
+                                    asElement={MDBInput}
                                     style={{color: '#fff'}}
                                     value={isPreviewLoading?"Loading...":title_preview}
                                     name='title_preview'
@@ -266,7 +299,8 @@ export function PostEdit(){
                                     label='Preview title'
                                     className={isPreviewLoading&&"placeholder"}
                                     labelStyle={{color:"rgb(147 147 147)"}}
-                                    onChange={isPreviewLoading? null :onPreviewChange}
+                                    onChange={isPreviewLoading? null :onChange}
+                                    error={errorFields}
                                 />
                             </MDBValidationItem>
 
@@ -300,7 +334,7 @@ export function PostEdit(){
                                                 className="m-0"
                                                 style={{backgroundColor: "inherit", color: "#fff", border: "none"}}
                                         >Current image<TbHandClick/></button>
-                                        {imgIsSelected&&
+                                        {selectedImg&&
                                             <button type="button"
                                                     style={{backgroundColor: "inherit", color: "#fff", border: "none"}}
                                                     onClick={resetImg}
@@ -309,29 +343,44 @@ export function PostEdit(){
                                             </button>}
                                     </div>
                                 </div>
+
                                 <div>
                                     {imgModel()}
                                 </div>
-                                <MDBFile onChange={handleImgSelect}
-                                         disabled={isLoading&&true}
-                                         labelStyle={{color:"rgb(147 147 147)"}}
-                                         id='img'
-                                />
+
+                                <div className={errorFields["img"] &&'mb-4'}>
+                                    <input
+                                        type="file"
+                                        onChange={handleImgSelect}
+                                        name="img"
+                                        id='img'
+                                        disabled={isLoading&&true}
+                                        ref={fileInputRef}
+                                        className="form-control"
+                                    />
+                                    {errorFields["img"]&&
+                                        <div style={{color: "#DC4C64", fontSize: "15px"}} >
+                                            <p className="m-0">{errorFields["img"]}</p>
+                                        </div>
+                                    }
+                                </div>
                             </MDBValidationItem>
 
                         </div>
 
                         <MDBValidationItem className='mb-4 w-100'>
-                            <MDBTextArea
+                            <ValidationField
+                                asElement={MDBTextArea}
                                 style={{color: '#fff', height: '215px'}}
                                 value={isPreviewLoading?"Loading...":preview}
                                 name='preview'
-                                onChange={isPreviewLoading? null :onPreviewChange}
+                                onChange={isPreviewLoading? null :onChange}
                                 id='validationCustom01'
                                 required
                                 className={isPreviewLoading&&"placeholder"}
                                 label='Preview'
                                 labelStyle={{color:"rgb(147 147 147)"}}
+                                error={errorFields}
                             />
                         </MDBValidationItem>
                     </div>
@@ -344,16 +393,18 @@ export function PostEdit(){
 
                     {!checked &&
                         <div className="placeholder-glow">
-                            <MDBValidationItem className='mb-2'>
-                                <MDBInput
+                            <MDBValidationItem>
+                                <ValidationField
+                                    asElement={MDBInput}
                                     style={{color: '#fff'}}
                                     value={isLoading?"Loading...":title_post}
                                     name='title_post'
-                                    onChange={isPreviewLoading? null :onPostChange}
+                                    onChange={isPreviewLoading? null :onChange}
                                     id='validationCustom01'
                                     label='Post title'
                                     className={isLoading&&"placeholder"}
                                     labelStyle={{color:"rgb(147 147 147)"}}
+                                    error={errorFields}
                                 />
                             </MDBValidationItem>
 

@@ -1,11 +1,22 @@
 import React, {useRef, useState} from "react";
-import {MDBBtn, MDBFile, MDBInput, MDBSwitch, MDBTextArea, MDBTypography, MDBValidationItem} from 'mdb-react-ui-kit';
+import {
+    MDBBtn,
+    MDBInput,
+    MDBModal, MDBModalBody, MDBModalContent, MDBModalDialog, MDBModalHeader, MDBModalTitle,
+    MDBSwitch, MDBTextArea,
+    MDBTypography,
+    MDBValidationItem
+} from 'mdb-react-ui-kit';
 import axios from "axios";
 import Cookies from "js-cookie";
 import { Editor } from '@tinymce/tinymce-react';
 import moment from 'moment';
 import {DataTimePicker} from "../components/DataTimePicker";
 import '../static/css/add-post.css'
+import {TbHandClick} from "react-icons/tb";
+import {CreateWhiteIco} from "../actions/CreateWhiteIco";
+import {BiReset} from "react-icons/bi";
+import {ValidationField} from "../components/ValidationField";
 
 
 
@@ -18,8 +29,10 @@ export function AddPost(){
     const { title_preview, preview, title_post } = formData;
     const [checked, setChecked] = useState(false);
     const [selectedImg, setSelectedImg] = useState(null);
-    const datetime = useRef(null);
+    const [basicModal, setBasicModal] = useState(false);
     const [date, setDate] = useState(moment().format("YYYY[-]MM[-]DD[T]h[:]m[:]s"));
+
+    const [errorFields, setErrorFields] = useState({});
 
     const [headers] = useState(
         {
@@ -29,9 +42,59 @@ export function AddPost(){
         }
     )
 
+    const datetime = useRef(null);
     const editorRef = useRef(null);
+    const fileInputRef = useRef(null);
+
+    const imgModel = () => {
+        return(
+            <>
+                <MDBModal show={basicModal} setShow={setBasicModal} tabIndex='-1'>
+                    <MDBModalDialog centered size='lg'>
+                        <MDBModalContent>
+                            <MDBModalHeader>
+                                <MDBModalTitle style={{color: "black"}}>Current image</MDBModalTitle>
+                                <MDBBtn className='btn-close' color='none' type="button"
+                                        onClick={toggleShow}></MDBBtn>
+                            </MDBModalHeader>
+                            <MDBModalBody>
+                                <>
+                                    {
+                                        selectedImg &&
+                                            <img src={URL.createObjectURL(selectedImg)} alt=""/>
+                                    }
+                                </>
+                            </MDBModalBody>
+                        </MDBModalContent>
+                    </MDBModalDialog>
+                </MDBModal>
+            </>
+        )
+    }
+
+    const toggleShow = () => setBasicModal(!basicModal);
+
+    const resetImg = () => {
+        setSelectedImg(null)
+        fileInputRef.current.value = null;
+    }
 
     const onChange = (e) => {
+        const errMsg =
+            ( e.target.name ==='title_preview' && "Preview title max length 255 symbols!") ||
+            ( e.target.name ==='preview' && 'Preview max length 255 symbols!')||
+            ( e.target.name ==='title_post' && "Post title max length 255 symbols!")
+
+        if(e.target.value.length > 255){
+            setErrorFields({...errorFields, [e.target.name]: errMsg});
+            return
+        }
+        else if(errorFields[e.target.name]){
+            const arr = {...errorFields}
+            delete arr[e.target.name]
+            setErrorFields({...arr});
+        }
+
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
@@ -40,18 +103,40 @@ export function AddPost(){
     };
 
     const handleImgSelect = (e) => {
-        setSelectedImg(e.target.files[0])
+        setSelectedImg(null)
+
+        if (fileInputRef.current.files[0] || fileInputRef.current.files[0] === selectedImg) {
+            if (!fileInputRef.current.files[0].type.includes('image/')) {
+                setSelectedImg(null)
+                setErrorFields({...errorFields, [e.target.name]: 'Uploaded file type is not image!'});
+                resetImg()
+                return
+            } else if (fileInputRef.current.files[0].size > 2097152) {
+                setErrorFields({...errorFields, [e.target.name]: 'Image size is too big!'});
+                resetImg()
+                return
+            } else if (fileInputRef.current.files[0].name.length > 65534) {
+                setSelectedImg(null)
+                setErrorFields({...errorFields, [e.target.name]: 'Image name is too long!'});
+                resetImg()
+                return
+            }
+            if (errorFields[e.target.name]) {
+                const arr = {...errorFields}
+                delete arr[e.target.name]
+                setErrorFields({...arr});
+            }
+            setSelectedImg(fileInputRef.current.files[0])
+        }
     }
 
     const previewSubmit = async e => {
         e.preventDefault()
 
         let formData = new FormData();
-        let imagefile = document.querySelector('#img');
-        formData.append("img", imagefile.files[0]);
+        formData.append("img", selectedImg);
         formData.append("title", title_preview)
         formData.append("preview", preview)
-        // TODO add auto time
         formData.append("posted_at", date.toString())
 
         try {
@@ -71,12 +156,11 @@ export function AddPost(){
         e.preventDefault()
 
         let formData = new FormData();
-        let imagefile = document.querySelector('#img');
-        formData.append("img", imagefile.files[0]);
+        formData.append("img", selectedImg);
         formData.append("title", title_preview)
         formData.append("preview", preview)
-        // TODO add auto time
         formData.append("posted_at", date.toString())
+
         let previewId
         try {
             await axios.post(`${process.env.REACT_APP_API_URL}/api/preview`, formData, {headers: headers,})
@@ -92,8 +176,7 @@ export function AddPost(){
         }
 
         let data = {
-            // TODO remove spaces from title_post
-            title_post: title_post === '' ? title_preview : title_post,
+            title_post: title_post.split(' ').join('') === '' ? title_preview : title_post,
             text: window.tinymce.activeEditor.getContent(),
             previewId: previewId
         }
@@ -115,12 +198,11 @@ export function AddPost(){
         <div className="mt-4">
             <h1 className="mb-4">Add post</h1>
                 <form className="g-3 " onSubmit={checked ? previewSubmit: allSubmit}>
-
-
                     <div className="d-flex phone-preview">
                         <div className="data">
-                            <MDBValidationItem className='mb-4'>
-                                <MDBInput
+                            <MDBValidationItem >
+                                <ValidationField
+                                    asElement={MDBInput}
                                     style={{color: '#fff'}}
                                     value={title_preview}
                                     name='title_preview'
@@ -128,7 +210,7 @@ export function AddPost(){
                                     id='validationCustom01'
                                     required
                                     label='Preview title'
-                                    labelStyle={{color:"rgb(147 147 147)"}}
+                                    error={errorFields}
                                 />
                             </MDBValidationItem>
 
@@ -136,20 +218,59 @@ export function AddPost(){
                             <DataTimePicker
                                 ref={datetime}
                                 selected={date}
-                                onChange={date => setDate(date)}
+                                onChange={date => {
+                                    date._isAMomentObject
+                                        ? setDate(date)
+                                        : setErrorFields({...errorFields, "data_time": "Post date is not a valid!"})}}
                                 initialValue={moment()}
                             />
 
                             <MDBValidationItem className='file-container mb-4'>
-                                <MDBFile onChange={handleImgSelect}
-                                         label='Chose preview image'
-                                         labelStyle={{color:"rgb(147 147 147)"}}
-                                         id='img' />
+                                <div className="d-flex justify-content-between">
+                                    <p style={{color: "rgb(147, 147, 147)", margin: "0", marginBottom: "2px"}}>Chose preview image</p>
+                                    {selectedImg&&
+                                        <div className="d-flex m-0">
+                                            <button type="button"
+                                                    onClick={toggleShow}
+                                                    style={{backgroundColor: "inherit", color: "#fff", border: "none"}}
+                                            >Current image<TbHandClick/></button>
+
+                                            <button type="button"
+                                                    style={{backgroundColor: "inherit", color: "#fff", border: "none"}}
+                                                    onClick={resetImg}
+                                            >
+                                                {CreateWhiteIco(<BiReset/>)}
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+
+                                <div>
+                                    {imgModel()}
+                                </div>
+
+                                <div className={errorFields["img"] &&'mb-4'}>
+                                    <input
+                                        type="file"
+                                        onChange={handleImgSelect}
+                                        name="img"
+                                        required
+                                        id='img'
+                                        ref={fileInputRef}
+                                        className="form-control"
+                                    />
+                                    {errorFields["img"]&&
+                                        <div style={{color: "#DC4C64", fontSize: "15px"}} >
+                                            <p className="m-0">{errorFields["img"]}</p>
+                                        </div>
+                                    }
+                                </div>
                             </MDBValidationItem>
                         </div>
 
                         <MDBValidationItem className='mb-4 w-100'>
-                            <MDBTextArea
+                            <ValidationField
+                                asElement={MDBTextArea}
                                 style={{color: '#fff', height: '215px'}}
                                 value={preview}
                                 name='preview'
@@ -157,7 +278,7 @@ export function AddPost(){
                                 id='validationCustom01'
                                 required
                                 label='Preview'
-                                labelStyle={{color:"rgb(147 147 147)"}}
+                                error={errorFields}
                             />
                         </MDBValidationItem>
                     </div>
@@ -170,8 +291,9 @@ export function AddPost(){
 
                     {!checked &&
                         <div>
-                            <MDBValidationItem className='mb-2'>
-                                <MDBInput
+                            <MDBValidationItem>
+                                <ValidationField
+                                    asElement={MDBInput}
                                     style={{color: '#fff'}}
                                     value={title_post}
                                     name='title_post'
@@ -179,6 +301,7 @@ export function AddPost(){
                                     id='validationCustom01'
                                     label='Post title'
                                     labelStyle={{color:"rgb(147 147 147)"}}
+                                    error={errorFields}
                                 />
                             </MDBValidationItem>
 
@@ -188,7 +311,6 @@ export function AddPost(){
                                 className='d-flex'
                                 style={{backgroundColor: 'rgb(46 46 46)', height:'45px'}}
                             >
-                                {/*TODO remove p element*/}
                                 <p className='fw-bolder'>Note:&nbsp;</p>you can leave title blank empty
                             </MDBTypography>
 
