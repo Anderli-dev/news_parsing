@@ -141,11 +141,6 @@ export function AddPost(){
 
         try {
             await axios.post(`${process.env.REACT_APP_API_URL}/api/preview`, formData, {headers: headers,})
-                .then(response => {
-                    if (response.status === 200) {
-                        console.log('Success')
-                    }
-                })
                 .catch(error => console.log(error.response))
         } catch (err) {
             console.log(err.response)

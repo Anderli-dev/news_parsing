@@ -189,7 +189,6 @@ export function PostEdit(){
     };
 
     const allSubmit = async () =>{
-
         let formData = new FormData();
         if(selectedImg){
             formData.append("img", selectedImg);
@@ -197,10 +196,9 @@ export function PostEdit(){
         formData.append("title", title_preview)
         formData.append("preview", preview)
         formData.append("posted_at", moment(postedAt.toString()).format("YYYY[-]MM[-]DD[T]h[:]m[:]s"))
-        formData.append("id", id)
 
         try {
-            await axios.put(`${process.env.REACT_APP_API_URL}/api/preview`, formData, {headers: headers,})
+            await axios.put(`${process.env.REACT_APP_API_URL}/api/preview/`+id, formData, {headers: headers,})
                 .catch(error => console.log(error.response))
         } catch (err) {
             console.log(err.response)
@@ -209,12 +207,10 @@ export function PostEdit(){
         let data = {
             title_post: title_post.split(' ').join('') === '' ? title_preview : title_post,
             text: window.tinymce.activeEditor.getContent(),
-            preview_id: id,
-            post_id: post_id
         }
 
         try {
-            await axios.put(`${process.env.REACT_APP_API_URL}/api/post`, data, {headers: headers,})
+            await axios.put(`${process.env.REACT_APP_API_URL}/api/post/`+post_id, data, {headers: headers,})
                 .then(response => {
                     if (response.status === 200) {
                         console.log('Success')

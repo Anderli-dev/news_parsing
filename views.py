@@ -544,21 +544,43 @@ class PostPreviewView(Resource):
     @token_required
     @scope('post_preview:create')
     def post(self):
-        # TODO limit image size
         if 'img' not in request.files:
-            return make_response(jsonify({'error': 'No file part'}), 403)
+            return make_response(jsonify({'error': 'No image part!'}), 403)
         file = request.files['img']
         if file.filename == '':
-            return make_response(jsonify({'error': 'No selected file'}), 403)
-
+            return make_response(jsonify({'error': 'Image filename is wrong!'}), 403)
+        if len(request.files['img'].read()) > 2 * 1048576:
+            # more than 2 MB
+            return make_response(jsonify({'error': 'Image size too big!'}), 403)
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(BASE_DIR, app.config['UPLOAD_FOLDER'], filename))
+        else:
+            return make_response(jsonify({'error': 'File not image!'}), 403)
 
         try:
             data = request.form
+
+            if data['title'] is None:
+                return make_response(jsonify({'error': 'Preview title is empty!'}), 403)
+            if not isinstance(data['title'], str):
+                return make_response(jsonify({'error': 'Preview title invalid type!'}), 403)
+            if data['title'].__len__() > 255:
+                return make_response(jsonify({'error': 'Preview title is too long!'}), 403)
+
+            if data['posted_at'] is None:
+                return make_response(jsonify({'error': 'Date is empty!'}), 403)
+            if not isinstance(data['posted_at'], str):
+                return make_response(jsonify({'error': 'Date invalid type!'}), 403)
             date_without_timezone = str(data['posted_at'].split('+')[0])
             date = datetime.datetime.strptime(date_without_timezone, '%Y-%m-%dT%H:%M:%S')
+
+            if data['preview'] is None:
+                return make_response(jsonify({'error': 'Preview is empty!'}), 403)
+            if not isinstance(data['preview'], str):
+                return make_response(jsonify({'error': 'Preview invalid type!'}), 403)
+            if data['preview'].__len__() > 255:
+                return make_response(jsonify({'error': 'Preview is too long!'}), 403)
 
             token = request.headers['x-access-token']
             token_data = jwt.decode(token, app.config['SECRET_KEY'])
@@ -573,30 +595,53 @@ class PostPreviewView(Resource):
             db.session.add(preview)
             db.session.commit()
 
-            return make_response(jsonify({'msg': 'success saved preview', 'previewId': preview.id}), 200)
+            return make_response(jsonify({'msg': 'Success saved preview!', 'previewId': preview.id}), 200)
         except Exception as e:
             print(e)
-            return make_response(jsonify({'error': 'something went wrong'}), 403)
+            return make_response(jsonify({'error': 'Something went wrong!'}), 403)
 
-    def put(self):
+    def put(self, id):
         if 'img' in request.files:
             file = request.files['img']
             if file.filename == '':
-                return make_response(jsonify({'error': 'No selected file'}), 403)
-
+                return make_response(jsonify({'error': 'Image filename is wrong!'}), 403)
+            if len(request.files['img'].read()) > 2 * 1048576:
+                # more than 2 MB
+                return make_response(jsonify({'error': 'Image size too big!'}), 403)
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(BASE_DIR, app.config['UPLOAD_FOLDER'], filename))
+            else:
+                return make_response(jsonify({'error': 'File not image!'}), 403)
 
         try:
             data = request.form
+
+            if data['title'] is None:
+                return make_response(jsonify({'error': 'Preview title is empty!'}), 403)
+            if not isinstance(data['title'], str):
+                return make_response(jsonify({'error': 'Preview title invalid type!'}), 403)
+            if data['title'].__len__() > 255:
+                return make_response(jsonify({'error': 'Preview title is too long!'}), 403)
+
+            if data['posted_at'] is None:
+                return make_response(jsonify({'error': 'Date is empty!'}), 403)
+            if not isinstance(data['posted_at'], str):
+                return make_response(jsonify({'error': 'Date invalid type!'}), 403)
             date_without_timezone = str(data['posted_at'].split('+')[0])
             date = datetime.datetime.strptime(date_without_timezone, '%Y-%m-%dT%H:%M:%S')
+
+            if data['preview'] is None:
+                return make_response(jsonify({'error': 'Preview is empty!'}), 403)
+            if not isinstance(data['preview'], str):
+                return make_response(jsonify({'error': 'Preview invalid type!'}), 403)
+            if data['preview'].__len__() > 255:
+                return make_response(jsonify({'error': 'Preview is too long!'}), 403)
 
             token = request.headers['x-access-token']
             token_data = jwt.decode(token, app.config['SECRET_KEY'])
 
-            preview = NewsPreview.query.filter_by(id=int(data['id'])).first()
+            preview = NewsPreview.query.filter_by(id=id).first()
 
             if 'img' in request.files:
                 preview.img = secure_filename(file.filename)
@@ -652,23 +697,52 @@ class PostView(Resource):
     @scope('post:create')
     def post(self):
         try:
+            if request.form.get('title_post') is None:
+                return make_response(jsonify({'error': 'Post title is empty!'}), 403)
+            if not isinstance(request.form.get('title_post'), str):
+                return make_response(jsonify({'error': 'Post title invalid type!'}), 403)
+            if request.form.get('title_post').__len__() > 255:
+                return make_response(jsonify({'error': 'Post title is too long!'}), 403)
+
+            if request.form.get('text').__len__() > 64*1024:
+                # more than 64 kilobytes
+                return make_response(jsonify({'error': 'Text is too long!'}), 403)
+
+            if request.form.get('previewId') is None:
+                return make_response(jsonify({'error': 'No preview id!'}), 403)
+            if not isinstance(int(request.form.get('previewId')), int):
+                return make_response(jsonify({'error': 'Preview id invalid type!'}), 403)
+            post = News.query.filter_by(preview_id=request.form.get('previewId')).first()
+            if post:
+                return make_response(jsonify({'error': 'Preview has another post!'}), 403)
+
             post = News(title=request.form.get('title_post'),
                         text=request.form.get('text'),
                         preview_id=request.form.get('previewId'))
             db.session.add(post)
             db.session.commit()
 
-            return make_response(jsonify({'msg': 'post success saved'}), 200)
+            return make_response(jsonify({'msg': 'Post success saved!'}), 200)
         except Exception as e:
             print(e)
-            return make_response(jsonify({'error': 'something went wrong'}), 403)
+            return make_response(jsonify({'error': 'Something went wrong!'}), 403)
 
-    def put(self):
+    def put(self, id):
         try:
-            post = News.query.filter_by(id=request.form.get('post_id')).first()
+            if request.form.get('title_post') is None:
+                return make_response(jsonify({'error': 'Post title is empty!'}), 403)
+            if not isinstance(request.form.get('title_post'), str):
+                return make_response(jsonify({'error': 'Post title invalid type!'}), 403)
+            if request.form.get('title_post').__len__() > 255:
+                return make_response(jsonify({'error': 'Post title is too long!'}), 403)
+
+            if request.form.get('text').__len__() > 64*1024:
+                # more than 64 kilobytes
+                return make_response(jsonify({'error': 'Text is too long!'}), 403)
+
+            post = News.query.filter_by(id=id).first()
             post.title = request.form.get('title_post'),
             post.text = request.form.get('text'),
-            post.preview_id = request.form.get('preview_id')
             db.session.commit()
 
             return make_response(jsonify({'msg': 'post success saved'}), 200)
