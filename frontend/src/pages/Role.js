@@ -13,6 +13,7 @@ import TextareaAutosize from 'react-textarea-autosize';
 export function Role(){
     const [rolePermissions, setRolePermissions] = useState([]);
     const [notAppliedPermissions, setNotAppliedPermissions] = useState([]);
+    const [errorFields, setErrorFields] = useState({});
     const [centredModal, setCentredModal] = useState(false);
     const [isDescEdit, setIsDescEdit] = useState(false);
     const [formData, setFormData] = useState({
@@ -25,13 +26,14 @@ export function Role(){
     const [isRoleLoading, setIsRoleLoading] = useState(true);
     const [isPermLoading, setIsPermLoading] = useState(true);
 
+    const [nameIsChanged, setNameIsChanged] = useState(false)
+    const [descIsChanged, setDescIsChanged] = useState(false)
+
     const navigate = useNavigate()
 
     const {id} = useParams();
 
-
-    const [nameIsChanged, setNameIsChanged] = useState(false)
-    const [descIsChanged, setDescIsChanged] = useState(false)
+    const textareaRef = useRef(null);
 
     const headers = {
             'Accept': 'application/json',
@@ -41,11 +43,35 @@ export function Role(){
 
     const onNameChange = e => {
         setNameIsChanged(true)
+        if(e.target.value.length > 60){
+            const errMsg = "Role name max length 60 symbols!"
+
+            setErrorFields({...errorFields, [e.target.name]: errMsg});
+            return
+        }
+        else if(errorFields[e.target.name]){
+            const arr = {...errorFields}
+            delete arr[e.target.name]
+            setErrorFields({...arr});
+        }
+
         setFormData({ ...formData, [e.target.name]: e.target.value });
     }
-    const textareaRef = useRef(null);
+
     const onDescChange = e => {
         setDescIsChanged(true)
+        if(e.target.value.length > 64*1024){
+            const errMsg = "Role description too big!"
+
+            setErrorFields({...errorFields, [e.target.name]: errMsg});
+            return
+        }
+        else if(errorFields[e.target.name]){
+            const arr = {...errorFields}
+            delete arr[e.target.name]
+            setErrorFields({...arr});
+        }
+
         setFormData({ ...formData, [e.target.name]: e.target.value });
     }
 
@@ -153,13 +179,13 @@ export function Role(){
 
     return(
         <div className='mt-4'>
-            <p className='fs-2'>Role №{id}</p>
-            <div className="d-flex justify-content-between">
+            <p className='fs-2 m-0'>Role №{id}</p>
+            <div className="d-flex justify-content-between mt-4">
                 <form className='d-flex flex-column justify-content-between'
                       onSubmit={onSubmit}
                 >
                     <div className='d-flex flex-column placeholder-glow'>
-                        <div className='d-flex align-items-top'>
+                        <div className={!errorFields["role_name"]?"d-flex mb-4": "d-flex"}>
                             <label className='m-0 fs-5 me-2'>Role:</label>
                             <fieldset className={isRoleLoading&&"placeholder"}>
                                 <input type="text"
@@ -167,15 +193,22 @@ export function Role(){
                                        name="role_name"
                                        value={isRoleLoading?"Loading...":role_name}
                                        onChange={isRoleLoading? null :onNameChange}
+                                       required
                                 />
                             </fieldset>
                         </div>
+                        {errorFields["role_name"]&&
+                            <div style={{color: "#DC4C64", fontSize: "15px"}} >
+                                <p className="m-0">{errorFields["role_name"]}</p>
+                            </div>
+                        }
+
                         <div>
-                            <div className='mt-3'>
+                            <div>
                                 <button type="button"
                                         onClick={toggleShow}
                                         disabled={isPermLoading && true}
-                                        className='m-0 ms-1 w-100 h-100 align-self-end d-flex justify-content-center btn btn-outline-light'
+                                        className='m-0 w-100 h-100 align-self-end d-flex justify-content-center btn btn-outline-light'
                                 >
                                     <p className='m-0 me-2'>Open permissions menu</p>
                                     {CreateWhiteIco(<AiOutlineMenuUnfold size={'1.7em'}/>)}
@@ -243,9 +276,14 @@ export function Role(){
                                             ref={textareaRef}
                                             name="role_description"
                                             onChange={onDescChange}
-                                            defaultValue={role_description}
+                                            value={role_description}
                                             className="clear-textarea"
                                         />
+                                        {errorFields["role_description"]&&
+                                            <div style={{color: "#DC4C64", fontSize: "15px"}} >
+                                                <p className="m-0">{errorFields["role_description"]}</p>
+                                            </div>
+                                        }
                                     </>
                                     :
                                     <MDBCardText className={isRoleLoading?"placeholder w-50 mb-2":"mb-2"}>

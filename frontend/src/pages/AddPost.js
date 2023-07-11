@@ -80,12 +80,12 @@ export function AddPost(){
     }
 
     const onChange = (e) => {
-        const errMsg =
+        if(e.target.value.length > 255){
+            const errMsg =
             ( e.target.name ==='title_preview' && "Preview title max length 255 symbols!") ||
             ( e.target.name ==='preview' && 'Preview max length 255 symbols!')||
             ( e.target.name ==='title_post' && "Post title max length 255 symbols!")
 
-        if(e.target.value.length > 255){
             setErrorFields({...errorFields, [e.target.name]: errMsg});
             return
         }

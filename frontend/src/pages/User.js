@@ -4,12 +4,14 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import {useEffect, useState} from "react";
 import {MDBCard, MDBCardBody, MDBCardHeader, MDBCardText, MDBCardTitle, MDBInput} from "mdb-react-ui-kit";
+import {ValidationField} from "../components/ValidationField";
 
 export function User(){
     const [user, setUser] = useState([]);
     //TODO add role id instead role
     const [role, setRole] = useState('')
     const [roles, setRoles] = useState([]);
+    const [errorFields, setErrorFields] = useState({});
     const [isUserLoading, setIsUserLoading] = useState(true);
     const [isRolesLoading, setIsRolesLoading] = useState(true);
     const [formData, setFormData] = useState({
@@ -19,7 +21,6 @@ export function User(){
         email: "",
     });
     const { username, name, surname, email } = formData;
-    const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
     const headers = {
             'Accept': 'application/json',
@@ -30,6 +31,26 @@ export function User(){
     const {id} = useParams();
 
     const navigate = useNavigate()
+
+    const onChange = e =>{
+        if(e.target.value.length > 50){
+            const errMsg =
+            ( e.target.name ==='name' && "Name max length 50 symbols!")||
+            ( e.target.name ==='surname' && "Surname max length 50 symbols!")||
+            ( e.target.name ==='email' && 'Email max length 50 symbols!')||
+            ( e.target.name ==='username' && "Username max length 50 symbols!")
+
+            setErrorFields({...errorFields, [e.target.name]: errMsg});
+            return
+        }
+        else if(errorFields[e.target.name]){
+            const arr = {...errorFields}
+            delete arr[e.target.name]
+            setErrorFields({...arr});
+        }
+
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    }
 
     function getUser(){
         try {
@@ -111,32 +132,53 @@ export function User(){
                 <form className='d-inline-flex flex-column justify-content-between' onSubmit={onSubmit}>
                     <div className="d-flex">
                         <div className="d-flex flex-column placeholder-glow">
-                            <MDBInput onChange={isUserLoading? null :onChange}
-                                      name="name"
-                                      className={isUserLoading&&"placeholder"}
-                                      wrapperClass="mb-3" label='Name' id='typeText' type='text' contrast value={isUserLoading?"Loading...":name}/>
-                            <MDBInput onChange={isUserLoading? null :onChange}
-                                      name="surname"
-                                      className={isUserLoading&&"placeholder"}
-                                      wrapperClass="mb-3" label='Surname' id='typeText' type='text' contrast value={isUserLoading?"Loading...":surname}/>
-                            <MDBInput onChange={isUserLoading? null :onChange}
-                                      name="email"
-                                      className={isUserLoading&&"placeholder"}
-                                      label='Email' id='typeEmail' type='email' contrast value={isUserLoading?"Loading...":email}/>
+                            <ValidationField
+                                asElement={MDBInput}
+                                onChange={isUserLoading? null :onChange}
+                                name="name"
+                                className={isUserLoading&&"placeholder"}
+                                label='Name' id='typeText' type='text' contrast value={isUserLoading?"Loading...":name}
+                                error={errorFields}
+                            />
+                            <ValidationField
+                                asElement={MDBInput}
+                                onChange={isUserLoading? null :onChange}
+                                name="surname"
+                                className={isUserLoading&&"placeholder"}
+                                label='Surname' id='typeText' type='text' contrast value={isUserLoading?"Loading...":surname}
+                                error={errorFields}
+                            />
+                            <ValidationField
+                                asElement={MDBInput}
+                                onChange={isUserLoading? null :onChange}
+                                name="email"
+                                className={isUserLoading&&"placeholder"}
+                                label='Email' id='typeEmail' type='email' contrast value={isUserLoading?"Loading...":email}
+                                error={errorFields}
+                            />
                         </div>
+
                         <div className="ms-4 placeholder-glow">
-                            <div className='d-flex align-items-center'>
+                            <div className={errorFields["username"]?'d-flex align-items-center' : 'd-flex align-items-center mb-4'}>
                                 <label className='m-0 fs-5 me-2'>Username:</label>
                                 <div className={isUserLoading&&"placeholder"}>
-                                    <input type="text"
-                                           className='form-control '
-                                           name="username"
-                                           value={isUserLoading?"Loading...":username}
-                                           onChange={isUserLoading? null : onChange}
-                                           required/>
+                                    <input
+                                        type="text"
+                                        className='form-control '
+                                        name="username"
+                                        value={isUserLoading?"Loading...":username}
+                                        onChange={isUserLoading? null : onChange}
+                                        required
+                                    />
                                 </div>
                             </div>
-                            <div className='d-flex align-items-center mt-3'>
+                            {errorFields["username"]&&
+                                <div style={{color: "#DC4C64", fontSize: "15px"}} >
+                                    <p className="m-0">{errorFields["username"]}</p>
+                                </div>
+                            }
+
+                            <div className='d-flex align-items-center'>
                                 <label className='fs-5 me-2'>Role:</label>
                                 <div className={isUserLoading&&"placeholder"} >
                                     <select className="form-select py-1 placeholder-glow"
@@ -152,6 +194,7 @@ export function User(){
                                 </div>
                             </div>
                         </div>
+
                     </div>
 
                     <div className="d-flex justify-content-between mt-3">
@@ -159,7 +202,9 @@ export function User(){
                             Save changes
                         </button>
                     </div>
+
                 </form>
+
                 <div className="w-50 d-flex flex-column ">
                     <div >
                         <MDBCard shadow='0' border='light' style={{backgroundColor: "inherit"}} className='mb-3 placeholder-glow'>
@@ -183,6 +228,7 @@ export function User(){
                         </button>
                     </div>
                 </div>
+
             </div>
         </div>
     )

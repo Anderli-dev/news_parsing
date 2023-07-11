@@ -1,13 +1,10 @@
-import React from "react"
-import {MDBBtn, MDBInput, MDBTextArea} from "mdb-react-ui-kit";
+import React, {useEffect, useState} from "react"
+import {MDBBtn} from "mdb-react-ui-kit";
 import {CreateWhiteIco} from "../actions/CreateWhiteIco";
-import {AiOutlineMenuUnfold, AiOutlinePlus} from "react-icons/ai";
-import {Scrollbars} from "react-custom-scrollbars";
+import {AiOutlineMenuUnfold} from "react-icons/ai";
 import {PermissionsModal} from "../components/Modals/PrermissionsModal";
-import {useState} from "react";
 import {switchPermission} from "../actions/SwitchPermission";
 import axios from "axios";
-import {useEffect} from "react";
 import Cookies from "js-cookie";
 import {useNavigate} from "react-router-dom";
 
@@ -16,6 +13,7 @@ export function RoleCreate(){
     const [notAppliedPermissions, setNotAppliedPermissions] = useState([]);
     const [centredModal, setCentredModal] = useState(false);
     const [isData, setIsData] = useState(false);
+    const [errorFields, setErrorFields] = useState({});
     const [formData, setFormData] = useState({
         role_name: "",
         role_description:"",
@@ -31,11 +29,28 @@ export function RoleCreate(){
     const navigate = useNavigate()
 
     const onChange = e => {
-        setFormData(
-            {...formData, [e.target.name]: e.target.value})
+        if(e.target.value.length > 60 && e.target.name ==='role_name'){
+            const errMsg = "Role name max length 60 symbols!"
+
+            setErrorFields({...errorFields, [e.target.name]: errMsg});
+            return
+        }
+        else if(e.target.value.length > 64*1024 && e.target.name ==='role_description'){
+            const errMsg = "Role description too big!"
+
+            setErrorFields({...errorFields, [e.target.name]: errMsg});
+            return
+        }
+        else if(errorFields[e.target.name]){
+            const arr = {...errorFields}
+            delete arr[e.target.name]
+            setErrorFields({...arr});
+        }
+
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     }
 
-    const onReset = e =>{
+    const onReset = () =>{
         setFormData({...formData, role_name: "", role_description: ""})
         setRolePermissions([])
         getPermissions()
@@ -95,29 +110,34 @@ export function RoleCreate(){
 
     return(
         <div className="mt-4">
-            <p className='fs-2'>Create Role</p>
-            <div>
+            <p className='fs-2 m-0'>Create Role</p>
+            <div className="mt-4">
                 <form onSubmit={onSubmit} className="d-flex flex-column">
                     <div className="d-flex justify-content-between">
                         <div>
-                            <div>
-                                <p className='m-0 mb-2'>Role:</p>
+                            <div className={!errorFields["role_name"]?"d-flex mb-4": "d-flex"}>
+                                <label className='m-0 fs-5 me-2'>Role:</label>
                                 <fieldset>
-                                    {/*TODO add validation*/}
                                     <input type="text"
                                            className='form-control'
                                            name="role_name"
                                            value={role_name}
                                            onChange={onChange}
+                                           required
                                     />
                                 </fieldset>
                             </div>
+                            {errorFields["role_name"]&&
+                                <div style={{color: "#DC4C64", fontSize: "15px"}} >
+                                    <p className="m-0">{errorFields["role_name"]}</p>
+                                </div>
+                            }
 
                             <div>
-                                <div className='mt-3'>
+                                <div>
                                     <button type="button"
                                             onClick={toggleShow}
-                                            className='m-0 align-self-end d-flex justify-content-center btn btn-outline-light'
+                                            className='m-0 d-flex justify-content-center btn btn-outline-light w-100'
                                     >
                                         <p className='m-0 me-2'>Open permissions menu</p>
                                         {CreateWhiteIco(<AiOutlineMenuUnfold size={'1.7em'}/>)}
@@ -139,7 +159,7 @@ export function RoleCreate(){
                             </div>
                         </div>
 
-                        <div className="w-50">
+                        <div className={!errorFields["role_description"]?"w-50 mb-4":"w-50"}>
                             <p className="m-0 mb-2">Description</p>
                             <textarea id='textAreaExample'
                                       className=" form-control"
@@ -150,9 +170,14 @@ export function RoleCreate(){
                                       onChange={onChange}
                             />
                         </div>
+                        {errorFields["role_description"]&&
+                            <div style={{color: "#DC4C64", fontSize: "15px"}} >
+                                <p className="m-0">{errorFields["role_description"]}</p>
+                            </div>
+                        }
                     </div>
 
-                    <div className="mt-4 d-flex justify-content-between">
+                    <div className="mt-2 d-flex justify-content-between">
                         <MDBBtn type='submit' className="me-2">Add role</MDBBtn>
                         <MDBBtn type='reset' onClick={onReset}>Reset</MDBBtn>
                     </div>
