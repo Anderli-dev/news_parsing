@@ -10,6 +10,5 @@ services:
       MYSQL_USER: admin
       MYSQL_PASSWORD: 12345
       MYSQL_HOST: localhost
-
     ports:
       - "3306:3306"

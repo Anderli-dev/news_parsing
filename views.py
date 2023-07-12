@@ -219,15 +219,41 @@ class RoleView(AuthResource):
     @scope('role:create')
     def post(self):
         data = request.get_json()
+
+        def data_validation(data_, type_: type, max_len: int):
+            if data_ is None:
+                return 'Data is empty!'
+            if not isinstance(data_, type_):
+                return 'Data is invalid type!'
+            if data_.__len__() > max_len:
+                return 'Data is too long!'
+
+            return True
+
         try:
+            validation_response = data_validation(data['role_name'], str, 60)
+            if type(validation_response) is str:
+                return make_response(jsonify({'error': validation_response}), 403)
+
+            validation_response = data_validation(data['role_description'], str, 64*1024)
+            if type(validation_response) is str:
+                return make_response(jsonify({'error': validation_response}), 403)
+
             role_name = data['role_name']
             role_description = data['role_description']
             role = Role(name=role_name, description=role_description)
             db.session.add(role)
             db.session.commit()
 
+            if data['role_permissions'] is None:
+                return make_response(jsonify({'error': 'Data is empty!'}), 403)
+            if not isinstance(data['role_permissions'], list):
+                return make_response(jsonify({'error': 'Data is invalid type!'}), 403)
+
             for permission in data['role_permissions']:
                 perm = Permission.query.filter_by(name=str(permission['name'])).first()
+                if perm is None:
+                    return make_response(jsonify({'error': 'Wrong permission!'}), 403)
                 role_permission = RolePermission(role_id=role.id,
                                                  permission_id=perm.id)
                 db.session.add(role_permission)
@@ -241,11 +267,30 @@ class RoleView(AuthResource):
     def put(self, role_id):
         data = request.get_json()
         role = Role.query.filter_by(id=role_id).first()
+
+        def data_validation(data_, type_: type, max_len: int):
+            if not isinstance(data_, type_):
+                return 'Data is invalid type!'
+            if data_.__len__() > max_len:
+                return 'Data is too long!'
+
+            return True
+
         if role:
             if data.get('role_name'):
+                validation_response = data_validation(data['role_name'], str, 60)
+                if type(validation_response) is str:
+                    return make_response(jsonify({'error': validation_response}), 403)
+
                 role.name = data['role_name']
+
             if data.get('description'):
+                validation_response = data_validation(data['role_description'], str, 64 * 1024)
+                if type(validation_response) is str:
+                    return make_response(jsonify({'error': validation_response}), 403)
+
                 role.description = data['description']
+
             db.session.commit()
             return make_response(jsonify({'success': 'Role updated successfully'}), 200)
         else:
@@ -433,10 +478,22 @@ class UserView(AuthResource):
         data = request.get_json()
         try:
             user = User.query.filter_by(id=user_id).first()
+
+            user_fields = ['username', 'name', 'surname', 'email']
+            for field in user_fields:
+                Field = field.capitalize()
+                if data[field] is None:
+                    return make_response(jsonify({'error': f'{Field} is empty!'}), 403)
+                if not isinstance(data[field], str):
+                    return make_response(jsonify({'error': f'{Field} invalid type!'}), 403)
+                if data[field].__len__() > 50:
+                    return make_response(jsonify({'error': f'{Field} is too long!'}), 403)
+
             user.username = data['username']
             user.name = data['name']
             user.surname = data['surname']
             user.email = data['email']
+
             user.role_id = Role.query.filter_by(name=data['role']).first().id
             db.session.commit()
             return make_response(jsonify({'msg': 'Success'}), 200)
