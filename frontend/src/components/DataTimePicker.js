@@ -20,6 +20,7 @@ export class DataTimePicker extends React.Component {
                 }
                 initialValue={this.props.initialValue}
                 onChange={this.props.onChange}
+                value={this.props.value}
             />
         );
     }

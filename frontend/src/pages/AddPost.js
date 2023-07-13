@@ -25,12 +25,13 @@ export function AddPost(){
         title_preview: '',
         preview: '',
         title_post: '',
+        text:"",
     });
-    const { title_preview, preview, title_post } = formData;
+    const { title_preview, preview, title_post, text } = formData;
     const [checked, setChecked] = useState(false);
     const [selectedImg, setSelectedImg] = useState(null);
     const [basicModal, setBasicModal] = useState(false);
-    const [date, setDate] = useState(moment().format("YYYY[-]MM[-]DD[T]h[:]m[:]s"));
+    const [date, setDate] = useState(moment());
 
     const [errorFields, setErrorFields] = useState({});
 
@@ -137,7 +138,7 @@ export function AddPost(){
         formData.append("img", selectedImg);
         formData.append("title", title_preview)
         formData.append("preview", preview)
-        formData.append("posted_at", date.toString())
+        formData.append("posted_at", date.format("YYYY[-]MM[-]DD[T]h[:]m[:]s").toString())
 
         try {
             await axios.post(`${process.env.REACT_APP_API_URL}/api/preview`, formData, {headers: headers,})
@@ -154,7 +155,7 @@ export function AddPost(){
         formData.append("img", selectedImg);
         formData.append("title", title_preview)
         formData.append("preview", preview)
-        formData.append("posted_at", date.toString())
+        formData.append("posted_at", date.format("YYYY[-]MM[-]DD[T]h[:]m[:]s").toString())
 
         let previewId
         try {
@@ -189,8 +190,18 @@ export function AddPost(){
         }
     }
 
+    const onResetClick = () =>{
+        let dict = {}
+        for(let i in formData){
+            dict[i] = ""
+        }
+        setFormData(dict)
+        setDate(moment())
+        resetImg()
+    }
+
     return(
-        <div className="mt-4">
+        <div className="mt-4 mb-5">
             <h1 className="mb-4">Add post</h1>
                 <form className="g-3 " onSubmit={checked ? previewSubmit: allSubmit}>
                     <div className="d-flex phone-preview">
@@ -212,12 +223,12 @@ export function AddPost(){
                             <p className="m-0" style={{color:"rgb(147 147 147)"}}>Chose posted date</p>
                             <DataTimePicker
                                 ref={datetime}
-                                selected={date}
-                                onChange={date => {
+                                value={date}
+                                onChange={date => {console.log(date)
                                     date._isAMomentObject
                                         ? setDate(date)
                                         : setErrorFields({...errorFields, "data_time": "Post date is not a valid!"})}}
-                                initialValue={moment()}
+                                initialValue={date}
                             />
 
                             <MDBValidationItem className='file-container mb-4'>
@@ -312,6 +323,7 @@ export function AddPost(){
                             <div className='mb-4'>
                                 <Editor
                                     id='editor'
+                                    value={text}
                                     apiKey='q2irgy2e9k2t4yqb3oiv28zg3vi2cli0pvhb8drka4xy3dly'
                                     onInit={(evt, editor) => editorRef.current = editor}
                                     init={{
@@ -359,10 +371,9 @@ export function AddPost(){
 
 
                     <div>
-                        <div className='col-12'>
+                        <div className='col-12 d-flex justify-content-between mt-4'>
                             <MDBBtn type='submit' className="me-2">Submit form</MDBBtn>
-                            {/*TODO add reset options*/}
-                            <MDBBtn type='reset'>Reset form</MDBBtn>
+                            <MDBBtn type='button' onClick={onResetClick}>Reset form</MDBBtn>
                         </div>
                     </div>
                 </form>

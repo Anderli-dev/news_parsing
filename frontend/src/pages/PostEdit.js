@@ -465,10 +465,10 @@ export function PostEdit(){
 
 
                     <div>
-                        <div className='col-12 d-flex justify-content-between'>
-                            <MDBBtn onClick={allSubmit} disabled={isLoading&&true} className="me-2 mt-4">Submit form</MDBBtn>
+                        <div className='col-12 d-flex justify-content-between mt-4'>
+                            <MDBBtn onClick={allSubmit} disabled={isLoading&&true} className="me-2">Submit form</MDBBtn>
                             <MDBBtn type="button"
-                                    className="btn btn-danger mt-4"
+                                    className="btn btn-danger"
                                     onClick={()=>setIsDeleteRole(true)}
                                     disabled={isLoading&&true}
                             >
