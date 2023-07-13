@@ -9,6 +9,7 @@ import {switchPermission} from "../actions/SwitchPermission";
 import {MDBCard, MDBCardBody, MDBCardHeader, MDBCardText, MDBCardTitle} from "mdb-react-ui-kit";
 import '../static/css/description-textarea.css'
 import TextareaAutosize from 'react-textarea-autosize';
+import {DeleteModal} from "../components/Modals/DeleteModal";
 
 export function Role(){
     const [rolePermissions, setRolePermissions] = useState([]);
@@ -16,6 +17,7 @@ export function Role(){
     const [errorFields, setErrorFields] = useState({});
     const [centredModal, setCentredModal] = useState(false);
     const [isDescEdit, setIsDescEdit] = useState(false);
+    const [isDeleteRole, setIsDeleteRole] = useState(false)
     const [formData, setFormData] = useState({
         role_name: "",
         role_users: 0,
@@ -160,12 +162,12 @@ export function Role(){
         }
     }
 
-    const delRole = () => {
+    const onDeleteClick = () => {
+
         try {
             axios.delete(`${process.env.REACT_APP_API_URL}/api/role/`+id,{
                 headers: headers,})
-                .then(response => {
-                    console.log(response); navigate("/roles")})
+                .then(()=>{navigate("/roles");setIsDeleteRole(false)})
                 .catch(error => console.log(error))
         } catch (err) {
             console.log(err)
@@ -292,16 +294,20 @@ export function Role(){
                                 }
                         </MDBCardBody>
                     </MDBCard>
+
                     <div className="d-flex justify-content-end">
-                    <button type="button"
-                            className="btn btn-danger mt-4"
-                            style={{width: '150px'}}
-                            onClick={delRole}
-                            disabled={isRoleLoading&&true}
-                    >
-                        Delete role
-                    </button>
+
+                        <button type="button"
+                                className="btn btn-danger mt-4"
+                                style={{width: '150px'}}
+                                onClick={()=>setIsDeleteRole(true)}
+                                disabled={isRoleLoading&&true}
+                        >
+                            Delete role
+                        </button>
+                        {isDeleteRole && <DeleteModal onDeleteClick={onDeleteClick} setIsDelete={setIsDeleteRole}/>}
                     </div>
+
                 </div>
             </div>
         </div>

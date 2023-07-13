@@ -5,6 +5,7 @@ import axios from "axios";
 import {useEffect, useState} from "react";
 import {MDBCard, MDBCardBody, MDBCardHeader, MDBCardText, MDBCardTitle, MDBInput} from "mdb-react-ui-kit";
 import {ValidationField} from "../components/ValidationField";
+import {DeleteModal} from "../components/Modals/DeleteModal";
 
 export function User(){
     const [user, setUser] = useState([]);
@@ -14,6 +15,7 @@ export function User(){
     const [errorFields, setErrorFields] = useState({});
     const [isUserLoading, setIsUserLoading] = useState(true);
     const [isRolesLoading, setIsRolesLoading] = useState(true);
+    const [isDeleteRole, setIsDeleteRole] = useState(false)
     const [formData, setFormData] = useState({
         username: "",
         name: "",
@@ -112,8 +114,7 @@ export function User(){
         try {
             axios.delete(`${process.env.REACT_APP_API_URL}/api/user/`+id,{
                 headers: headers,})
-                .then(response => {
-                    console.log(response); navigate("/users")})
+                .then(()=>{navigate("/users");setIsDeleteRole(false)})
                 .catch(error => console.log(error))
         } catch (err) {
             console.log(err)
@@ -223,9 +224,10 @@ export function User(){
                     </div>
 
                     <div className="d-flex justify-content-end">
-                        <button onClick={onDeleteClick} disabled={isUserLoading&&true} className="btn btn-danger mb-4">
+                        <button onClick={()=>setIsDeleteRole(true)} disabled={isUserLoading&&true} className="btn btn-danger mb-4">
                             Delete user
                         </button>
+                        {isDeleteRole && <DeleteModal onDeleteClick={onDeleteClick} setIsDelete={setIsDeleteRole}/>}
                     </div>
                 </div>
 

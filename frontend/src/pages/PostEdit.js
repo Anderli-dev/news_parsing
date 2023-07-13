@@ -1,7 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
 import {
     MDBBtn,
-    MDBFile,
     MDBInput,
     MDBModal,
     MDBModalBody,
@@ -26,6 +25,7 @@ import {BiReset} from "react-icons/bi";
 import {CreateWhiteIco} from "../actions/CreateWhiteIco";
 import {RotatingLines} from "react-loader-spinner";
 import {ValidationField} from "../components/ValidationField";
+import {DeleteModal} from "../components/Modals/DeleteModal";
 
 export function PostEdit(){
     const [previewData, setPreviewData] = useState({
@@ -43,6 +43,7 @@ export function PostEdit(){
     const { post_id, title_post, body } = postData;
     const [checked, setChecked] = useState(false);
     const [basicModal, setBasicModal] = useState(false);
+    const [isDeleteRole, setIsDeleteRole] = useState(false)
     const [selectedImg, setSelectedImg] = useState(null);
 
     const [isLoading, setIsLoading] = useState(true);
@@ -265,8 +266,7 @@ export function PostEdit(){
         try {
             axios.delete(`${process.env.REACT_APP_API_URL}/api/post/`+id,{
                 headers: headers,})
-                .then(response => {
-                    console.log(response); navigate("/users")})
+                .then(()=>{navigate("/posts");setIsDeleteRole(false)})
                 .catch(error => console.log(error))
         } catch (err) {
             console.log(err)
@@ -465,16 +465,17 @@ export function PostEdit(){
 
 
                     <div>
-                        <div className='col-12'>
-                            <MDBBtn onClick={allSubmit} disabled={isLoading&&true} className="me-2">Submit form</MDBBtn>
+                        <div className='col-12 d-flex justify-content-between'>
+                            <MDBBtn onClick={allSubmit} disabled={isLoading&&true} className="me-2 mt-4">Submit form</MDBBtn>
                             <MDBBtn type="button"
                                     className="btn btn-danger mt-4"
-                                    onClick={onDeleteClick}
+                                    onClick={()=>setIsDeleteRole(true)}
                                     disabled={isLoading&&true}
                             >
                                 Delete
                             </MDBBtn>
                         </div>
+                        {isDeleteRole && <DeleteModal onDeleteClick={onDeleteClick} setIsDelete={setIsDeleteRole}/>}
                     </div>
                 </form>
         </div>
