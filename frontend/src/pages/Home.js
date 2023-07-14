@@ -1,6 +1,14 @@
 import React, {useEffect, useState} from "react";
 import axios from "axios";
-import {MDBBtn, MDBCardBody, MDBCardImage, MDBCardText, MDBCardTitle} from "mdb-react-ui-kit";
+import {
+    MDBBtn,
+    MDBCardBody,
+    MDBCardImage,
+    MDBCardText,
+    MDBCardTitle,
+    MDBPagination,
+    MDBPaginationItem
+} from "mdb-react-ui-kit";
 import moment from 'moment';
 import {MdArrowForward, MdFacebook, MdShare} from "react-icons/md";
 import {SiTwitter} from "react-icons/si";
@@ -13,21 +21,169 @@ export function Home(){
     const [posts, setPosts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
+    const [paginationData, setPaginationData] = useState({
+        page_count: 1,
+        page: 1,
+        has_next: false,
+        has_prev: false,
+    })
+    const { page_count, page, has_next, has_prev } = paginationData;
+
     const tabKey = useSelector((state) => state.tabsKey.tabs.home)
     const dispatch = useDispatch()
 
-    function getPosts(){
+    const PaginationNav = () => {
+        const pages = Array.from({ length: page_count }, (_, index) => (
+            <>
+                {index+1 === page ?
+                    <MDBPaginationItem aria-current='page'>
+                        <MDBBtn floating >
+                            {index+1}
+                        </MDBBtn>
+                    </MDBPaginationItem>
+                    :
+                    <MDBPaginationItem>
+                        <MDBBtn floating outline  onClick={()=> getPosts(index+1)}>{index+1}</MDBBtn>
+                    </MDBPaginationItem>
+                }
+            </>
+        ));
+
+        return(
+            <>
+                <nav className="w-25 mb-4">
+                    <MDBPagination className='mb-0 justify-content-around'>
+                        {page_count > 5 ?
+                            <>
+                                <MDBPaginationItem onClick={()=> {has_prev && getPosts(page-1)}}>
+                                    <MDBBtn floating color='light' disabled={!has_prev}>
+                                        «
+                                    </MDBBtn  >
+                                </MDBPaginationItem>
+
+                                {page !==1 &&
+                                    <MDBPaginationItem>
+                                        <MDBBtn floating outline onClick={() => {
+                                            getPosts(1)
+                                        }}>1</MDBBtn>
+                                    </MDBPaginationItem>
+                                }
+
+                                {(has_prev && page !==2 && page !==3)
+                                    ?
+                                    <MDBPaginationItem>
+                                        <MDBBtn floating outline style={{border: "none", color: "white"}}>...</MDBBtn>
+                                    </MDBPaginationItem>
+                                    : (has_prev && page === 3) &&
+                                    <MDBPaginationItem>
+                                        <MDBBtn floating outline  onClick={()=> getPosts(page-1)}>{page-1}</MDBBtn>
+                                    </MDBPaginationItem>
+                                }
+
+
+                                {(!has_next) ?
+                                    <>
+                                        <MDBPaginationItem>
+                                            <MDBBtn floating outline  onClick={()=> getPosts(page_count-2)}>{page_count-2}</MDBBtn>
+                                        </MDBPaginationItem>
+                                        <MDBPaginationItem>
+                                            <MDBBtn floating outline  onClick={()=> getPosts(page_count-1)}>{page_count-1}</MDBBtn>
+                                        </MDBPaginationItem>
+                                    </>
+                                    :(has_next && page === page_count-1) &&
+                                    <MDBPaginationItem>
+                                        <MDBBtn floating outline  onClick={()=> getPosts(page_count-2)}>{page_count-2}</MDBBtn>
+                                    </MDBPaginationItem>
+                                }
+
+                                <MDBPaginationItem aria-current='page'>
+                                    <MDBBtn floating >
+                                        {page}
+                                    </MDBBtn>
+                                </MDBPaginationItem>
+
+                                {(!has_prev) ?
+                                    <>
+                                        <MDBPaginationItem>
+                                            <MDBBtn floating outline  onClick={()=> getPosts(page+1)}>{page+1}</MDBBtn>
+                                        </MDBPaginationItem>
+                                        <MDBPaginationItem>
+                                            <MDBBtn floating outline  onClick={()=> getPosts(page+2)}>{page+2}</MDBBtn>
+                                        </MDBPaginationItem>
+                                    </>
+                                    :(has_prev && page === 2) &&
+                                    <MDBPaginationItem>
+                                        <MDBBtn floating outline  onClick={()=> getPosts(page+1)}>{page+1}</MDBBtn>
+                                    </MDBPaginationItem>
+                                }
+
+                                {(has_next && page !==page_count-1 && page !==page_count-2)
+                                    ?
+                                    <MDBPaginationItem>
+                                        <MDBBtn floating outline style={{border: "none", color: "white"}}>...</MDBBtn>
+                                    </MDBPaginationItem>
+                                    : (has_next && page === page_count-2) &&
+                                    <MDBPaginationItem>
+                                        <MDBBtn floating outline  onClick={()=> getPosts(page_count-1)}>{page_count-1}</MDBBtn>
+                                    </MDBPaginationItem>
+                                }
+
+                                {page !==page_count  &&
+                                    <MDBPaginationItem>
+                                        <MDBBtn floating outline  onClick={()=> getPosts(page_count)}>{page_count}</MDBBtn>
+                                    </MDBPaginationItem>
+                                }
+
+                                <MDBPaginationItem onClick={()=> {has_next && getPosts(page+1)}}>
+                                    <MDBBtn floating color='light' disabled={!has_next}>
+                                        »
+                                    </MDBBtn>
+                                </MDBPaginationItem>
+                            </>
+                            :
+                            <>
+                                <MDBPaginationItem onClick={()=> {has_prev && getPosts(page-1)}}>
+                                    <MDBBtn floating color='light' disabled={!has_prev}>
+                                        «
+                                    </MDBBtn  >
+                                </MDBPaginationItem>
+
+                                {pages}
+
+                                <MDBPaginationItem onClick={()=> {has_next && getPosts(page+1)}}>
+                                    <MDBBtn floating color='light' disabled={!has_next}>
+                                        »
+                                    </MDBBtn>
+                                </MDBPaginationItem>
+                            </>
+                        }
+                    </MDBPagination>
+                </nav>
+            </>
+        )
+    }
+
+    function getPosts(current_page){
         const headers = {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
             'x-access-token': Cookies.get('x-access-token'),
         };
         try {
-            axios.get(`${process.env.REACT_APP_API_URL}/api/posts`, {
+            axios.get(`${process.env.REACT_APP_API_URL}/api/posts?page=` + current_page, {
                 headers: headers,})
                 .then(response => {
                     if (!response.data['posts'].length) {setIsLoading(true);}
-                    else {setIsLoading(false); setPosts(response.data['posts'])}
+                    else {
+                        setIsLoading(false);
+                        setPosts(response.data['posts'])
+                        setPaginationData({...paginationData,
+                            page_count: response.data['page_count'],
+                            page: response.data['page'],
+                            has_next: response.data['has_next'],
+                            has_prev: response.data['has_prev']
+                        })
+                    }
                 })
                 .catch(error => console.log(error))
         } catch (err) {
@@ -37,7 +193,7 @@ export function Home(){
 
     useEffect(() => {
         dispatch(setTab(tabKey))
-        getPosts();
+        getPosts(page);
     }, []);
 
     return(
@@ -99,8 +255,8 @@ export function Home(){
                         </div>
                     ))}
                 </>
-
             }
+            <PaginationNav/>
         </div>
     )
 }

@@ -15,6 +15,8 @@ from app import app
 from app import db
 from models import Role, User, BlacklistToken, Permission, RolePermission, NewsPreview, News
 
+import math
+
 api = Api(app)
 
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
@@ -558,7 +560,11 @@ class ImageUploader(Resource):
 
 class PostsView(Resource):
     def get(self):
-        posts = NewsPreview.query.all()
+        page = request.args.get('page', 1, type=int)
+        per_page = 5
+
+        total = NewsPreview.query.count()
+        posts = NewsPreview.query.paginate(page=page, per_page=per_page).items
 
         posts_json = []
 
@@ -572,7 +578,15 @@ class PostsView(Resource):
             post_data['post_id'] = News.query.filter_by(preview_id=post.id).first().id
             posts_json.append(post_data)
 
-        return make_response(jsonify({'posts': posts_json}), 200)
+        posts = NewsPreview.query.paginate(page=page, per_page=per_page)
+
+        return make_response(jsonify({
+            'page_count': math.ceil(total/per_page),
+            'page': page,
+            'has_next': posts.has_next,
+            'has_prev': posts.has_prev,
+            'posts': posts_json
+        }), 200)
 
 
 @app.route('/api/get_preview')
