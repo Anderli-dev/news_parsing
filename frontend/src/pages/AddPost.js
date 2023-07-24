@@ -17,6 +17,7 @@ import {TbHandClick} from "react-icons/tb";
 import {CreateWhiteIco} from "../actions/CreateWhiteIco";
 import {BiReset} from "react-icons/bi";
 import {ValidationField} from "../components/ValidationField";
+import {useNavigate} from "react-router-dom";
 
 
 
@@ -46,6 +47,8 @@ export function AddPost(){
     const datetime = useRef(null);
     const editorRef = useRef(null);
     const fileInputRef = useRef(null);
+
+    const navigate = useNavigate()
 
     const imgModel = () => {
         return(
@@ -135,13 +138,14 @@ export function AddPost(){
         e.preventDefault()
 
         let formData = new FormData();
-        formData.append("img", selectedImg);
+        let imagefile = document.querySelector('#img');
+        formData.append("img", imagefile.files[0]);
         formData.append("title", title_preview)
         formData.append("preview", preview)
         formData.append("posted_at", date.format("YYYY[-]MM[-]DD[T]h[:]m[:]s").toString())
 
         try {
-            await axios.post(`${process.env.REACT_APP_API_URL}/api/preview`, formData, {headers: headers,})
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/preview`, formData, {headers: headers,}).then(navigate())
                 .catch(error => console.log(error.response))
         } catch (err) {
             console.log(err.response)
@@ -152,7 +156,8 @@ export function AddPost(){
         e.preventDefault()
 
         let formData = new FormData();
-        formData.append("img", selectedImg);
+        let imagefile = document.querySelector('#img');
+        formData.append("img", imagefile.files[0]);
         formData.append("title", title_preview)
         formData.append("preview", preview)
         formData.append("posted_at", date.format("YYYY[-]MM[-]DD[T]h[:]m[:]s").toString())
@@ -182,6 +187,7 @@ export function AddPost(){
                 .then(response => {
                     if (response.status === 200) {
                         console.log('Success')
+                        navigate("/posts")
                     }
                 })
                 .catch(error => console.log(error.response))

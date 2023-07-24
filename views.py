@@ -744,7 +744,10 @@ class PostPreviewView(Resource):
 class PostsPreviewView(AuthResource):
     @scope('posts:read')
     def get(self):
-        posts = NewsPreview.query.all()
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', type=int)
+
+        posts = NewsPreview.query.paginate(page=page, per_page=per_page).items
 
         posts_json = []
 
@@ -754,7 +757,10 @@ class PostsPreviewView(AuthResource):
             post_data['posted_at'] = post.posted_at
             post_data['title'] = post.title
             posts_json.append(post_data)
-        return make_response(jsonify({'posts': posts_json}), 200)
+
+        posts = NewsPreview.query.paginate(page=page, per_page=per_page)
+
+        return make_response(jsonify({'posts': posts_json, 'has_next': posts.has_next}), 200)
 
 
 class PostView(Resource):
@@ -837,9 +843,12 @@ class PostView(Resource):
 class PostsSearchView(AuthResource):
     @scope('posts:read')
     def post(self):
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', type=int)
+
         data = request.get_json()
 
-        posts = NewsPreview.query.filter(NewsPreview.title.like('%'+data['title']+'%')).all()
+        posts = NewsPreview.query.filter(NewsPreview.title.like('%'+data['title']+'%')).paginate(page=page, per_page=per_page).items
 
         posts_json = []
 
@@ -850,4 +859,6 @@ class PostsSearchView(AuthResource):
             post_data['title'] = post.title
             posts_json.append(post_data)
 
-        return make_response(jsonify({'posts': posts_json}), 200)
+        posts = NewsPreview.query.filter(NewsPreview.title.like('%'+data['title']+'%')).paginate(page=page, per_page=per_page)
+
+        return make_response(jsonify({'posts': posts_json, 'has_next': posts.has_next}), 200)
