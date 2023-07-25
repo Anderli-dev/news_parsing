@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import {MDBInput} from "mdb-react-ui-kit";
@@ -7,14 +7,20 @@ import {CreateWhiteIco} from "../actions/CreateWhiteIco";
 import {BiReset} from "react-icons/bi";
 import {useDispatch, useSelector} from "react-redux";
 import {setTab} from "../store/sideNavTab";
-import {RotatingLines} from "react-loader-spinner";
+import {InfinitySpin} from "react-loader-spinner";
 
 
-export function Users(props){
+export function Users(){
     const [users, setUsersList] = useState([]);
-    const [isData, setIsData] = useState(false);
-    const [isSearch, setIsSearch] =  useState(true);
+    const [isLoading, setIsLoading] =  useState(true)
+    const [isSearching, setIsSearching] = useState(false)
+    const [hasNext, setHasNext] = useState(true)
+    const [page, setPage] = useState(1)
+
+    const [per_page, setPerPage] = useState(5)
     const [searchUserName, setSearchUserName] = useState("")
+
+    const observerTarget = useRef(null);
 
     const tabKey = useSelector((state) => state.tabsKey.tabs.users)
     const dispatch = useDispatch()
@@ -27,19 +33,28 @@ export function Users(props){
 
     const handleKeyDown = e => {
         if (e.key === 'Enter') {
-            searchUsers()
-            setIsSearch(true)
+            setPage(1);
+            setIsSearching(true)
+            searchUsers(1)
         }
     }
 
-    function getUsers(){
-
+    function getUsers(page){
         try {
-            axios.get(`${process.env.REACT_APP_API_URL}/api/users`, {
+            axios.get(`${process.env.REACT_APP_API_URL}/api/users?page=${page}&per_page=${per_page}`, {
                 headers: headers,})
                 .then(response => {
-                    if (!response.data['users'].length) {setIsData(false);}
-                    else {setIsData(true);setIsSearch(false); setUsersList(response.data['users'])}
+                    if (!response.data['users'].length) {setIsLoading(true)}
+                    else {
+                        setIsLoading(false);
+                        setHasNext(response.data['has_next'])
+                        if(page === 1){
+                            setUsersList([...response.data['users']])
+                        } else {
+                            setUsersList(prevItems => [...prevItems, ...response.data['users']]);
+                        }
+                        setPage(prevPage => prevPage+1)
+                    }
                 })
                 .catch(error => console.log(error))
         } catch (err) {
@@ -47,16 +62,25 @@ export function Users(props){
         }
     }
 
-    const searchUsers = () =>{
+    const searchUsers = (page) =>{
         const data = {
             username:searchUserName
         }
         try {
-            axios.post(`${process.env.REACT_APP_API_URL}/api/user/search`, data, {
+            axios.post(`${process.env.REACT_APP_API_URL}/api/user/search?page=${page}&per_page=${per_page}`, data, {
                 headers: headers,})
                 .then(response => {
-                    if (!response.data['users'].length) {setIsData(false);}
-                    else {setIsSearch(false); setUsersList(response.data['users'])}
+                    if (!response.data['users'].length) {setIsLoading(true);}
+                    else {
+                        setIsLoading(false);
+                        setHasNext(response.data['has_next'])
+                        if(page === 1){
+                            setUsersList([...response.data['users']])
+                        } else {
+                            setUsersList(prevItems => [...prevItems, ...response.data['users']]);
+                        }
+                        setPage(prevPage => prevPage+1)
+                    }
                 })
                 .catch(error => console.log(error))
         } catch (err) {
@@ -66,8 +90,33 @@ export function Users(props){
 
     useEffect(() => {
         dispatch(setTab(tabKey))
-        getUsers();
-    }, []);
+
+        const observer = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting) {
+                    if(hasNext) {
+                        if (!isSearching) {
+                            getUsers(page);
+                        }
+                        else {
+                            searchUsers(page)
+                        }
+                    }
+                }
+            },
+            { threshold: 1 }
+        );
+
+        if (observerTarget.current) {
+            observer.observe(observerTarget.current);
+        }
+
+        return () => {
+            if (observerTarget.current) {
+                observer.unobserve(observerTarget.current);
+            }
+        };
+    }, [observerTarget, page]);
 
     return(
         <div className="mt-4">
@@ -88,10 +137,18 @@ export function Users(props){
                         />
                         <button style={{border: "none", backgroundColor: "inherit"}}
                                 className="ps-2"
-                                onClick={()=>{searchUsers();setIsSearch(true)}}>{CreateWhiteIco(<BsSearch size={'1.5em'}/>)}</button>
+                                onClick={()=>{
+                                    setPage(1)
+                                    setIsSearching(true)
+                                    searchUsers(1)
+                                }}>{CreateWhiteIco(<BsSearch size={'1.5em'}/>)}</button>
                         <button style={{border: "none", backgroundColor: "inherit"}}
                                 className="p-0 ps-1"
-                                onClick={()=>{getUsers();setIsSearch(true)}}>{CreateWhiteIco(<BiReset size={'1.5em'}/>)}</button>
+                                onClick={()=>{
+                                    setPage(1)
+                                    setIsSearching(false)
+                                    getUsers(1)
+                                }}>{CreateWhiteIco(<BiReset size={'1.5em'}/>)}</button>
                     </div>
                 </div>
             </div>
@@ -108,14 +165,11 @@ export function Users(props){
                     </div>
                 </div>
 
-                {isSearch?
-                    <div className={"d-flex align-items-center justify-content-center pt-3"} style={{height: "60vh"}}>
-                        <RotatingLines
-                            strokeWidth="5"
-                            strokeColor="#3B71CA"
-                            animationDuration="0.75"
-                            width="100"
-                            visible={true}
+                {isLoading?
+                    <div className="d-flex flex-column align-items-center justify-content-center" >
+                        <InfinitySpin
+                            width='150'
+                            color="#3B71CA"
                         />
                     </div>
                     :
@@ -123,7 +177,7 @@ export function Users(props){
                         {
                             users.map(item =>
                                 (
-                                    <a key={item.id} href={'user/'+item.id} className="w-100" style={{display: "contents", }}>
+                                    <a key={item.id} href={'user/'+item.id} className="w-100" style={{display: "contents"}}>
                                         <div
                                             className="d-flex p-0 flex-column"
                                             style={{color: "white"}}
@@ -144,6 +198,7 @@ export function Users(props){
                     </div>
                 }
             </div>
+            <div ref={observerTarget}></div>
         </div>
     )
 }

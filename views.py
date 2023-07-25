@@ -404,8 +404,10 @@ class RolePermissionsView(AuthResource):
 class UsersView(AuthResource):
     @scope('users:read')
     def get(self):
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', type=int)
 
-        users = User.query.all()
+        users = User.query.paginate(page=page, per_page=per_page).items
 
         users_json = []
 
@@ -413,19 +415,23 @@ class UsersView(AuthResource):
             user_data = {}
             user_data['id'] = user.id
             user_data['username'] = user.username
-            user_data['password'] = user.password
             user_data['role'] = Role.query.filter_by(id=user.role_id).first().name
             users_json.append(user_data)
 
-        return make_response(jsonify({'users': users_json}), 200)
+        users = User.query.paginate(page=page, per_page=per_page)
+
+        return make_response(jsonify({'users': users_json, 'has_next': users.has_next}), 200)
 
 
 class UsersSearchView(AuthResource):
     @scope('users:read')
     def post(self):
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', type=int)
+
         data = request.get_json()
 
-        users = User.query.filter(User.username.like('%'+data['username']+'%')).all()
+        users = User.query.filter(User.username.like('%' + data['username'] + '%')).paginate(page=page, per_page=per_page).items
 
         users_json = []
 
@@ -433,11 +439,12 @@ class UsersSearchView(AuthResource):
             user_data = {}
             user_data['id'] = user.id
             user_data['username'] = user.username
-            user_data['password'] = user.password
             user_data['role'] = Role.query.filter_by(id=user.role_id).first().name
             users_json.append(user_data)
 
-        return make_response(jsonify({'users': users_json}), 200)
+        users = User.query.filter(User.username.like('%' + data['username'] + '%')).paginate(page=page, per_page=per_page)
+
+        return make_response(jsonify({'users': users_json, 'has_next': users.has_next}), 200)
 
 
 class UserView(AuthResource):
