@@ -31,19 +31,20 @@ def allowed_file(filename):
 def scope(scope_name):
     def wrap(f):
         def inner_wrapper(*args, **kwargs):
-            token = request.headers['x-access-token']
-            data = jwt.decode(token, app.config['SECRET_KEY'])
+            try:
+                token = request.headers['x-access-token']
+                data = jwt.decode(token, app.config['SECRET_KEY'])
 
-            user = User.query.filter_by(id=data['id']).first()
-            role = Role.query.filter_by(id=user.role_id).first()
-            permission_ids = RolePermission.query.filter_by(role_id=role.id).all()
-            permission_ids = [p.permission_id for p in permission_ids]
-            for permission_id in permission_ids:
-                permission = Permission.query.filter_by(id=permission_id).first()
-                if permission.name == scope_name:
-                    return f(*args, **kwargs)
-
-            return {"error": "You do not have the permission"}, 403
+                user = User.query.filter_by(id=data['id']).first()
+                role = Role.query.filter_by(id=user.role_id).first()
+                permission_ids = RolePermission.query.filter_by(role_id=role.id).all()
+                permission_ids = [p.permission_id for p in permission_ids]
+                for permission_id in permission_ids:
+                    permission = Permission.query.filter_by(id=permission_id).first()
+                    if permission.name == scope_name:
+                        return f(*args, **kwargs)
+            except:
+                return {"error": "You do not have the permission"}, 403
 
         return inner_wrapper
 
@@ -758,16 +759,20 @@ class PostsPreviewView(AuthResource):
 
         posts_json = []
 
-        for post in posts:
-            post_data = {}
-            post_data['preview_id'] = post.id
-            post_data['posted_at'] = post.posted_at
-            post_data['title'] = post.title
-            posts_json.append(post_data)
+        try:
+            for post in posts:
+                post_data = {}
+                post_data['preview_id'] = post.id
+                post_data['posted_at'] = post.posted_at
+                post_data['title'] = post.title
+                posts_json.append(post_data)
 
-        posts = NewsPreview.query.paginate(page=page, per_page=per_page)
+            posts = NewsPreview.query.paginate(page=page, per_page=per_page)
 
-        return make_response(jsonify({'posts': posts_json, 'has_next': posts.has_next}), 200)
+            return make_response(jsonify({'posts': posts_json, 'has_next': posts.has_next}), 200)
+        except Exception as e:
+            print(e)
+            return make_response(jsonify({'error': 'Something went wrong!'}), 403)
 
 
 class PostView(Resource):

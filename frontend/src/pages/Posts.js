@@ -11,9 +11,12 @@ import {InfinitySpin} from "react-loader-spinner";
 
 export function Posts(){
     const [posts, setPostsList] = useState([])
+
     const [isLoading, setIsLoading] =  useState(true)
-    const [isSearching, setIsSearching] = useState(false)
     const [hasNext, setHasNext] = useState(true)
+    const [isSearching, setIsSearching] = useState(false)
+    const [isData, setIsData] = useState(false);
+
     const [searchTitle, setSearchTitle] = useState("")
     const [page, setPage] = useState(1)
     const [per_page, setPerPage] = useState(5)
@@ -42,9 +45,9 @@ export function Posts(){
             axios.get(`${process.env.REACT_APP_API_URL}/api/posts_preview?page=${page}&per_page=${per_page}`, {
                 headers: headers,})
                 .then(response => {
-                    if (!response.data['posts'].length) {setIsLoading(true)}
+                    if (!response.data['posts'].length && response.status === 200) {setIsData(false)}
                     else {
-                        setIsLoading(false);
+                        setIsData(true)
                         setHasNext(response.data['has_next'])
                         if(page === 1){
                             setPostsList([...response.data['posts']])
@@ -53,6 +56,7 @@ export function Posts(){
                         }
                         setPage(prevPage => prevPage+1)
                     }
+                    setIsLoading(false)
                 })
                 .catch(error => console.log(error))
         } catch (err) {
@@ -68,9 +72,9 @@ export function Posts(){
             axios.post(`${process.env.REACT_APP_API_URL}/api/post/search?page=${page}&per_page=${per_page}`, data, {
                 headers: headers,})
                 .then(response => {
-                    if (!response.data['posts'].length) {setIsLoading(true)}
+                    if (!response.data['posts'].length && response.status === 200) {setIsData(false)}
                     else {
-                        setIsLoading(false);
+                        setIsData(true)
                         setHasNext(response.data['has_next'])
                         if(page === 1){
                             setPostsList([...response.data['posts']])
@@ -79,6 +83,7 @@ export function Posts(){
                         }
                         setPage(prevPage => prevPage+1)
                     }
+                    setIsLoading(false)
                 })
                 .catch(error => console.log(error))
         } catch (err) {
@@ -178,25 +183,36 @@ export function Posts(){
                 </div>
                 :
                 <>
-                    {
-                        posts.map(item => (
-                                <a href={'post/' + item.preview_id + '/edit'} key={item.preview_id}>
-                                    <div
-                                        key={item.preview_id}
-                                        className='mb-3 d-flex align-items-center justify-content-between'
-                                        style={{backgroundColor: '#fff', height: '48px'}}>
-                                        <div className="d-flex">
-                                            <div><p style={{color: '#000'}}
-                                                    className='m-0 ms-3'>{item.preview_id}</p></div>
-                                            <div><p style={{color: '#000'}} className='m-0 ms-3'>{item.title}</p>
+                    {isData ?
+                        <>
+                            {
+                                posts.map(item => (
+                                        <a href={'post/' + item.preview_id + '/edit'} key={item.preview_id}>
+                                            <div
+                                                key={item.preview_id}
+                                                className='mb-3 d-flex align-items-center justify-content-between'
+                                                style={{backgroundColor: '#fff', height: '48px'}}>
+                                                <div className="d-flex">
+                                                    <div><p style={{color: '#000'}}
+                                                            className='m-0 ms-3'>{item.preview_id}</p></div>
+                                                    <div><p style={{color: '#000'}} className='m-0 ms-3'>{item.title}</p>
+                                                    </div>
+                                                </div>
+                                                <div><p style={{color: '#000'}} className='m-0 me-3'>{item.posted_at}</p>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div><p style={{color: '#000'}} className='m-0 me-3'>{item.posted_at}</p>
-                                        </div>
-                                    </div>
-                                </a>
-                            )
-                        )
+                                        </a>
+                                    )
+                                )
+                            }
+                        </>
+                        :
+                        <>
+                            <div className="d-flex flex-column align-items-center mt-5">
+                                <p className="h3">There is no posts yet!</p>
+                                <p className="h3">-_-'</p>
+                            </div>
+                        </>
                     }
                 </>
             }
