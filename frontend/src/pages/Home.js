@@ -176,7 +176,6 @@ export function Home(){
                 .then(response => {
                     if (!response.data['posts'].length && response.status === 200) {setIsData(false);}
                     else {
-                    console.log(response.status === 200)
                         setIsData(true)
                         setPosts(response.data['posts'])
                         setPaginationData({...paginationData,
@@ -225,21 +224,27 @@ export function Home(){
                                     <p className="m-0">{moment(item.posted_at).calendar()}</p>
                                     <MDBCardTitle className='mb-3'>{item.title}</MDBCardTitle>
 
-                                    <div className="d-flex">
+                                    <div className={item.post_id && "d-flex"}>
                                         <MDBCardImage className="img-fluid"
                                                       src={"uploads/"+item.img}
-                                                      style={{width: "350px"}}/>
-                                        <MDBCardBody className="py-0 pe-0">
-                                            <MDBCardText>
+                                                      style={item.post_id ? {height: "200px", width: "350px"} : {height: "400px"}}/>
+
+                                        <MDBCardBody className={item.post_id ? "py-0 pe-0" : "p-0 pt-4 pb-4"}>
+
+                                            <MDBCardText style={item.post_id ? {whiteSpace: "none"} :{whiteSpace: "pre-line"}}>
                                                 {item.preview}
                                             </MDBCardText>
-                                            <MDBBtn href={'post/'+item.post_id} className='px-3'>
-                                                <div className='d-flex'>
-                                                    <p className='m-0 me-2'>Read more</p>
-                                                    <MdArrowForward size={"1.5em"} style={{marginTop: '-1px'}}/>
-                                                </div>
-                                            </MDBBtn>
+
+                                            {item.post_id &&
+                                                <MDBBtn href={'post/'+item.post_id} className='px-3'>
+                                                    <div className='d-flex'>
+                                                        <p className='m-0 me-2'>Read more</p>
+                                                        <MdArrowForward size={"1.5em"} style={{marginTop: '-1px'}}/>
+                                                    </div>
+                                                </MDBBtn>
+                                            }
                                         </MDBCardBody>
+
                                     </div>
 
                                     <div className="d-flex">

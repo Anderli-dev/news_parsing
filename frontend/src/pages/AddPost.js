@@ -84,10 +84,9 @@ export function AddPost(){
     }
 
     const onChange = (e) => {
-        if(e.target.value.length > 255){
+        if(e.target.value.length > 255 && e.target.name !=='preview'){
             const errMsg =
             ( e.target.name ==='title_preview' && "Preview title max length 255 symbols!") ||
-            ( e.target.name ==='preview' && 'Preview max length 255 symbols!')||
             ( e.target.name ==='title_post' && "Post title max length 255 symbols!")
 
             setErrorFields({...errorFields, [e.target.name]: errMsg});
@@ -145,7 +144,8 @@ export function AddPost(){
         formData.append("posted_at", date.format("YYYY[-]MM[-]DD[T]h[:]m[:]s").toString())
 
         try {
-            await axios.post(`${process.env.REACT_APP_API_URL}/api/preview`, formData, {headers: headers,}).then(navigate())
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/preview`, formData, {headers: headers,})
+                .then(navigate("/posts"))
                 .catch(error => console.log(error.response))
         } catch (err) {
             console.log(err.response)

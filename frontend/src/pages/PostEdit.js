@@ -43,7 +43,7 @@ export function PostEdit(){
     const { post_id, title_post, body } = postData;
     const [checked, setChecked] = useState(false);
     const [basicModal, setBasicModal] = useState(false);
-    const [isDeleteRole, setIsDeleteRole] = useState(false)
+    const [isDelete, setIsDelete] = useState(false)
     const [selectedImg, setSelectedImg] = useState(null);
 
     const [isLoading, setIsLoading] = useState(true);
@@ -68,7 +68,7 @@ export function PostEdit(){
     )
 
 
-    const imgModel = () => {
+    const imgModal = () => {
         return(
             <>
                 <MDBModal show={basicModal} setShow={setBasicModal} tabIndex='-1'>
@@ -118,10 +118,9 @@ export function PostEdit(){
     const onChange = (e) => {
          const errMsg =
             ( e.target.name ==='title_preview' && "Preview title max length 255 symbols!") ||
-            ( e.target.name ==='preview' && 'Preview max length 255 symbols!')||
             ( e.target.name ==='title_post' && "Post title max length 255 symbols!")
 
-        if(e.target.value.length > 255){
+        if(e.target.value.length > 255 && e.target.name !=='preview'){
             setErrorFields({...errorFields, [e.target.name]: errMsg});
             return
         }
@@ -182,10 +181,24 @@ export function PostEdit(){
         formData.append("id", id)
 
         try {
-            await axios.put(`${process.env.REACT_APP_API_URL}/api/preview`, formData, {headers: headers,})
+            await axios.put(`${process.env.REACT_APP_API_URL}/api/preview/`+id, formData, {headers: headers,})
                 .catch(error => console.log(error.response))
         } catch (err) {
             console.log(err.response)
+        }
+
+        if(post_id){
+            try {
+                axios.delete(`${process.env.REACT_APP_API_URL}/api/post/` + post_id, {
+                    headers: headers,
+                })
+                    .then(() => {
+                        setIsDelete(false)
+                    })
+                    .catch(error => console.log(error))
+            } catch (err) {
+                console.log(err)
+            }
         }
     };
 
@@ -204,23 +217,39 @@ export function PostEdit(){
         } catch (err) {
             console.log(err.response)
         }
+        if(post_id){
+            let data = {
+                title_post: title_post.split(' ').join('') === '' ? title_preview : title_post,
+                text: window.tinymce.activeEditor.getContent(),
+            }
 
-        let data = {
-            title_post: title_post.split(' ').join('') === '' ? title_preview : title_post,
-            text: window.tinymce.activeEditor.getContent(),
+            try {
+                await axios.put(`${process.env.REACT_APP_API_URL}/api/post/`+post_id, data, {headers: headers,})
+                    .then(response => {
+                        if (response.status === 200) {
+                            console.log('Success')
+                        }
+                    })
+                    .catch(error => console.log(error.response))
+            } catch (err) {
+                console.log(err.response)
+            }
+        }
+        else {
+            let data = {
+                title_post: title_post.split(' ').join('') === '' ? title_preview : title_post,
+                text: window.tinymce.activeEditor.getContent(),
+                previewId: id
+            }
+
+            try {
+                await axios.post(`${process.env.REACT_APP_API_URL}/api/post`, data, {headers: headers,})
+                    .catch(error => console.log(error.response))
+            } catch (err) {
+                console.log(err.response)
+            }
         }
 
-        try {
-            await axios.put(`${process.env.REACT_APP_API_URL}/api/post/`+post_id, data, {headers: headers,})
-                .then(response => {
-                    if (response.status === 200) {
-                        console.log('Success')
-                    }
-                })
-                .catch(error => console.log(error.response))
-        } catch (err) {
-            console.log(err.response)
-        }
     }
 
     const getData = async () =>{
@@ -244,32 +273,67 @@ export function PostEdit(){
             console.log(err)
         }
 
-        try {
-            axios.get(`${process.env.REACT_APP_API_URL}/api/post/`+ postId,{
-                headers: headers,
-            })
-                .then(response => {
-                    setPostData({ ...postData,
-                        ["title_post"]: response.data["title"],
-                        ["body"]: response.data["body"],
-                        ["post_id"]:postId})
-                    setIsLoading(false)
+        if(postId) {
+            try {
+                axios.get(`${process.env.REACT_APP_API_URL}/api/post/` + postId, {
+                    headers: headers,
                 })
-                .catch(error => console.log(error.response))
-        }
-        catch (err) {
-            console.log(err)
-        }
+                    .then(response => {
+                        setPostData({
+                            ...postData,
+                            ["title_post"]: response.data["title"],
+                            ["body"]: response.data["body"],
+                            ["post_id"]: postId
+                        })
+                        setIsLoading(false)
+                    })
+                    .catch(error => console.log(error.response))
+            } catch (err) {
+                console.log(err)
+            }
+        }else {setIsLoading(false);setChecked(true)}
     }
 
     const onDeleteClick = () => {
-        try {
-            axios.delete(`${process.env.REACT_APP_API_URL}/api/post/`+id,{
-                headers: headers,})
-                .then(()=>{navigate("/posts");setIsDeleteRole(false)})
-                .catch(error => console.log(error))
-        } catch (err) {
-            console.log(err)
+        if(!checked && post_id){
+             try {
+                axios.delete(`${process.env.REACT_APP_API_URL}/api/post/` + post_id, {
+                    headers: headers,
+                })
+                    .then(() => {
+                        navigate("/posts");
+                        setIsDelete(false)
+                    })
+                    .catch(error => console.log(error))
+            } catch (err) {
+                console.log(err)
+            }
+            try {
+                axios.delete(`${process.env.REACT_APP_API_URL}/api/preview/` + id, {
+                    headers: headers,
+                })
+                    .then(() => {
+                        navigate("/posts");
+                        setIsDelete(false)
+                    })
+                    .catch(error => console.log(error))
+            } catch (err) {
+                console.log(err)
+            }
+        }
+        else {
+           try {
+                axios.delete(`${process.env.REACT_APP_API_URL}/api/preview/` + id, {
+                    headers: headers,
+                })
+                    .then(() => {
+                        navigate("/posts");
+                        setIsDelete(false)
+                    })
+                    .catch(error => console.log(error))
+            } catch (err) {
+                console.log(err)
+            }
         }
     }
 
@@ -279,7 +343,7 @@ export function PostEdit(){
 
     return(
         <div className="mt-4 mb-5">
-            <h1 className="mb-4">Edit post №{post_id}</h1>
+            <h1 className="mb-4">Edit post №{id}</h1>
                 <form className="g-3 " onSubmit={checked ? previewSubmit: allSubmit}>
 
                     <div className="d-flex phone-preview placeholder-glow">
@@ -341,7 +405,7 @@ export function PostEdit(){
                                 </div>
 
                                 <div>
-                                    {imgModel()}
+                                    {imgModal()}
                                 </div>
 
                                 <div className={errorFields["img"] &&'mb-4'}>
@@ -466,16 +530,16 @@ export function PostEdit(){
 
                     <div>
                         <div className='col-12 d-flex justify-content-between mt-4'>
-                            <MDBBtn onClick={allSubmit} disabled={isLoading&&true} className="me-2">Submit form</MDBBtn>
+                            <MDBBtn disabled={isLoading&&true} className="me-2">Submit form</MDBBtn>
                             <MDBBtn type="button"
                                     className="btn btn-danger"
-                                    onClick={()=>setIsDeleteRole(true)}
+                                    onClick={()=>setIsDelete(true)}
                                     disabled={isLoading&&true}
                             >
                                 Delete
                             </MDBBtn>
                         </div>
-                        {isDeleteRole && <DeleteModal onDeleteClick={onDeleteClick} setIsDelete={setIsDeleteRole}/>}
+                        {isDelete && <DeleteModal onDeleteClick={onDeleteClick} setIsDelete={setIsDelete}/>}
                     </div>
                 </form>
         </div>

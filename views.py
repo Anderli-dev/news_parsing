@@ -43,7 +43,8 @@ def scope(scope_name):
                     permission = Permission.query.filter_by(id=permission_id).first()
                     if permission.name == scope_name:
                         return f(*args, **kwargs)
-            except:
+            except Exception as e:
+                print(e)
                 return {"error": "You do not have the permission"}, 403
 
         return inner_wrapper
@@ -583,7 +584,10 @@ class PostsView(Resource):
             post_data['posted_at'] = post.posted_at
             post_data['title'] = post.title
             post_data['preview'] = post.preview
-            post_data['post_id'] = News.query.filter_by(preview_id=post.id).first().id
+            try:
+                post_data['post_id'] = News.query.filter_by(preview_id=post.id).first().id
+            except:
+                pass
             posts_json.append(post_data)
 
         posts = NewsPreview.query.paginate(page=page, per_page=per_page)
@@ -658,7 +662,7 @@ class PostPreviewView(Resource):
                 return make_response(jsonify({'error': 'Preview is empty!'}), 403)
             if not isinstance(data['preview'], str):
                 return make_response(jsonify({'error': 'Preview invalid type!'}), 403)
-            if data['preview'].__len__() > 255:
+            if data['preview'].__len__() > 65535:
                 return make_response(jsonify({'error': 'Preview is too long!'}), 403)
 
             token = request.headers['x-access-token']
@@ -679,6 +683,8 @@ class PostPreviewView(Resource):
             print(e)
             return make_response(jsonify({'error': 'Something went wrong!'}), 403)
 
+    @token_required
+    @scope('post_preview:update')
     def put(self, id):
         if 'img' in request.files:
             file = request.files['img']
@@ -714,7 +720,7 @@ class PostPreviewView(Resource):
                 return make_response(jsonify({'error': 'Preview is empty!'}), 403)
             if not isinstance(data['preview'], str):
                 return make_response(jsonify({'error': 'Preview invalid type!'}), 403)
-            if data['preview'].__len__() > 255:
+            if data['preview'].__len__() > 65535:
                 return make_response(jsonify({'error': 'Preview is too long!'}), 403)
 
             token = request.headers['x-access-token']
@@ -739,13 +745,28 @@ class PostPreviewView(Resource):
     def get(self, id):
         try:
             preview = NewsPreview.query.filter_by(id=id).first()
+            post_id = None
+            try:
+                post_id = News.query.filter_by(preview_id=id).first().id
+            except:
+                pass
             return make_response(jsonify({'title': preview.title,
                                           'img': preview.img,
                                           'preview': preview.preview,
                                           'posted_at': preview.posted_at,
-                                          'post_id': News.query.filter_by(preview_id=id).first().id}), 200)
+                                          'post_id': post_id}), 200)
         except Exception as e:
             print(e)
+            return make_response(jsonify({'error': 'something went wrong'}), 403)
+
+    @scope('post_preview:delete')
+    def delete(self, id):
+        try:
+            post_preview_get = NewsPreview.query.filter_by(id=id).first()
+            db.session.delete(post_preview_get)
+            db.session.commit()
+            return make_response(jsonify({'success': 'Delete success'}), 200)
+        except:
             return make_response(jsonify({'error': 'something went wrong'}), 403)
 
 
@@ -816,6 +837,8 @@ class PostView(Resource):
             print(e)
             return make_response(jsonify({'error': 'Something went wrong!'}), 403)
 
+    @token_required
+    @scope('post:update')
     def put(self, id):
         try:
             if request.form.get('title_post') is None:
@@ -839,13 +862,12 @@ class PostView(Resource):
             print(e)
             return make_response(jsonify({'error': 'something went wrong'}), 403)
 
-    @scope("post:delete")
-    def delete(self, post_id):
-        post_get = News.query.filter_by(id=post_id).first()
+    @token_required
+    @scope('post:delete')
+    def delete(self, id):
+        post_get = News.query.filter_by(id=id).first()
         if post_get:
-            post_preview_get = NewsPreview.query.filter_by(id=post_get.preview_id).first()
             db.session.delete(post_get)
-            db.session.delete(post_preview_get)
             db.session.commit()
             return make_response(jsonify({'success': 'Delete success'}), 200)
         else:

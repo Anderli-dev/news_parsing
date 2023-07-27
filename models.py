@@ -24,7 +24,7 @@ class NewsPreview(db.Model):
 
     posted_at = db.Column(db.DateTime, nullable=False)
     title = db.Column(db.String(255), nullable=False)
-    preview = db.Column(db.String(255), nullable=True)
+    preview = db.Column(db.Text, nullable=True)
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'),
                         nullable=True)
@@ -33,7 +33,7 @@ class NewsPreview(db.Model):
 
 
 class News(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False)
 
     title = db.Column(db.String(255), nullable=False)
 
