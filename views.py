@@ -477,7 +477,7 @@ class UserView(AuthResource):
                     if user_data['count_of_posts'] == 0:
                         user_data['last_posted_at'] = "User doesn't post yet"
                     else:
-                        user_data['last_posted_at'] = NewsPreview.query.order_by(NewsPreview.posted_at).first().posted_at
+                        user_data['last_posted_at'] = NewsPreview.query.filter(NewsPreview.user_id == user_id).order_by(NewsPreview.posted_at.desc()).first().posted_at
                     return make_response(jsonify({'user': user_data}), 200)
             else:
                 return make_response(jsonify({'error': 'User not exist'}), 404)
