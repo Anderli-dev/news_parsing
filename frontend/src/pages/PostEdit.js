@@ -530,7 +530,7 @@ export function PostEdit(){
 
                     <div>
                         <div className='col-12 d-flex justify-content-between mt-4'>
-                            <MDBBtn disabled={isLoading&&true} className="me-2">Submit form</MDBBtn>
+                            <MDBBtn type="button" onClick={allSubmit} disabled={isLoading&&true} className="me-2">Submit form</MDBBtn>
                             <MDBBtn type="button"
                                     className="btn btn-danger"
                                     onClick={()=>setIsDelete(true)}

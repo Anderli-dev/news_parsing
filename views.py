@@ -602,12 +602,21 @@ class PostsView(Resource):
 
 
 @app.route('/api/get_preview')
-# TODO add auth res and permission
 def get_three_preview():
-    # TODO catch if preview less then 3
     try:
-        post_id = request.args.get('post_id')
-        first, second, third = NewsPreview.query.filter(NewsPreview.id != post_id, func.random())[:3]
+        post_id = request.args.get('post_id', type=int)
+        post = News.query.filter_by(id=post_id).first()
+        preview_ids = [i[0] for i in News.query.with_entities(News.preview_id).all()]
+
+        try:
+            first, second, third = NewsPreview.query.filter(
+                NewsPreview.id != post.preview_id,
+                func.random(),
+                NewsPreview.id.in_(preview_ids)).order_by(func.random())[:3]
+            if not first or not second or not third:
+                raise
+        except:
+            return make_response(jsonify({'data': [None]}), 200)
 
         previews_json = []
 

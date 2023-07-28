@@ -30,7 +30,11 @@ export function PostDetail(){
             axios.get(`${process.env.REACT_APP_API_URL}/api/get_preview?post_id=`+id, {
                 headers: headers,
             })
-                .then(response => {setPreviews(response.data.data); setIsFeaturesLoading(false)} )
+                .then(response => {
+                    setPreviews(response.data.data);
+                    setIsFeaturesLoading(false)
+                    console.log(previews[0])
+                } )
                 .catch(error => console.log(error.response))
         } catch (err) {
             console.log(err)
@@ -135,14 +139,27 @@ export function PostDetail(){
                         </>
                         :
                         <>
-                            {previews.map(item =>(
-                                <a href={item.post_id}>
-                                    <div key={item.preview_id} style={{backgroundColor: "#343434"}}>
-                                        <img src={"../uploads/"+item.img} alt="" loading="lazy"/>
-                                        <p className="py-3 px-3">{item.title}</p>
-                                    </div>
-                                </a>
-                            ))}
+                            {previews[0]
+                                ?<>
+                                    {previews.map(item =>(
+                                        <a href={item.post_id}>
+                                            <div key={item.preview_id} style={{backgroundColor: "#343434"}}>
+                                                <img src={"../uploads/"+item.img} alt="" loading="lazy"/>
+                                                <p className="py-3 px-3">{item.title}</p>
+                                            </div>
+                                        </a>
+                                    ))}
+                                </>
+                                :<>
+                                    <div style={{backgroundColor: "#343434"}}>
+                                                <div style={{backgroundColor: "rgb(83 83 83)"}} className="text-center">
+                                                    <p className="h1 py-5">(o_O)</p>
+                                                </div>
+                                                <p className="py-3 px-3">There are no features posts...</p>
+                                            </div>
+                                </>
+                            }
+
                         </>
                     }
                 </div>
