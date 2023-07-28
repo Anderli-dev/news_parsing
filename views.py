@@ -688,9 +688,10 @@ class PostPreviewView(Resource):
     def put(self, id):
         if 'img' in request.files:
             file = request.files['img']
+            print(file.__sizeof__())
             if file.filename == '':
                 return make_response(jsonify({'error': 'Image filename is wrong!'}), 403)
-            if len(request.files['img'].read()) > 2 * 1048576:
+            if file.__sizeof__() > 2 * 1048576:
                 # more than 2 MB
                 return make_response(jsonify({'error': 'Image size too big!'}), 403)
             if file and allowed_file(file.filename):
