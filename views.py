@@ -209,6 +209,8 @@ class RoleView(AuthResource):
     @scope('role:read')
     def get(self, role_id):
         role = Role.query.filter_by(id=role_id).first()
+        if role is None:
+            return make_response(jsonify({'error': 'Something went wrong'}), 404)
         if role:
             role_users = User.query.filter_by(role_id=role.id).count()
             role_data = {}
@@ -755,6 +757,8 @@ class PostPreviewView(Resource):
     def get(self, id):
         try:
             preview = NewsPreview.query.filter_by(id=id).first()
+            if preview is None:
+                return make_response(jsonify({'error': 'something went wrong'}), 404)
             post_id = None
             try:
                 post_id = News.query.filter_by(preview_id=id).first().id
@@ -810,7 +814,8 @@ class PostView(Resource):
 
     def get(self, id):
         post = News.query.filter_by(id=id).first()
-
+        if post is None:
+            return make_response(jsonify({'error': 'Something went wrong!'}), 404)
         return make_response(jsonify({'title': post.title, 'body': post.text}), 200)
 
     @token_required

@@ -99,7 +99,7 @@ export function Role(){
                             "role_description": response.data["role"].description});
                     }
                 })
-                .catch(error => console.log(error))
+                .catch(error => {console.log(error.response); if(error.response.status === 404){navigate("/roles")}})
         } catch (err) {
             console.log(err)
         }

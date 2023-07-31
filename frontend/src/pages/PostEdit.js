@@ -267,7 +267,7 @@ export function PostEdit(){
                         ["preview"]: response.data["preview"]})
                     setIsPreviewLoading(false)
                 })
-                .catch(error => console.log(error.response))
+                .catch(error => {console.log(error.response); if(error.response.status === 404){navigate("/posts")}})
         }
         catch (err) {
             console.log(err)

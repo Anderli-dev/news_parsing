@@ -1,4 +1,4 @@
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import React, {useEffect, useState} from "react";
 import axios from "axios";
 import '../static/css/post-detail.css'
@@ -20,6 +20,8 @@ export function PostDetail(){
 
     const {id} = useParams();
 
+    const navigate = useNavigate()
+
     const headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
@@ -33,7 +35,6 @@ export function PostDetail(){
                 .then(response => {
                     setPreviews(response.data.data);
                     setIsFeaturesLoading(false)
-                    console.log(previews[0])
                 } )
                 .catch(error => console.log(error.response))
         } catch (err) {
@@ -52,7 +53,7 @@ export function PostDetail(){
                     ["body"]: response.data["body"],})
                     setIsLoading(false)
                 })
-                .catch(error => console.log(error.response))
+                .catch(error => {console.log(error.response); if(error.response.status === 404){navigate("/")}})
         }
         catch (err) {
             console.log(err)

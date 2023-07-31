@@ -71,7 +71,7 @@ export function User(){
                         setRole(response.data['user'].role);
                     }
                 })
-                .catch(error => console.log(error))
+                .catch(error => {console.log(error.response); if(error.response.status === 404){navigate("/users")}})
         } catch (err) {
             console.log(err)
         }
