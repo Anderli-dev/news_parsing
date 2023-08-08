@@ -25,6 +25,7 @@ class NewsPreview(db.Model):
     posted_at = db.Column(db.DateTime, nullable=False)
     title = db.Column(db.String(255), nullable=False)
     preview = db.Column(db.Text, nullable=True)
+    is_parsed = db.Column(db.Boolean, default=False, nullable=False)
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'),
                         nullable=True)
