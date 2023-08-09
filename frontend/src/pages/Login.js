@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import login_img from '../login.jpg'
+import login_img from '../login.png'
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
@@ -72,19 +72,19 @@ export function Login(){
                 <div className="container py-5 h-100">
                     <div className="row d-flex justify-content-center align-items-center h-100">
                         <div className="col col-xl-10">
-                            <div className="card" style={{backgroundColor: "", borderRadius: "1rem"}}>
+                            <div className="card py-3" style={{backgroundColor: "", borderRadius: "1rem"}}>
                                 <div className="row g-0">
-                                    <div className="col-md-6 col-lg-5 d-none d-md-block">
+                                    <div className="col-md-6 col-lg-5 d-none d-md-flex ps-3">
                                         <img
                                             src={login_img}
-                                            alt="login form" className="img-fluid"
+                                            alt="login form" className="img-fluid align-self-center"
                                             style={{borderRadius: "1rem 0 0 1rem"}}/>
                                     </div>
                                     <div className="col-md-6 col-lg-7 d-flex align-items-center">
-                                        <div className="card-body p-4 p-lg-5 text-black">
+                                        <div className="card-body p-4  text-black ps-4 pe-5 py-lg-5">
                                             <form onSubmit={loginSubmit}>
                                                 <div className="d-flex align-items-center mb-3 pb-1">
-                                                    <i className="fas fa-cubes fa-2x me-3" style={{color: "#2a86e7"}}></i>
+                                                    {/*<i className="fas fa-cubes fa-2x me-3" style={{color: "#2a86e7"}}></i>*/}
                                                     <span className="h1 fw-bold mb-0">News parsing</span>
                                                 </div>
 
@@ -127,12 +127,11 @@ export function Login(){
                                                     </button>
                                                 </div>
 
-                                                <a className="small text-muted" href="#!">Forgot password?</a>
-                                                <p className="mb-5 pb-lg-2" style={{color: "#393f81"}}>Don't have an
-                                                    account?
-                                                    <a href="#!" style={{color: "#393f81"}} className="ms-2">Register here</a></p>
-                                                <a href="#!" className="small text-muted">Terms of use.</a>
-                                                <a href="#!" className="small text-muted">Privacy policy</a>
+                                                <a className="small text-muted" href="/register">Don't have an
+                                                    account?</a>
+                                                <p className="mb-5 pb-lg-2" style={{color: "#393f81"}}>
+                                                    <a href="/register" style={{color: "#393f81"}} className="">Register here!</a>
+                                                </p>
                                             </form>
 
                                         </div>
