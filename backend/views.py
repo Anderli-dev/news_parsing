@@ -11,9 +11,8 @@ from sqlalchemy import func
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
-from app import app
-from app import db
-from models import Role, User, BlacklistToken, Permission, RolePermission, NewsPreview, News
+from backend import app, db
+from backend.models import Role, User, BlacklistToken, Permission, RolePermission, NewsPreview, News
 
 import math
 
@@ -575,7 +574,7 @@ class PostsView(Resource):
         per_page = 5
 
         total = NewsPreview.query.count()
-        posts = NewsPreview.query.paginate(page=page, per_page=per_page).items
+        posts = NewsPreview.query.order_by(NewsPreview.posted_at.desc()).paginate(page=page, per_page=per_page).items
 
         posts_json = []
 

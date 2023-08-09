@@ -1,4 +1,4 @@
-from views import *
+from backend.views import *
 
 # user routes
 api.add_resource(UsersView, '/api/users')
