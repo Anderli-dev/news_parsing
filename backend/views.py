@@ -19,7 +19,7 @@ import math
 api = Api(app)
 
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 def allowed_file(filename):
@@ -37,11 +37,13 @@ def scope(scope_name):
                 user = User.query.filter_by(id=data['id']).first()
                 role = Role.query.filter_by(id=user.role_id).first()
                 permission_ids = RolePermission.query.filter_by(role_id=role.id).all()
+
                 permission_ids = [p.permission_id for p in permission_ids]
                 for permission_id in permission_ids:
                     permission = Permission.query.filter_by(id=permission_id).first()
                     if permission.name == scope_name:
                         return f(*args, **kwargs)
+
             except Exception as e:
                 print(e)
                 return {"error": "You do not have the permission"}, 403
@@ -647,10 +649,10 @@ class PostPreviewView(Resource):
             return make_response(jsonify({'error': 'Image size too big!'}), 403)
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
+            file.seek(0)
             file.save(os.path.join(BASE_DIR, app.config['UPLOAD_FOLDER'], filename))
         else:
             return make_response(jsonify({'error': 'File not image!'}), 403)
-
         try:
             data = request.form
 
