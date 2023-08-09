@@ -227,7 +227,7 @@ export function Home(){
                                     <div className={item.post_id && "d-flex"}>
                                         <MDBCardImage className="img-fluid"
                                                       src={"uploads/"+item.img}
-                                                      style={item.post_id ? {height: "200px", width: "350px"} : {height: "400px"}}/>
+                                                      style={item.post_id ? {height: "200px", width: "350px"} : {height: "450px"}}/>
 
                                         <MDBCardBody className={item.post_id ? "py-0 pe-0" : "p-0 pt-4 pb-4"}>
 
