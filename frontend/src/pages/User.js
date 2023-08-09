@@ -138,7 +138,8 @@ export function User(){
                                 onChange={isUserLoading? null :onChange}
                                 name="name"
                                 className={isUserLoading&&"placeholder"}
-                                label='Name' id='typeText' type='text' contrast value={isUserLoading?"Loading...":name}
+                                label='Name' id='typeText' type='text' contrast value={name}
+                                disabled={isUserLoading}
                                 error={errorFields}
                             />
                             <ValidationField
@@ -146,7 +147,8 @@ export function User(){
                                 onChange={isUserLoading? null :onChange}
                                 name="surname"
                                 className={isUserLoading&&"placeholder"}
-                                label='Surname' id='typeText' type='text' contrast value={isUserLoading?"Loading...":surname}
+                                label='Surname' id='typeText' type='text' contrast value={surname}
+                                disabled={isUserLoading}
                                 error={errorFields}
                             />
                             <ValidationField
@@ -154,7 +156,8 @@ export function User(){
                                 onChange={isUserLoading? null :onChange}
                                 name="email"
                                 className={isUserLoading&&"placeholder"}
-                                label='Email' id='typeEmail' type='email' contrast value={isUserLoading?"Loading...":email}
+                                label='Email' id='typeEmail' type='email' contrast value={email}
+                                disabled={isUserLoading}
                                 error={errorFields}
                             />
                         </div>
