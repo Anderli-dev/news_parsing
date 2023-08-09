@@ -565,7 +565,7 @@ class ImageUploader(Resource):
 
         if file and allowed_file(file.filename):
             file.save(os.path.join(BASE_DIR, app.config['UPLOAD_FOLDER'], filename))
-            return make_response(jsonify({'location': 'uploads/'+file.filename}), 200)
+            return make_response(jsonify({'location': '../../uploads/'+file.filename}), 200)
         else:
             make_response(jsonify({'error': 'Invalid Upload only png, jpg, jpeg, gif'}), 200)
 
@@ -700,14 +700,17 @@ class PostPreviewView(Resource):
     def put(self, id):
         if 'img' in request.files:
             file = request.files['img']
-            print(file.__sizeof__())
             if file.filename == '':
                 return make_response(jsonify({'error': 'Image filename is wrong!'}), 403)
             if file.__sizeof__() > 2 * 1048576:
                 # more than 2 MB
                 return make_response(jsonify({'error': 'Image size too big!'}), 403)
             if file and allowed_file(file.filename):
+                preview = NewsPreview.query.filter_by(id=id).first()
+                os.remove(os.path.join(BASE_DIR, app.config['UPLOAD_FOLDER'], preview.img))
+
                 filename = secure_filename(file.filename)
+                file.seek(0)
                 file.save(os.path.join(BASE_DIR, app.config['UPLOAD_FOLDER'], filename))
             else:
                 return make_response(jsonify({'error': 'File not image!'}), 403)
@@ -778,6 +781,7 @@ class PostPreviewView(Resource):
     def delete(self, id):
         try:
             post_preview_get = NewsPreview.query.filter_by(id=id).first()
+            os.remove(os.path.join(BASE_DIR, app.config['UPLOAD_FOLDER'], post_preview_get.img))
             db.session.delete(post_preview_get)
             db.session.commit()
             return make_response(jsonify({'success': 'Delete success'}), 200)

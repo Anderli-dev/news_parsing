@@ -26,9 +26,8 @@ export function AddPost(){
         title_preview: '',
         preview: '',
         title_post: '',
-        text:"",
     });
-    const { title_preview, preview, title_post, text } = formData;
+    const { title_preview, preview, title_post } = formData;
     const [checked, setChecked] = useState(false);
     const [selectedImg, setSelectedImg] = useState(null);
     const [basicModal, setBasicModal] = useState(false);
@@ -84,7 +83,7 @@ export function AddPost(){
     }
 
     const onChange = (e) => {
-        if(e.target.value.length > 255 && e.target.name !=='preview'){
+        if(e.target.value.length > 255 && e.target.name !=='preview' ){
             const errMsg =
             ( e.target.name ==='title_preview' && "Preview title max length 255 symbols!") ||
             ( e.target.name ==='title_post' && "Post title max length 255 symbols!")
@@ -195,6 +194,44 @@ export function AddPost(){
             console.log(err.response)
         }
     }
+
+    const imagesUploadHandler = (blobInfo) => new Promise((success, failure) => {
+        let xhr = new XMLHttpRequest();
+        xhr.withCredentials = false;
+        xhr.open('POST', `${process.env.REACT_APP_API_URL}/api/image_upload`);
+        xhr.setRequestHeader('x-access-token', Cookies.get('x-access-token')); // manually set header
+
+        xhr.onload = function() {
+            if (xhr.status === 403) {
+                failure('HTTP Error: ' + xhr.status, { remove: true });
+                return;
+            }
+
+            if (xhr.status !== 200) {
+                failure('HTTP Error: ' + xhr.status);
+                return;
+            }
+
+            let json = JSON.parse(xhr.responseText);
+
+            if (!json || typeof json.location !== 'string') {
+                failure('Invalid JSON: ' + xhr.responseText);
+                return;
+            }
+
+            success(json.location);
+        };
+
+        xhr.onerror = function () {
+            failure('Image upload failed due to a XHR Transport error. Code: ' + xhr.status);
+        };
+
+        let formData = new FormData();
+        formData.append('file', blobInfo.blob(), blobInfo.filename());
+
+        xhr.send(formData);
+    })
+
 
     const onResetClick = () =>{
         let dict = {}
@@ -329,10 +366,11 @@ export function AddPost(){
                             <div className='mb-4'>
                                 <Editor
                                     id='editor'
-                                    value={text}
+                                    name='text'
                                     apiKey='q2irgy2e9k2t4yqb3oiv28zg3vi2cli0pvhb8drka4xy3dly'
                                     onInit={(evt, editor) => editorRef.current = editor}
                                     init={{
+                                        max_chars: 1000,
                                         selector: 'textarea#editor',
                                         height: 700,
                                         plugins: 'image code',
@@ -340,6 +378,7 @@ export function AddPost(){
                                         image_title: true,
                                         images_upload_url: `${process.env.REACT_APP_API_URL}/api/image_upload`,
                                         convert_urls: false,
+                                        images_upload_handler: imagesUploadHandler,
 
                                         automatic_uploads: true,
 
