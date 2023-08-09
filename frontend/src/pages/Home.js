@@ -16,6 +16,8 @@ import Cookies from "js-cookie";
 import {setTab} from "../store/sideNavTab";
 import {useDispatch, useSelector} from "react-redux";
 import {HomeLoadingPost} from "../components/HomeLoadingPost";
+import {OverlayTrigger, Tooltip} from "react-bootstrap";
+import {overlay} from "../components/ShareBtnOverlay";
 
 export function Home(){
     const [posts, setPosts] = useState([]);
@@ -248,19 +250,26 @@ export function Home(){
                                     </div>
 
                                     <div className="d-flex">
-                                        <MDBBtn  className="m-0 mt-3 me-2 p-0 d-flex align-items-center"
-                                                 style={{height:'30px'}}>
-                                            <SiTwitter className="mx-2"/>
-                                        </MDBBtn>
-                                        <MDBBtn  className="m-0 mt-3 me-2 p-0 d-flex align-items-center"
-                                                 style={{height:'30px'}}>
-                                            <MdFacebook className="mx-2"/>
-                                        </MDBBtn>
-                                        <MDBBtn  className="m-0 mt-3 me-2 p-0 d-flex align-items-center"
-                                                 style={{height:'30px'}}>
-                                            <MdShare className="mx-2"/>
-                                            <p className="m-0 me-3">Share</p>
-                                        </MDBBtn>
+                                        <OverlayTrigger trigger="click" overlay={overlay}>
+                                            <MDBBtn  className="m-0 mt-3 me-2 p-0 d-flex align-items-center"
+                                                     style={{height:'30px'}}>
+                                                <SiTwitter className="mx-2"/>
+                                            </MDBBtn>
+                                        </OverlayTrigger>
+                                        <OverlayTrigger trigger="click" overlay={overlay}>
+                                            <MDBBtn  className="m-0 mt-3 me-2 p-0 d-flex align-items-center"
+                                                     style={{height:'30px'}}>
+                                                <MdFacebook className="mx-2"/>
+                                            </MDBBtn>
+                                        </OverlayTrigger>
+                                        <OverlayTrigger trigger="click" overlay={overlay}>
+                                            <MDBBtn  className="m-0 mt-3 me-2 p-0 d-flex align-items-center"
+                                                     style={{height:'30px'}}
+                                            >
+                                                <MdShare className="mx-2"/>
+                                                <p className="m-0 me-3">Share</p>
+                                            </MDBBtn>
+                                        </OverlayTrigger>
                                     </div>
                                 </div>
                             ))
