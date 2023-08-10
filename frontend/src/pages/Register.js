@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
-import login_img from '../login.jpg'
+import {FaUser} from "react-icons/fa";
 
 
 export function Register(props) {
@@ -46,78 +46,78 @@ export function Register(props) {
     };
 
     return (
-        <section className="h-100 bg-dark">
-            <div className="container  h-100">
-                <div className="row d-flex justify-content-center align-items-center h-100">
-                    <div className="col">
-                        <div className="card card-registration my-4">
-                            <div className="row g-0">
-                                <div className="col-xl-6 d-none d-xl-block">
-                                    <img
-                                        src={login_img}
-                                        alt="login" className="img-fluid"
-                                        style={{borderTopLeftRadius: ".25rem", borderBottomLeftRadius: ".25rem"}}/>
+        <section>
+            <div className="container vh-100 d-flex align-items-center justify-content-center">
+                <div>
+                    <div className="card-body p-md-5 text-black rounded-7" style={{backgroundColor: "#fff"}}>
+                        <form onSubmit={regSubmit}>
+                            <h3 className="mb-5 text-uppercase">Account registration<FaUser style={{marginTop: "-5px", marginLeft: "5px"}}/></h3>
+                            <div className="row">
+                                <div className="mb-4 ms-auto">
+                                    <div className="form-outline">
+                                        <input type="text" id="form2Example27"
+                                               value={username}
+                                               onChange={onChange}
+                                               name="username"
+                                               required
+                                               className="form-control form-control-lg"
+                                               style={{border: "1px solid #bdbdbd"}}/>
+                                        <label className="form-label"
+                                               htmlFor="form2Example27"
+                                               style={{transform: "none", marginTop: "-35px",  marginLeft: "-10px"}}>
+                                            Username</label>
+                                    </div>
                                 </div>
-                                <div className="col-xl-6">
-                                    <div className="card-body p-md-5 text-black">
-                                        <form onSubmit={regSubmit}>
-                                            <h3 className="mb-5 text-uppercase">Account registration</h3>
-
-                                            <div className="row">
-                                                <div className="col-md-6 mb-4">
-                                                    <div className="form-outline">
-                                                        <input type="text" id="form2Example27"
-                                                           value={username}
-                                                           onChange={onChange}
-                                                           name="username"
-                                                           className="form-control form-control-lg"
-                                                           style={{border: "1px solid #bdbdbd"}}/>
-                                                    <label className="form-label"
-                                                           htmlFor="form2Example27"
-                                                           style={{transform: "none", marginTop: "-35px",  marginLeft: "-10px"}}>
-                                                        Username</label>
-                                                    </div>
-                                                </div>
-                                                <div className="col-md-6 mb-4">
-                                                    <div className="form-outline">
-                                                        <input type="password" id="form2Example28"
-                                                           value={password}
-                                                           onChange={onChange}
-                                                           name="password"
-                                                           className="form-control form-control-lg"
-                                                           style={{border: "1px solid #bdbdbd"}}/>
-                                                    <label className="form-label"
-                                                           htmlFor="form2Example27"
-                                                           style={{transform: "none", marginTop: "-35px",  marginLeft: "-10px"}}>
-                                                        Password</label>
-                                                    </div>
-                                                </div>
-                                                <div className="col-md-6 mb-4 ms-auto">
-                                                    <div className="form-outline">
-                                                        <input type="password" id="form2Example29"
-                                                               value={re_password}
-                                                               onChange={onChange}
-                                                               name="re_password"
-                                                               className="form-control form-control-lg"
-                                                               style={{border: "1px solid #bdbdbd"}}/>
-                                                        <label className="form-label"
-                                                               htmlFor="form2Example27"
-                                                               style={{transform: "none", marginTop: "-35px",  marginLeft: "-10px"}}>
-                                                            Repeat password</label>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="d-flex justify-content-end pt-3">
-                                                <button type="submit" className="btn btn-warning btn-lg ms-2">
-                                                    Submit
-                                                </button>
-                                            </div>
-                                        </form>
+                                <div className="d-flex">
+                                    <div className="mb-4 me-3 flex-fill">
+                                        <div className="form-outline">
+                                            <input type="password" id="form2Example28"
+                                                   value={password}
+                                                   onChange={onChange}
+                                                   name="password"
+                                                   required
+                                                   className="form-control form-control-lg"
+                                                   style={{border: "1px solid #bdbdbd"}}/>
+                                            <label className="form-label"
+                                                   htmlFor="form2Example27"
+                                                   style={{transform: "none", marginTop: "-35px",  marginLeft: "-10px"}}>
+                                                Password</label>
+                                        </div>
+                                    </div>
+                                    <div className="mb-4 flex-fill">
+                                        <div className="form-outline">
+                                            <input type="password" id="form2Example29"
+                                                   value={re_password}
+                                                   onChange={onChange}
+                                                   required
+                                                   name="re_password"
+                                                   className="form-control form-control-lg"
+                                                   style={{border: "1px solid #bdbdbd"}}/>
+                                            <label className="form-label"
+                                                   htmlFor="form2Example27"
+                                                   style={{transform: "none", marginTop: "-35px",  marginLeft: "-10px"}}>
+                                                Repeat password</label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+
+                            <div className="d-flex justify-content-between">
+                                <div className="d-flex flex-column justify-content-end pt-3">
+                                    <a className="small text-muted" href="/register">Don't have an
+                                        account?</a>
+                                    <p className="m-0" style={{color: "#393f81"}}>
+                                        <a href="/login" style={{color: "#393f81"}} className="">Login here!</a>
+                                    </p>
+                                </div>
+
+                                <div className="d-flex justify-content-end pt-3">
+                                    <button type="submit" className="btn btn-primary btn-lg ms-2">
+                                        Submit
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
