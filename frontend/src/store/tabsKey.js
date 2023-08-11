@@ -6,7 +6,8 @@ export const tabKeySlice = createSlice ({
             home: 0,
             posts: 1,
             users: 2,
-            roles: 3
+            roles: 3,
+            parsing: 4,
         }},
 })
 

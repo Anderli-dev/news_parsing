@@ -47,6 +47,9 @@ export function SideNavBar(props){
         {permissions.includes('posts:read') &&
             <CustomNavItem to="/posts" eventKey={tabKey.posts}>Posts</CustomNavItem>
         }
+        {permissions.includes('parsing:read') &&
+            <CustomNavItem to="/parsing_control" eventKey={tabKey.parsing}>Parsing</CustomNavItem>
+        }
         {permissions.includes('users:read') &&
             <CustomNavItem to="/users" eventKey={tabKey.users}>Users</CustomNavItem>
         }
