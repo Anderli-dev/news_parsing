@@ -12,7 +12,7 @@ from sqlalchemy import func
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
-from backend import app, db
+from backend import app, db, sched
 from backend.models import Role, User, BlacklistToken, Permission, RolePermission, NewsPreview, News
 
 api = Api(app)
@@ -917,7 +917,7 @@ class PostsSearchView(AuthResource):
         return make_response(jsonify({'posts': posts_json, 'has_next': posts.has_next}), 200)
 
 
-class ParsingSettingsView(AuthResource):
+class ParsingControlView(AuthResource):
     @scope('parsing:read')
     def get(self):
         PARSING_IS_RUNNING = app.config['PARSING_IS_RUNNING']
@@ -928,10 +928,20 @@ class ParsingSettingsView(AuthResource):
 
     @scope('parsing:update')
     def put(self):
-        data = request.get_json()
+        try:
+            data = request.get_json()
 
-        app.config['PARSING_IS_RUNNING'] = data['isRunning']
-        app.config['PARSING_REGION'] = data['region']
-        app.config['PARSING_TIME'] = data['time']
+            if bool(data['isRunning']) != bool(app.config['PARSING_IS_RUNNING']):
+                if data['isRunning']:
+                    sched.resume()
+                else:
+                    sched.pause()
 
-        return 200
+            app.config['PARSING_IS_RUNNING'] = data['isRunning']
+            app.config['PARSING_REGION'] = data['region']
+            app.config['PARSING_TIME'] = data['time']
+
+            sched.reschedule_job('get_posts', trigger='interval', seconds=int(app.config['PARSING_TIME'])*60*60)
+            return 200
+        except:
+            return 403

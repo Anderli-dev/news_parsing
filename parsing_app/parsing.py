@@ -5,18 +5,13 @@ from selenium.common import NoSuchElementException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 
-from backend import celery_app, db
+from backend import app
+from backend import db
 from backend.models import NewsPreview, News
-from celery_app.selenium_utils import get_header, get_post_url, get_preview, get_time, get_img, get_post_data, \
+from parsing_app.selenium_utils import get_header, get_post_url, get_preview, get_time, get_img, get_post_data, \
     GetOutOfLoop
 
 
-@celery_app.on_after_configure.connect
-def setup_periodic_tasks(sender, **kwargs):
-    sender.add_periodic_task(1.0*60*60, parsing.s(), name='get posts')
-
-
-@celery_app.task
 def parsing():
     chrome_options = Options()
     chrome_options.add_argument("--headless")
@@ -24,7 +19,7 @@ def parsing():
     driver = webdriver.Chrome(options=chrome_options)
     driver.maximize_window()
 
-    driver.get("https://www.bbc.com/news/world/africa")
+    driver.get("https://www.bbc.com/news/world/"+app.config['PARSING_REGION'])
 
     lats_parsed = NewsPreview.query.filter_by(is_parsed=True).order_by(NewsPreview.posted_at.desc()).first()
 

@@ -11,3 +11,7 @@ CORS_HEADERS = 'Content-Type'
 UPLOAD_FOLDER = 'news_parsing/frontend/public/uploads'
 
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
+
+PARSING_IS_RUNNING = False
+PARSING_TIME = 1
+PARSING_REGION = 'africa'
