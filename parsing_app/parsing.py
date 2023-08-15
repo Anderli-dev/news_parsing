@@ -5,8 +5,7 @@ from selenium.common import NoSuchElementException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 
-from backend import app
-from backend import db
+from backend import db, app
 from backend.models import NewsPreview, News
 from parsing_app.selenium_utils import get_header, get_post_url, get_preview, get_time, get_img, get_post_data, \
     GetOutOfLoop
