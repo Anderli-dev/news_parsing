@@ -1,4 +1,5 @@
 import datetime
+import math
 import os
 from functools import wraps
 from pathlib import Path
@@ -13,8 +14,6 @@ from werkzeug.utils import secure_filename
 
 from backend import app, db
 from backend.models import Role, User, BlacklistToken, Permission, RolePermission, NewsPreview, News
-
-import math
 
 api = Api(app)
 
@@ -916,3 +915,23 @@ class PostsSearchView(AuthResource):
         posts = NewsPreview.query.filter(NewsPreview.title.like('%'+data['title']+'%')).paginate(page=page, per_page=per_page)
 
         return make_response(jsonify({'posts': posts_json, 'has_next': posts.has_next}), 200)
+
+
+class ParsingSettingsView(AuthResource):
+    @scope('parsing:read')
+    def get(self):
+        PARSING_IS_RUNNING = app.config['PARSING_IS_RUNNING']
+        PARSING_REGION = app.config['PARSING_REGION']
+        PARSING_TIME = app.config['PARSING_TIME']
+
+        return make_response(jsonify({'isRunning': bool(PARSING_IS_RUNNING), 'region': PARSING_REGION, 'time': PARSING_TIME}))
+
+    @scope('parsing:update')
+    def put(self):
+        data = request.get_json()
+
+        app.config['PARSING_IS_RUNNING'] = data['isRunning']
+        app.config['PARSING_REGION'] = data['region']
+        app.config['PARSING_TIME'] = data['time']
+
+        return 200

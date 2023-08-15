@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -16,6 +16,7 @@ import {Page404} from "./pages/404";
 import {useSelector} from "react-redux";
 import {Posts} from "./pages/Posts";
 import {PostEdit} from "./pages/PostEdit";
+import {ParsingControl} from "./pages/ParsingControl";
 
 function App() {
     const permissions = useSelector((state) => state.permissions.list)
@@ -23,6 +24,7 @@ function App() {
         <Router>
             <Routes>
                 <Route element={<ProtectedRoute/>}>
+                    {/*TODO better way of using permissions.includes*/}
                     <Route element={ <Layout/> }>
                         {permissions.includes('posts:read')&&
                             <Route path="/posts"
@@ -47,7 +49,10 @@ function App() {
                                    element={<Role/>}/>}
                         {permissions.includes('role:create')&&
                             <Route path="/role/create"
-                                   element={<RoleCreate />}/>}
+                                   element={<RoleCreate/>}/>}
+                        {permissions.includes('parsing:update')&&
+                            <Route path="/parsing_control"
+                                   element={<ParsingControl/>}/>}
                     </Route>
                 </Route>
 
