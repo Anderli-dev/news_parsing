@@ -1,12 +1,14 @@
 import React, {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {setTab} from "../store/sideNavTab";
-import {MDBBtn, MDBSwitch} from "mdb-react-ui-kit";
+import {MDBBtn, MDBSpinner, MDBSwitch} from "mdb-react-ui-kit";
 import Form from 'react-bootstrap/Form';
 import Cookies from "js-cookie";
 import axios from "axios";
+
 export function ParsingControl() {
     const [isRunning, setIsRunning] = useState(false)
+    const [parsingLoading, setParsingLoading] = useState(false)
     const [region, setRegion] = useState('')
     const [time, setTime] = useState('0')
 
@@ -19,13 +21,14 @@ export function ParsingControl() {
         'x-access-token': Cookies.get('x-access-token'),
     };
 
-    const switchChange = (e) => {
-        setIsRunning(e.target.checked);
+    const switchChange = () => {
+        setParsingLoading(true)
+        setTimeout(()=>{setIsRunning(!isRunning);setParsingLoading(false)}, 2000)
     };
 
     const getSettings = () =>{
         try {
-            axios.get(`${process.env.REACT_APP_API_URL}/api/parsing_control`, {
+            axios.get(`${process.env.REACT_APP_API_URL}/api/parsing_settings`, {
                 headers: headers,})
                 .then(response => {
                     setIsRunning(response.data.isRunning)
@@ -45,7 +48,7 @@ export function ParsingControl() {
             time:Math.round(parseFloat(time))
         }
         try {
-            axios.put(`${process.env.REACT_APP_API_URL}/api/parsing_control`, data,{
+            axios.put(`${process.env.REACT_APP_API_URL}/api/parsing_settings`, data,{
                 headers: headers,})
                 .then(response => console.log(response))
                 .catch(error => console.log(error))
@@ -63,13 +66,21 @@ export function ParsingControl() {
         <div className="mt-4 mb-5">
              <h1 className="mb-1">Parsing control page</h1>
             <div>
-                <div className="mb-4">
-                    <MDBSwitch
-                        checked={isRunning}
-                        onChange={switchChange}
-                        id='flexSwitchCheckChecked'
-                        label={isRunning?'Parsing is running':'Parsing is not running'}
+                <div className="mb-4 d-flex">
+                    <MDBSwitch checked={isRunning}
+                               btn
+                               onChange={switchChange}
+                               label={isRunning?'Parsing is running':'Parsing is not running'}
+                               id="switchExample"
+                               btnColor="danger"
+                               disabled={parsingLoading}
+                               wrapperClass="p-0"
                     />
+                    {!parsingLoading ||
+                        <MDBSpinner color='light' className="ms-3" style={{marginTop: "2px"}}>
+                            <span className='visually-hidden'>Loading...</span>
+                        </MDBSpinner>
+                    }
                 </div>
 
                 <div className="d-flex">
