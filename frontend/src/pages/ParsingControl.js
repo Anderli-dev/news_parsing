@@ -21,9 +21,23 @@ export function ParsingControl() {
         'x-access-token': Cookies.get('x-access-token'),
     };
 
+    const onSwitch = () =>{
+        let data = {
+            isRunning: isRunning,
+        }
+        try {
+            axios.put(`${process.env.REACT_APP_API_URL}/api/parsing_control`, data,{
+                headers: headers,})
+                .then(response => console.log(response))
+                .catch(error => console.log(error))
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
     const switchChange = () => {
         setParsingLoading(true)
-        setTimeout(()=>{setIsRunning(!isRunning);setParsingLoading(false)}, 2000)
+        setTimeout(()=>{onSwitch();setIsRunning(!isRunning);setParsingLoading(false)}, 2000)
     };
 
     const getSettings = () =>{

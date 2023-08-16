@@ -25,5 +25,6 @@ api.add_resource(PostView, '/api/post', '/api/post/<id>')
 api.add_resource(PostsView, '/api/posts')
 api.add_resource(PostsSearchView, '/api/post/search')
 
-# parsing settings route
+# parsing route
+api.add_resource(ParsingSettingsView,  '/api/parsing_settings')
 api.add_resource(ParsingControlView,  '/api/parsing_control')

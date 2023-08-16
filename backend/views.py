@@ -917,7 +917,7 @@ class PostsSearchView(AuthResource):
         return make_response(jsonify({'posts': posts_json, 'has_next': posts.has_next}), 200)
 
 
-class ParsingControlView(AuthResource):
+class ParsingSettingsView(AuthResource):
     @scope('parsing:read')
     def get(self):
         PARSING_IS_RUNNING = app.config['PARSING_IS_RUNNING']
@@ -931,17 +931,26 @@ class ParsingControlView(AuthResource):
         try:
             data = request.get_json()
 
-            if bool(data['isRunning']) != bool(app.config['PARSING_IS_RUNNING']):
-                if data['isRunning']:
-                    sched.resume()
-                else:
-                    sched.pause()
-
             app.config['PARSING_IS_RUNNING'] = data['isRunning']
             app.config['PARSING_REGION'] = data['region']
             app.config['PARSING_TIME'] = data['time']
 
             sched.reschedule_job('get_posts', trigger='interval', seconds=int(app.config['PARSING_TIME'])*60*60)
             return 200
+        except:
+            return 403
+
+
+class ParsingControlView(AuthResource):
+    @scope('parsing:update')
+    def put(self):
+        try:
+            data = request.get_json()
+
+            if bool(data['isRunning']) != bool(app.config['PARSING_IS_RUNNING']):
+                if data['isRunning']:
+                    sched.resume()
+                else:
+                    sched.pause()
         except:
             return 403
