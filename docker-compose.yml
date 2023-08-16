@@ -12,8 +12,3 @@ services:
       MYSQL_HOST: localhost
     ports:
       - "3306:3306"
-  redis:
-    image: redis
-    restart: always
-    ports:
-      - '6379:6379'

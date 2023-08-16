@@ -18,5 +18,5 @@ with app.app_context():
     db.create_all()
     db.session.commit()
 
-from parsing_app import parsing  # noqa
+from parsing_app.parsing import parsing  # noqa
 from backend import routes  # noqa
