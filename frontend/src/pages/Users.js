@@ -17,7 +17,7 @@ export function Users(){
     const [hasNext, setHasNext] = useState(true)
     const [page, setPage] = useState(1)
 
-    const [per_page, setPerPage] = useState(5)
+    const [per_page] = useState(5)
     const [searchUserName, setSearchUserName] = useState("")
 
     const observerTarget = useRef(null);
@@ -116,7 +116,7 @@ export function Users(){
                 observer.unobserve(observerTarget.current);
             }
         };
-    }, [observerTarget, page]);
+    }, []);
 
     return(
         <div className="mt-4">

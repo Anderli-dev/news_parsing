@@ -12,7 +12,6 @@ export function RoleCreate(){
     const [rolePermissions, setRolePermissions] = useState([]);
     const [notAppliedPermissions, setNotAppliedPermissions] = useState([]);
     const [centredModal, setCentredModal] = useState(false);
-    const [isData, setIsData] = useState(false);
     const [errorFields, setErrorFields] = useState({});
     const [formData, setFormData] = useState({
         role_name: "",
@@ -72,10 +71,8 @@ export function RoleCreate(){
                 headers: headers,})
                 .then(response => {
                     if (!response.data['permissions']) {
-                        setIsData(false);
                     }
                     else {
-                        setIsData(true);
                         setNotAppliedPermissions(response.data['permissions']);
                     }
                 })

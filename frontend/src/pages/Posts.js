@@ -19,7 +19,7 @@ export function Posts(){
 
     const [searchTitle, setSearchTitle] = useState("")
     const [page, setPage] = useState(1)
-    const [per_page, setPerPage] = useState(5)
+    const [per_page] = useState(5)
 
     const observerTarget = useRef(null);
 

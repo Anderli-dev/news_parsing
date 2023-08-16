@@ -1,7 +1,7 @@
 import React from 'react';
 import {NavBar} from './NavBar';
 import {Outlet} from 'react-router-dom';
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
 import Cookies from "js-cookie";
 import {useDispatch} from "react-redux";
 import jwt_decode from "jwt-decode";

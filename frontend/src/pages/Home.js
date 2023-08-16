@@ -16,7 +16,7 @@ import Cookies from "js-cookie";
 import {setTab} from "../store/sideNavTab";
 import {useDispatch, useSelector} from "react-redux";
 import {HomeLoadingPost} from "../components/HomeLoadingPost";
-import {OverlayTrigger, Tooltip} from "react-bootstrap";
+import {OverlayTrigger} from "react-bootstrap";
 import {overlay} from "../components/ShareBtnOverlay";
 
 export function Home(){
