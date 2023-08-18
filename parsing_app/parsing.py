@@ -99,10 +99,15 @@ def parsing():
                         db.session.refresh(preview)
 
                         if not is_preview:
-                            post = News(title=post_header,
-                                        text=body,
-                                        preview_id=preview.id)
-                            db.session.add(post)
+                            try:
+                                post = News(title=post_header,
+                                            text=body,
+                                            preview_id=None)
+                            except:
+                                db.session.rollback()
+                                continue
+                            else:
+                                db.session.add(post)
 
                         db.session.commit()
 

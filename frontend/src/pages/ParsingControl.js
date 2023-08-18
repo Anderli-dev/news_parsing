@@ -37,7 +37,8 @@ export function ParsingControl() {
 
     const switchChange = () => {
         setParsingLoading(true)
-        setTimeout(()=>{onSwitch();setIsRunning(!isRunning);setParsingLoading(false)}, 2000)
+        setIsRunning(!isRunning)
+        setTimeout(()=>{onSwitch();setParsingLoading(false)}, 2000)
     };
 
     const getSettings = () =>{

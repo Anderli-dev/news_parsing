@@ -946,11 +946,12 @@ class ParsingControlView(AuthResource):
     def put(self):
         try:
             data = request.get_json()
-
-            if bool(data['isRunning']) != bool(app.config['PARSING_IS_RUNNING']):
-                if data['isRunning']:
+            if bool(data['isRunning']) == bool(app.config['PARSING_IS_RUNNING']):
+                if not bool(data['isRunning']):
                     sched.resume()
                 else:
                     sched.pause()
+                app.config['PARSING_IS_RUNNING'] = not bool(data['isRunning'])
+            return 200
         except:
             return 403
