@@ -5,7 +5,7 @@ import {useNavigate} from "react-router-dom";
 import {FaUser} from "react-icons/fa";
 
 
-export function Register(props) {
+export function Register() {
     const [formData, setFormData] = useState({
         username: "",
         password: "",

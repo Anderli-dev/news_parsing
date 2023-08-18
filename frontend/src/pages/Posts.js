@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {PureComponent, useEffect, useRef, useState} from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import {MDBInput} from "mdb-react-ui-kit";
@@ -8,6 +8,7 @@ import {BiReset} from "react-icons/bi";
 import {setTab} from "../store/sideNavTab";
 import {useDispatch, useSelector} from "react-redux";
 import {InfinitySpin} from "react-loader-spinner";
+import VirtualizedList from "../components/VirtualizedList";
 
 export function Posts(){
     const [posts, setPostsList] = useState([])
@@ -19,9 +20,7 @@ export function Posts(){
 
     const [searchTitle, setSearchTitle] = useState("")
     const [page, setPage] = useState(1)
-    const [per_page] = useState(5)
-
-    const observerTarget = useRef(null);
+    const [per_page] = useState(15)
 
     const tabKey = useSelector((state) => state.tabsKey.tabs.posts)
     const dispatch = useDispatch()
@@ -93,37 +92,11 @@ export function Posts(){
 
     useEffect(() => {
         dispatch(setTab(tabKey))
-
-        const observer = new IntersectionObserver(
-            entries => {
-                if (entries[0].isIntersecting) {
-                    if(hasNext) {
-                        if (!isSearching) {
-                            getPosts(page);
-                        }
-                        else {
-                            searchPosts(page)
-                        }
-                    }
-                }
-            },
-            { threshold: 1 }
-        );
-
-        if (observerTarget.current) {
-            observer.observe(observerTarget.current);
-        }
-
-        return () => {
-            if (observerTarget.current) {
-                observer.unobserve(observerTarget.current);
-            }
-        };
-
-    }, [observerTarget, page]);
+        getPosts(page);
+    }, []);
 
     return(
-        <div className="mt-4 mb-5">
+        <div className="mt-4 mb-5" style={{height: "75%"}}>
             <div className="d-flex justify-content-between">
                 <h1 className="mb-1">Posts list</h1>
                 <div className="align-self-center">
@@ -185,26 +158,12 @@ export function Posts(){
                 <>
                     {isData ?
                         <>
-                            {
-                                posts.map(item => (
-                                        <a href={'post/' + item.preview_id + '/edit'} key={item.preview_id}>
-                                            <div
-                                                key={item.preview_id}
-                                                className='mb-3 d-flex align-items-center justify-content-between'
-                                                style={{backgroundColor: '#fff', height: '48px'}}>
-                                                <div className="d-flex">
-                                                    <div><p style={{color: '#000'}}
-                                                            className='m-0 ms-3'>{item.preview_id}</p></div>
-                                                    <div><p style={{color: '#000'}} className='m-0 ms-3'>{item.title}</p>
-                                                    </div>
-                                                </div>
-                                                <div><p style={{color: '#000'}} className='m-0 me-3'>{item.posted_at}</p>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    )
-                                )
-                            }
+                            <VirtualizedList
+                                hasNextPage={hasNext}
+                                isNextPageLoading={isLoading}
+                                items={posts}
+                                loadNextPage={()=>getPosts(page)}
+                            />
                         </>
                         :
                         <>
@@ -216,7 +175,6 @@ export function Posts(){
                     }
                 </>
             }
-            <div ref={observerTarget}></div>
         </div>
     )
 }

@@ -34,7 +34,7 @@ export default () => {
     return (
         <>
             <NavBar/>
-            <div className="container" style={{ paddingTop: "59px"}}>
+            <div className="container vh-100" style={{ paddingTop: "59px"}}>
                 <Outlet/>
             </div>
         </>

@@ -2,23 +2,29 @@ import React, {useRef, useState} from "react";
 import {
     MDBBtn,
     MDBInput,
-    MDBModal, MDBModalBody, MDBModalContent, MDBModalDialog, MDBModalHeader, MDBModalTitle,
-    MDBSwitch, MDBTextArea,
+    MDBModal,
+    MDBModalBody,
+    MDBModalContent,
+    MDBModalDialog,
+    MDBModalHeader,
+    MDBModalTitle,
+    MDBSwitch,
+    MDBTextArea,
     MDBTypography,
     MDBValidationItem
 } from 'mdb-react-ui-kit';
 import axios from "axios";
 import Cookies from "js-cookie";
-import { Editor } from '@tinymce/tinymce-react';
+import {Editor} from '@tinymce/tinymce-react';
 import moment from 'moment';
 import {DataTimePicker} from "../components/DataTimePicker";
 import '../static/css/add-post.css'
-import {TbHandClick} from "react-icons/tb";
 import {CreateWhiteIco} from "../actions/CreateWhiteIco";
+import {TbHandClick} from "react-icons/tb";
 import {BiReset} from "react-icons/bi";
 import {ValidationField} from "../components/ValidationField";
-import {useNavigate} from "react-router-dom";
 
+import {useNavigate} from "react-router-dom";
 
 
 export function AddPost(){
@@ -49,7 +55,7 @@ export function AddPost(){
 
     const navigate = useNavigate()
 
-    const imgModel = () => {
+    const imgModal = () => {
         return(
             <>
                 <MDBModal show={basicModal} setShow={setBasicModal} tabIndex='-1'>
@@ -249,25 +255,23 @@ export function AddPost(){
                 <form className="g-3 " onSubmit={checked ? previewSubmit: allSubmit}>
                     <div className="d-flex phone-preview">
                         <div className="data">
-                            <MDBValidationItem >
-                                <ValidationField
-                                    asElement={MDBInput}
-                                    style={{color: '#fff'}}
-                                    value={title_preview}
-                                    name='title_preview'
-                                    onChange={onChange}
-                                    id='validationCustom01'
-                                    required
-                                    label='Preview title'
-                                    error={errorFields}
-                                />
-                            </MDBValidationItem>
+                            <ValidationField
+                                asElement={MDBInput}
+                                style={{color: '#fff'}}
+                                value={title_preview}
+                                name='title_preview'
+                                onChange={onChange}
+                                id='validationCustom01'
+                                required
+                                label='Preview title'
+                                error={errorFields}
+                            />
 
                             <p className="m-0" style={{color:"rgb(147 147 147)"}}>Chose posted date</p>
                             <DataTimePicker
                                 ref={datetime}
                                 value={date}
-                                onChange={date => {console.log(date)
+                                onChange={date => {
                                     date._isAMomentObject
                                         ? setDate(date)
                                         : setErrorFields({...errorFields, "data_time": "Post date is not a valid!"})}}
@@ -295,7 +299,7 @@ export function AddPost(){
                                 </div>
 
                                 <div>
-                                    {imgModel()}
+                                    {imgModal()}
                                 </div>
 
                                 <div className={errorFields["img"] &&'mb-4'}>
