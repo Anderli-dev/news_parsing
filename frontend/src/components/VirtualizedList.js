@@ -1,7 +1,8 @@
 import React from "react";
-import { FixedSizeList as List } from "react-window";
+import {FixedSizeList as List} from "react-window";
 import InfiniteLoader from "react-window-infinite-loader";
 import AutoSizer from "react-virtualized-auto-sizer";
+import {Scrollbars} from "react-custom-scrollbars";
 
 export default function VirtualizedList({hasNextPage, isNextPageLoading, items, loadNextPage}) {
     const itemCount = hasNextPage ? items.length + 1 : items.length;
@@ -59,6 +60,8 @@ export default function VirtualizedList({hasNextPage, isNextPageLoading, items, 
                     {({ onItemsRendered, ref }) => (
                         <List
                             className="List"
+                            outerElementType={Scrollbars}
+                            style={{overflow: 'hidden'}}
                             height={height}
                             itemCount={itemCount}
                             itemSize={60}
