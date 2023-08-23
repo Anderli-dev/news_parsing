@@ -107,6 +107,7 @@ def parsing():
                                 db.session.rollback()
                                 continue
                             else:
+                                post.preview_id = preview.id
                                 db.session.add(post)
 
                         db.session.commit()
