@@ -1,10 +1,13 @@
-import React from "react";
+import React, {useEffect, useRef} from "react";
 import {FixedSizeList as List} from "react-window";
 import InfiniteLoader from "react-window-infinite-loader";
 import AutoSizer from "react-virtualized-auto-sizer";
 import {Scrollbars} from "react-custom-scrollbars";
 
-export default function VirtualizedList({hasNextPage, isNextPageLoading, items, loadNextPage}) {
+export default function VirtualizedList({hasNextPage, isNextPageLoading, items, loadNextPage, isSearching}) {
+    const infiniteLoaderRef = useRef(null);
+    const hasMountedRef = useRef(false);
+
     const itemCount = hasNextPage ? items.length + 1 : items.length;
 
     const loadMoreItems = isNextPageLoading ? () => {} : loadNextPage;
@@ -49,10 +52,20 @@ export default function VirtualizedList({hasNextPage, isNextPageLoading, items, 
         return <div style={style}>{content}</div>;
     };
 
+    useEffect(() => {
+        if (hasMountedRef.current) {
+            if (infiniteLoaderRef.current) {
+                infiniteLoaderRef.current.resetloadMoreItemsCache();
+            }
+        }
+        hasMountedRef.current = true;
+    }, [isSearching]);
+
     return (
         <AutoSizer>
             {({ height, width }) => (
                 <InfiniteLoader
+                    ref={infiniteLoaderRef}
                     isItemLoaded={isItemLoaded}
                     itemCount={itemCount}
                     loadMoreItems={loadMoreItems}

@@ -1,4 +1,4 @@
-import React, {PureComponent, useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import {MDBInput} from "mdb-react-ui-kit";
@@ -163,6 +163,7 @@ export function Posts(){
                                 isNextPageLoading={isLoading}
                                 items={posts}
                                 loadNextPage={()=>getPosts(page)}
+                                isSearching={isSearching}
                             />
                         </>
                         :
