@@ -4,7 +4,7 @@ import InfiniteLoader from "react-window-infinite-loader";
 import AutoSizer from "react-virtualized-auto-sizer";
 import {Scrollbars} from "react-custom-scrollbars";
 
-export default function VirtualizedList({hasNextPage, isNextPageLoading, items, loadNextPage, isSearching}) {
+export default function PostsVirtualizedList({hasNextPage, isNextPageLoading, items, loadNextPage, isSearching}) {
     const infiniteLoaderRef = useRef(null);
     const hasMountedRef = useRef(false);
 

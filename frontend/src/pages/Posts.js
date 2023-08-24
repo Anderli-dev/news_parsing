@@ -8,7 +8,7 @@ import {BiReset} from "react-icons/bi";
 import {setTab} from "../store/sideNavTab";
 import {useDispatch, useSelector} from "react-redux";
 import {InfinitySpin} from "react-loader-spinner";
-import VirtualizedList from "../components/VirtualizedList";
+import PostsVirtualizedList from "../components/PostsVirtualizedList";
 
 export function Posts(){
     const [posts, setPostsList] = useState([])
@@ -158,7 +158,7 @@ export function Posts(){
                 <>
                     {isData ?
                         <>
-                            <VirtualizedList
+                            <PostsVirtualizedList
                                 hasNextPage={hasNext}
                                 isNextPageLoading={isLoading}
                                 items={posts}

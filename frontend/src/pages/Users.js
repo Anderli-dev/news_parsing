@@ -8,6 +8,7 @@ import {BiReset} from "react-icons/bi";
 import {useDispatch, useSelector} from "react-redux";
 import {setTab} from "../store/sideNavTab";
 import {InfinitySpin} from "react-loader-spinner";
+import UsersVirtualizedList from "../components/UsersVirtualizedList";
 
 
 export function Users(){
@@ -90,36 +91,11 @@ export function Users(){
 
     useEffect(() => {
         dispatch(setTab(tabKey))
-
-        const observer = new IntersectionObserver(
-            entries => {
-                if (entries[0].isIntersecting) {
-                    if(hasNext) {
-                        if (!isSearching) {
-                            getUsers(page);
-                        }
-                        else {
-                            searchUsers(page)
-                        }
-                    }
-                }
-            },
-            { threshold: 1 }
-        );
-
-        if (observerTarget.current) {
-            observer.observe(observerTarget.current);
-        }
-
-        return () => {
-            if (observerTarget.current) {
-                observer.unobserve(observerTarget.current);
-            }
-        };
+        getUsers(page);
     }, []);
 
     return(
-        <div className="mt-4">
+        <div className="mt-4" style={{height: '75%'}}>
             <div className="d-flex mb-4 align-items-center justify-content-between">
                 <h1 className="mb-0">Users list</h1>
 
@@ -153,52 +129,35 @@ export function Users(){
                 </div>
             </div>
 
-            <div className="table table-hover" style={{color: "white"}}>
-
-                <div>
-                    <div className="d-flex justify-content-between">
-                        <div className="d-flex ps-3">
-                            <div className='m-0 pe-3'>#</div>
-                            <div className='m-0 ps-3'>Username</div>
-                        </div>
-                        <div>Role</div>
+            <div>
+                <div className="d-flex justify-content-between">
+                    <div className="d-flex ps-3">
+                        <div className='m-0 pe-3'>#</div>
+                        <div className='m-0 ps-3'>Username</div>
                     </div>
+                    <div className="pe-3">Role</div>
                 </div>
-
-                {isLoading?
-                    <div className="d-flex flex-column align-items-center justify-content-center" >
-                        <InfinitySpin
-                            width='150'
-                            color="#3B71CA"
-                        />
-                    </div>
-                    :
-                    <div className="table-group-divider">
-                        {
-                            users.map(item =>
-                                (
-                                    <a key={item.id} href={'user/'+item.id} className="w-100" style={{display: "contents"}}>
-                                        <div
-                                            className="d-flex p-0 flex-column"
-                                            style={{color: "white"}}
-                                        >
-                                            <div className="d-flex justify-content-between">
-                                                <div className="d-flex">
-                                                    <p className='m-0 p-3'>{item.id}</p>
-                                                    <p className='m-0 p-3'>{item.username}</p>
-                                                </div>
-                                                <p className='m-0 p-3'>{item.role}</p>
-                                            </div>
-                                            <span className="align-self-center" style={{backgroundColor: "#757575", height:"1px", width: "100%"}}/>
-                                        </div>
-                                    </a>
-                                )
-                            )
-                        }
-                    </div>
-                }
             </div>
-            <div ref={observerTarget}></div>
+
+            <div className="w-100 mt-3" style={{backgroundColor: "#fff", height: "2px"}}></div>
+
+            {isLoading?
+                <div className="d-flex flex-column align-items-center justify-content-center" >
+                    <InfinitySpin
+                        width='150'
+                        color="#3B71CA"
+                    />
+                </div>
+                :
+                <UsersVirtualizedList
+                    hasNextPage={hasNext}
+                    isNextPageLoading={isLoading}
+                    items={users}
+                    loadNextPage={()=>getUsers(page)}
+                    isSearching={isSearching}
+                />
+            }
+
         </div>
     )
 }
