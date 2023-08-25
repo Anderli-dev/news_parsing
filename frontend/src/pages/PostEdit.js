@@ -16,7 +16,6 @@ import {
 import axios from "axios";
 import Cookies from "js-cookie";
 import {Editor} from '@tinymce/tinymce-react';
-import moment from 'moment';
 import {DataTimePicker} from "../components/DataTimePicker";
 import '../static/css/add-post.css'
 import {useNavigate, useParams} from "react-router-dom";
@@ -26,6 +25,7 @@ import {CreateWhiteIco} from "../actions/CreateWhiteIco";
 import {RotatingLines} from "react-loader-spinner";
 import {ValidationField} from "../components/ValidationField";
 import {DeleteModal} from "../components/Modals/DeleteModal";
+import dayjs from "dayjs";
 
 export function PostEdit(){
     const [previewData, setPreviewData] = useState({
@@ -177,7 +177,7 @@ export function PostEdit(){
         }
         formData.append("title", title_preview)
         formData.append("preview", preview)
-        formData.append("posted_at", moment(postedAt.toString()).format("YYYY[-]MM[-]DD[T]h[:]m[:]s"))
+        formData.append("posted_at", dayjs(postedAt.toString()).format("YYYY[-]MM[-]DD[T]h[:]m[:]s"))
         formData.append("id", id)
 
         try {
@@ -209,7 +209,7 @@ export function PostEdit(){
         }
         formData.append("title", title_preview)
         formData.append("preview", preview)
-        formData.append("posted_at", moment(postedAt.toString()).format("YYYY[-]MM[-]DD[T]h[:]m[:]s"))
+        formData.append("posted_at", dayjs(postedAt.toString()).format("YYYY[-]MM[-]DD[T]h[:]m[:]s"))
 
         try {
             await axios.put(`${process.env.REACT_APP_API_URL}/api/preview/`+id, formData, {headers: headers,})
@@ -407,9 +407,9 @@ export function PostEdit(){
                                 // without this construction, time is not showing
                                 <DataTimePicker
                                     ref={datetime}
-                                    selected={moment(postedAt).format("MM-DD-YYYY")}
+                                    selected={dayjs(postedAt)}
                                     onChange={posted_at => isPreviewLoading? null :setPostedAt(posted_at)}
-                                    initialValue={moment(postedAt)}
+                                    initialValue={dayjs(postedAt).toDate()}
                                 />
                                 :
                                 <div className="mb-4">

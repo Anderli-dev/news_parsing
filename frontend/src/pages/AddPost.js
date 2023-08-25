@@ -16,15 +16,14 @@ import {
 import axios from "axios";
 import Cookies from "js-cookie";
 import {Editor} from '@tinymce/tinymce-react';
-import moment from 'moment';
 import {DataTimePicker} from "../components/DataTimePicker";
 import '../static/css/add-post.css'
 import {CreateWhiteIco} from "../actions/CreateWhiteIco";
 import {TbHandClick} from "react-icons/tb";
 import {BiReset} from "react-icons/bi";
 import {ValidationField} from "../components/ValidationField";
-
 import {useNavigate} from "react-router-dom";
+import dayjs from "dayjs";
 
 
 export function AddPost(){
@@ -37,7 +36,7 @@ export function AddPost(){
     const [checked, setChecked] = useState(false);
     const [selectedImg, setSelectedImg] = useState(null);
     const [basicModal, setBasicModal] = useState(false);
-    const [date, setDate] = useState(moment());
+    const [date, setDate] = useState(dayjs().format("MM/DD/YYYY HH:mm"));
 
     const [errorFields, setErrorFields] = useState({});
 
@@ -245,7 +244,7 @@ export function AddPost(){
             dict[i] = ""
         }
         setFormData(dict)
-        setDate(moment())
+        setDate(dayjs())
         resetImg()
     }
 
@@ -272,7 +271,7 @@ export function AddPost(){
                                 ref={datetime}
                                 value={date}
                                 onChange={date => {
-                                    date._isAMomentObject
+                                    date.isValid()
                                         ? setDate(date)
                                         : setErrorFields({...errorFields, "data_time": "Post date is not a valid!"})}}
                                 initialValue={date}

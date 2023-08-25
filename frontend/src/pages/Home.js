@@ -9,7 +9,6 @@ import {
     MDBPagination,
     MDBPaginationItem
 } from "mdb-react-ui-kit";
-import moment from 'moment';
 import {MdArrowForward, MdFacebook, MdShare} from "react-icons/md";
 import {SiTwitter} from "react-icons/si";
 import Cookies from "js-cookie";
@@ -18,6 +17,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {HomeLoadingPost} from "../components/HomeLoadingPost";
 import {OverlayTrigger} from "react-bootstrap";
 import {overlay} from "../components/ShareBtnOverlay";
+import dayjs from "dayjs";
 
 export function Home(){
     const [posts, setPosts] = useState([]);
@@ -34,6 +34,13 @@ export function Home(){
 
     const tabKey = useSelector((state) => state.tabsKey.tabs.home)
     const dispatch = useDispatch()
+
+    const calendar = require('dayjs/plugin/calendar')
+    const utc = require('dayjs/plugin/utc')
+    const weekday = require('dayjs/plugin/weekday')
+    dayjs.extend(weekday)
+    dayjs.extend(utc)
+    dayjs.extend(calendar, utc)
 
     const PaginationNav = () => {
         const pages = Array.from({ length: page_count }, (_, index) => (
@@ -223,7 +230,15 @@ export function Home(){
                                          borderRadius:"10px",
                                          boxShadow:"0px 5px 31px 4px rgba(0,0,0,0.75)"}}
                                      className="mb-4 px-3 pt-4 pb-3">
-                                    <p className="m-0">{moment(item.posted_at).calendar()}</p>
+                                    <p className="m-0">{dayjs.utc(item.posted_at).calendar(null, {
+                                        sameDay: '[Today at] HH:mm', // The same day ( Today at 13:30 )
+                                        nextDay: '[Tomorrow at] HH:mm', // The next day ( Tomorrow at 13:30 )
+                                        nextWeek: 'dddd [at] HH:mm', // The next week ( Sunday at 13:30 )
+                                        lastDay: '[Yesterday at] HH:mm', // The day before ( Yesterday at 13:30 )
+                                        lastWeek: 'dddd [at] HH:mm', // Last week ( Last Monday at 13:30 )
+                                        //dayjs().isSame(item.posted_at, 'week')?'dddd [at] HH:mm':
+                                        sameElse: 'DD/MM/YYYY' // Everything else ( 17/10/2011 )
+                                    })}</p>
                                     <MDBCardTitle className='mb-3'>{item.title}</MDBCardTitle>
 
                                     <div className={item.post_id && "d-flex"}>

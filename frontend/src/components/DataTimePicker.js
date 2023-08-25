@@ -1,6 +1,6 @@
 import React from "react";
 import Datetime from 'react-datetime';
-import moment from 'moment';
+import dayjs from "dayjs";
 
 export class DataTimePicker extends React.Component {
     constructor(props) {
@@ -18,6 +18,7 @@ export class DataTimePicker extends React.Component {
                 renderView={(undefined, renderDefault) =>
                     this.renderView(renderDefault)
                 }
+                timeFormat={"HH:mm"}
                 initialValue={this.props.initialValue}
                 onChange={this.props.onChange}
                 value={this.props.value}
@@ -39,7 +40,7 @@ export class DataTimePicker extends React.Component {
     }
     renderMonth(props, month, year, selectedDate) {
         // Display the month index in the months view
-        return <td {...props}>{moment().month(month).format("MMM")}</td>;
+        return <td {...props}>{dayjs().month(month).format("MMM")}</td>;
     }
     renderYear(props, year, selectedDate) {
         // Just display the last 2 digits of the year in the years view
