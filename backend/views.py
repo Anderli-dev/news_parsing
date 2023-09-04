@@ -125,7 +125,7 @@ class RegistrationView(Resource):
                 if len(password) < 6:
                     return make_response(jsonify({'error': 'Password must be at least 6 characters'}), 403)
                 else:
-                    hashed_password = generate_password_hash(password, 'sha256')
+                    hashed_password = generate_password_hash(password, 'scrypt')
 
                     user = User(username=username,
                                 password=hashed_password,

@@ -5,7 +5,7 @@ import {useEffect} from "react";
 import Cookies from "js-cookie";
 import {useDispatch} from "react-redux";
 import jwt_decode from "jwt-decode";
-import moment from "moment";
+import dayjs from "dayjs";
 import {Logout} from "../actions/Logout";
 import {clearPermissions} from "../store/userPermisions";
 
@@ -13,12 +13,15 @@ export default () => {
     const token = Cookies.get('x-access-token')
     const dispatch = useDispatch()
 
+    const isSameOrAfter = require('dayjs/plugin/isSameOrAfter')
+    dayjs.extend(isSameOrAfter)
+
     const CheckSession = () => {
             if(token) {
                 const decoded = jwt_decode(token);
-                const now = moment({})
+                const now = dayjs()
 
-                if (!moment(moment.unix(decoded.exp)).isSameOrAfter(now)) {
+                if (!dayjs(dayjs.unix(decoded.exp)).isSameOrAfter(now)) {
                     Logout(dispatch)
                 }
             }
