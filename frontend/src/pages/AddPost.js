@@ -16,7 +16,7 @@ import {
 import axios from "axios";
 import Cookies from "js-cookie";
 import {Editor} from '@tinymce/tinymce-react';
-import {DataTimePicker} from "../components/DataTimePicker";
+import {DateTimePicker} from "../components/DateTimePicker";
 import '../static/css/add-post.css'
 import {CreateWhiteIco} from "../actions/CreateWhiteIco";
 import {TbHandClick} from "react-icons/tb";
@@ -267,7 +267,7 @@ export function AddPost(){
                             />
 
                             <p className="m-0" style={{color:"rgb(147 147 147)"}}>Chose posted date</p>
-                            <DataTimePicker
+                            <DateTimePicker
                                 ref={datetime}
                                 value={date}
                                 onChange={date => {

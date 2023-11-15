@@ -16,7 +16,7 @@ import {
 import axios from "axios";
 import Cookies from "js-cookie";
 import {Editor} from '@tinymce/tinymce-react';
-import {DataTimePicker} from "../components/DataTimePicker";
+import {DateTimePicker} from "../components/DateTimePicker";
 import '../static/css/add-post.css'
 import {useNavigate, useParams} from "react-router-dom";
 import {TbHandClick} from "react-icons/tb";
@@ -405,7 +405,7 @@ export function PostEdit(){
 
                             {postedAt?
                                 // without this construction, time is not showing
-                                <DataTimePicker
+                                <DateTimePicker
                                     ref={datetime}
                                     selected={dayjs(postedAt)}
                                     onChange={posted_at => isPreviewLoading? null :setPostedAt(posted_at)}
