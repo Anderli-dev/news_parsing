@@ -59,6 +59,7 @@ def get_img(div: WebElement, is_preview: bool, article: WebElement) -> str:
 
     if is_preview:
         url = img.get_attribute('data-src')
+        print(url)
         url = url.replace('{width}', '624')
     else:
         url = url.replace("/320/", "/800/")

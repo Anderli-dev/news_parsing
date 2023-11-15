@@ -291,7 +291,7 @@ class RoleView(AuthResource):
                 role.name = data['role_name']
 
             if data.get('description'):
-                validation_response = data_validation(data['role_description'], str, 64 * 1024)
+                validation_response = data_validation(data['description'], str, 64 * 1024)
                 if type(validation_response) is str:
                     return make_response(jsonify({'error': validation_response}), 403)
 

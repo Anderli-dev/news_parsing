@@ -145,7 +145,7 @@ export function AddPost(){
         formData.append("img", imagefile.files[0]);
         formData.append("title", title_preview)
         formData.append("preview", preview)
-        formData.append("posted_at", date.format("YYYY[-]MM[-]DD[T]h[:]m[:]s").toString())
+        formData.append("posted_at", dayjs().format("YYYY[-]MM[-]DD[T]h[:]m[:]s").toString())
 
         try {
             await axios.post(`${process.env.REACT_APP_API_URL}/api/preview`, formData, {headers: headers,})
@@ -164,7 +164,7 @@ export function AddPost(){
         formData.append("img", imagefile.files[0]);
         formData.append("title", title_preview)
         formData.append("preview", preview)
-        formData.append("posted_at", date.format("YYYY[-]MM[-]DD[T]h[:]m[:]s").toString())
+        formData.append("posted_at", dayjs().format("YYYY[-]MM[-]DD[T]h[:]m[:]s").toString())
 
         let previewId
         try {

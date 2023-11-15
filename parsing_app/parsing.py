@@ -13,6 +13,7 @@ from parsing_app.selenium_utils import get_header, get_post_url, get_preview, ge
 
 def parsing():
     with app.app_context():
+        # Selenium settings
         chrome_options = Options()
         chrome_options.add_argument("--headless")
 
@@ -23,6 +24,7 @@ def parsing():
 
         lats_parsed = NewsPreview.query.filter_by(is_parsed=True).order_by(NewsPreview.posted_at.desc()).first()
 
+        # Parsing logic
         try:
             while True:
                 elements = driver.find_elements(By.CLASS_NAME, 'lx-stream__post-container')
@@ -57,13 +59,13 @@ def parsing():
                     body_div = body_div.find_element(By.TAG_NAME, 'div')
                     body_divs = body_div.find_elements(By.TAG_NAME, 'div')
 
+                    # get img
                     try:
                         body_div.find_element(By.TAG_NAME, 'img')
                     except NoSuchElementException:
                         # print("---------------Post without img!---------------")
                         continue
 
-                    # get img
                     img = get_img(body_divs[0], is_preview, article)
                     # print("Image: "+img)
 
@@ -82,6 +84,10 @@ def parsing():
                     # print("Preview:")
                     # print(preview)
 
+                    print(lats_parsed)
+
+                    # add to db logic
+                    # TODO create func
                     if header == lats_parsed.title:
                         raise GetOutOfLoop
                     else:
