@@ -28,6 +28,9 @@ import {DeleteModal} from "../components/Modals/DeleteModal";
 import dayjs from "dayjs";
 
 export function PostEdit(){
+    var utc = require('dayjs/plugin/utc')
+    dayjs.extend(utc)
+
     const [previewData, setPreviewData] = useState({
         title_preview: '',
         img: '',
@@ -39,8 +42,10 @@ export function PostEdit(){
         title_post: "",
         body: "",
     })
+
     const { title_preview, img, preview } = previewData;
     const { post_id, title_post, body } = postData;
+
     const [checked, setChecked] = useState(false);
     const [basicModal, setBasicModal] = useState(false);
     const [isDelete, setIsDelete] = useState(false)
@@ -177,7 +182,7 @@ export function PostEdit(){
         }
         formData.append("title", title_preview)
         formData.append("preview", preview)
-        formData.append("posted_at", dayjs(postedAt.toString()).format("YYYY[-]MM[-]DD[T]h[:]m[:]s"))
+        formData.append("posted_at", dayjs(postedAt.toString()).utc().format("YYYY[-]MM[-]DD[T]HH[:]m[:]s"))
         formData.append("id", id)
 
         try {
@@ -209,8 +214,7 @@ export function PostEdit(){
         }
         formData.append("title", title_preview)
         formData.append("preview", preview)
-        formData.append("posted_at", dayjs(postedAt.toString()).format("YYYY[-]MM[-]DD[T]h[:]m[:]s"))
-
+        formData.append("posted_at", dayjs(postedAt.toString()).utc().format("YYYY[-]MM[-]DD[T]HH[:]m[:]s"))
         try {
             await axios.put(`${process.env.REACT_APP_API_URL}/api/preview/`+id, formData, {headers: headers,})
                 .catch(error => console.log(error.response))
@@ -402,13 +406,13 @@ export function PostEdit(){
                             </MDBValidationItem>
 
                             <p className="m-0" style={{color:"rgb(147 147 147)"}}>Chose posted date</p>
-
                             {postedAt?
-                                // without this construction, time is not showing
+                                // without this construction, time it is not showing
                                 <DateTimePicker
                                     ref={datetime}
-                                    selected={dayjs(postedAt)}
-                                    onChange={posted_at => isPreviewLoading? null :setPostedAt(posted_at)}
+                                    // don't know why but 'postedAt' in UTC
+                                    selected={dayjs(postedAt).utc()}
+                                    onSelectedChange={setPostedAt}
                                     initialValue={dayjs(postedAt).toDate()}
                                 />
                                 :

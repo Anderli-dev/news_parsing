@@ -24,19 +24,25 @@ import {BiReset} from "react-icons/bi";
 import {ValidationField} from "../components/ValidationField";
 import {useNavigate} from "react-router-dom";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 
 
 export function AddPost(){
+    var utc = require('dayjs/plugin/utc')
+    dayjs.extend(utc)
+
     const [formData, setFormData] = useState({
         title_preview: '',
         preview: '',
         title_post: '',
     });
+
     const { title_preview, preview, title_post } = formData;
+
     const [checked, setChecked] = useState(false);
     const [selectedImg, setSelectedImg] = useState(null);
     const [basicModal, setBasicModal] = useState(false);
-    const [date, setDate] = useState(dayjs().format("MM/DD/YYYY HH:mm"));
+    const [postedAt, setPostedAt] = useState(dayjs());
 
     const [errorFields, setErrorFields] = useState({});
 
@@ -145,7 +151,7 @@ export function AddPost(){
         formData.append("img", imagefile.files[0]);
         formData.append("title", title_preview)
         formData.append("preview", preview)
-        formData.append("posted_at", dayjs().format("YYYY[-]MM[-]DD[T]h[:]m[:]s").toString())
+        formData.append("posted_at", dayjs().utc().format("YYYY[-]MM[-]DD[T]HH[:]m[:]s").toString())
 
         try {
             await axios.post(`${process.env.REACT_APP_API_URL}/api/preview`, formData, {headers: headers,})
@@ -164,7 +170,7 @@ export function AddPost(){
         formData.append("img", imagefile.files[0]);
         formData.append("title", title_preview)
         formData.append("preview", preview)
-        formData.append("posted_at", dayjs().format("YYYY[-]MM[-]DD[T]h[:]m[:]s").toString())
+        formData.append("posted_at", dayjs().utc().format("YYYY[-]MM[-]DD[T]HH[:]m[:]s").toString())
 
         let previewId
         try {
@@ -244,7 +250,7 @@ export function AddPost(){
             dict[i] = ""
         }
         setFormData(dict)
-        setDate(dayjs())
+        setPostedAt(dayjs())
         resetImg()
     }
 
@@ -269,12 +275,10 @@ export function AddPost(){
                             <p className="m-0" style={{color:"rgb(147 147 147)"}}>Chose posted date</p>
                             <DateTimePicker
                                 ref={datetime}
-                                value={date}
-                                onChange={date => {
-                                    date.isValid()
-                                        ? setDate(date)
-                                        : setErrorFields({...errorFields, "data_time": "Post date is not a valid!"})}}
-                                initialValue={date}
+                                // don't know why but 'postedAt' in UTC
+                                selected={dayjs(postedAt).utc()}
+                                onSelectedChange={setPostedAt}
+                                initialValue={dayjs(postedAt).toDate()}
                             />
 
                             <MDBValidationItem className='file-container mb-4'>
@@ -337,7 +341,7 @@ export function AddPost(){
 
 
                     <div className="mb-4">
-                        <MDBSwitch checked={checked} onChange={switchChange} id='flexSwitchCheckDefault' label='Only preview' />
+                        <MDBSwitch checked={checked} style={{zIndex: "10"}} onChange={switchChange} id='flexSwitchCheckDefault' label='Only preview' />
                     </div>
 
 

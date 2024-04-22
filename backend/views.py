@@ -724,6 +724,7 @@ class PostPreviewView(Resource):
             if data['title'].__len__() > 255:
                 return make_response(jsonify({'error': 'Preview title is too long!'}), 403)
 
+            print(data['posted_at'])
             if data['posted_at'] is None:
                 return make_response(jsonify({'error': 'Date is empty!'}), 403)
             if not isinstance(data['posted_at'], str):

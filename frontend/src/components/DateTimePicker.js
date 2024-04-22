@@ -1,27 +1,34 @@
-import React, {forwardRef, useState} from "react";
-import DatePicker from "react-datepicker";
+import React, {forwardRef, useEffect, useState} from "react";
+import DatePicker, {CalendarContainer} from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {MDBInput} from "mdb-react-ui-kit";
-import data from "bootstrap/js/src/dom/data";
+import "../static/css/data-picker.css"
+import {TimePopover} from "./TimePopover";
+import dayjs from "dayjs";
 
-export function DateTimePicker(){
-    const [startDate, setStartDate] = useState(new Date());
-
+export function DateTimePicker(props){
     const [headerTypeId, setHeaderTypeId] = useState(0)
 
+    const [minuteFocus, setMinFocus]=useState(false)
+    const [hourFocus, setHourFocus]=useState(false)
+
     const CustomInput = forwardRef(({ className, value, onClick, onChange }, ref) => (
-        <MDBInput
+        <>
+            <MDBInput
             onClick={onClick}
             className={className}
             type='text'
-            value={value}
+            value={props.selected.utc().format("DD/MM/YYYY HH:mm")}
             ref={ref}
+            style={{backgroundColor:"#202124"}}
             contrast
+            readonly
             onChange={(e) => onChange(e.target.value)}
         />
+            </>
     ));
     const renderDayContents = (day, date) => {
-        const tooltipText = `Tooltip for date: ${day}`;
+        const tooltipText = `Date: ${day}`;
         return <span title={tooltipText}>{day}</span>;
     };
 
@@ -34,6 +41,64 @@ export function DateTimePicker(){
         const tooltipText = `Year: ${year}`;
         return <span title={tooltipText}>{year}</span>;
     };
+
+    const CustomTimeInput = () => {
+        const onMinuteChange = (e) =>{
+            props.onSelectedChange(props.selected.minute(e))
+        }
+        const onHourChange = (e) =>{
+            props.onSelectedChange(props.selected.hour(e))
+        }
+
+        return (
+            <div className="mb-1 d-inline-flex justify-content-center align-items-center">
+                <input
+                    type="number"
+                    autoFocus={hourFocus}
+
+                    value={
+                        props.selected.hour().toLocaleString('en-US', {
+                            minimumIntegerDigits: 2,
+                            useGrouping: false
+                        })
+                    }
+                    onChange={(e) => {
+                        onHourChange(
+                            e.target.value
+                        )
+                        setHourFocus(true)
+                    }}
+                    onBlur={()=>setHourFocus(false)}
+
+                    className="text-center border-0 ms-1"
+                    style={{width: "10%"}}
+                />
+                <p className="m-0 mx-1 fw-bolder">:</p>
+                <input
+                    type="number"
+                    autoFocus={minuteFocus}
+
+                    value={
+                        props.selected.minute().toLocaleString('en-US', {
+                            minimumIntegerDigits: 2,
+                            useGrouping: false
+                        })
+                    }
+                    onChange={(e) => {
+                        onMinuteChange(
+                            e.target.value
+                        )
+                        setMinFocus(true)
+                    }}
+                    onBlur={()=>setMinFocus(false)}
+
+                    className="text-center border-0 me-1"
+                    style={{width: "10%"}}
+                />
+                <TimePopover hours={props.selected.hour()} minutes={props.selected.minute()} onMinuteChange={onMinuteChange} onHourChange={onHourChange} />
+            </div>
+        )
+    }
 
     // setting date in header
     const headerDate = (currentDate) =>{
@@ -67,7 +132,7 @@ export function DateTimePicker(){
         return header
     }
 
-    // wasn't found realization of changing date, so it was made an ineffective method
+    // wasn't found realization of changing date, so it was made an ineffective way
     const onClickHeader = (func) =>{
         if(headerTypeId === 0){
             func()
@@ -88,20 +153,24 @@ export function DateTimePicker(){
     }
 
     return (
-        <>
+        <div>
             <DatePicker
-                selected={startDate}
+                selected={props.selected.toDate()}
 
                 onChange={(date) => {
-                    setStartDate(date)
+                    props.onSelectedChange(dayjs(date))
                     headerTypeId > 0 && setHeaderTypeId(headerTypeId-1)
                 }}
-
                 shouldCloseOnSelect={false}
-                customInput={<CustomInput/>}
-                dateFormat="dd/MM/yyyy h:mm aa"
-                timeInputLabel="Time:"
 
+                dateFormat="dd/MM/yyyy HH:mm"
+                timeInputLabel={null}
+
+                fixedHeight
+                showPopperArrow={false}
+                calendarClassName={""}
+                customInput={<CustomInput/>}
+                popperClassName={"custom_popper_style"}
 
                 renderDayContents={renderDayContents}
                 renderMonthContent={renderMonthContent}
@@ -122,7 +191,7 @@ export function DateTimePicker(){
                             className={
                                 "react-datepicker__navigation react-datepicker__navigation--previous"
                             }
-                            style={customHeaderCount === 1 ? { visibility: "hidden" } : null}
+                            style={customHeaderCount === 1 ? { visibility: "hidden", left:"10px" } : {left: "10px"}}
                             onClick={()=>onClickHeader(decreaseMonth)}
                             type="button"
                         >
@@ -137,7 +206,7 @@ export function DateTimePicker(){
 
                         <button className="react-datepicker__current-month"
                                 type="button"
-                                style={{border: "none"}}
+                                style={{border: "none", backgroundColor:"white"}}
                                 onClick={()=>{setHeaderTypeId(headerTypeId === 2 ? 0 : headerTypeId+1)}}
                         >
                             {headerDate(date)}
@@ -148,7 +217,7 @@ export function DateTimePicker(){
                             className={
                                 "react-datepicker__navigation react-datepicker__navigation--next"
                             }
-                            style={customHeaderCount === 1 ? { visibility: "hidden" } : null}
+                            style={customHeaderCount === 1 ? { visibility: "hidden", right:"10px" } : {right: "10px"}}
                             onClick={()=>onClickHeader(increaseMonth)}
                             type="button"
                         >
@@ -162,7 +231,9 @@ export function DateTimePicker(){
                         </button>
                     </div>
                 )}
-            />
-        </>
+            >
+                <CustomTimeInput/>
+            </DatePicker>
+        </div>
     );
 }

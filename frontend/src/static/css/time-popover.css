@@ -1,0 +1,44 @@
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+
+.scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.hover:hover{
+  background-color: #3B71CA;
+  color: #fff;
+}
+
+.scroll-time-btn{
+  height: 40px;
+  width: 50px;
+  background-color: white;
+}
+
+.scroll-time-btn:hover{
+  background-color: #f0f0f0;
+  color: black;
+}
+
+.selected-time{
+  background-color: #3B71CA;
+  color: #fff;
+  /*border: 2px solid #38393f;*/
+  border: 0;
+}
+
+.selected-time:hover {
+  background-color: #8BABE0;
+  color: #fff;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
