@@ -165,6 +165,14 @@ export function PostEdit(){
                 setErrorFields({...errorFields, [e.target.name]: 'Image name is too long!'});
                 resetImg()
                 return
+            } else if(
+                fileInputRef.current.files[0].type.replace('image/', '') !== 'png'&&
+                fileInputRef.current.files[0].type.replace('image/', '') !== 'jpeg'&&
+                fileInputRef.current.files[0].type.replace('image/', '') !== 'jpg'){
+                setSelectedImg(null)
+                setErrorFields({...errorFields, [e.target.name]: 'Image type only png or jpeg!'});
+                resetImg()
+                return
             }
             if (errorFields[e.target.name]) {
                 const arr = {...errorFields}
@@ -465,6 +473,7 @@ export function PostEdit(){
                                         </div>
                                     }
                                 </div>
+
                             </MDBValidationItem>
 
                         </div>
