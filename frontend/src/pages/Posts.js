@@ -9,6 +9,7 @@ import {setTab} from "../store/sideNavTab";
 import {useDispatch, useSelector} from "react-redux";
 import {InfinitySpin} from "react-loader-spinner";
 import PostsVirtualizedList from "../components/PostsVirtualizedList";
+import '../static/css/posts-page.css'
 
 export function Posts(){
     const [posts, setPostsList] = useState([])
@@ -21,6 +22,8 @@ export function Posts(){
     const [searchTitle, setSearchTitle] = useState("")
     const [page, setPage] = useState(1)
     const [per_page] = useState(15)
+
+    const [sortBy, setSortBy] = useState({number:null, title:null, createDate:null})
 
     const tabKey = useSelector((state) => state.tabsKey.tabs.posts)
     const dispatch = useDispatch()
@@ -35,14 +38,24 @@ export function Posts(){
         if (e.key === 'Enter') {
             setPage(1);
             setIsSearching(true)
-            searchPosts(1)
+            searchPosts(1, null)
         }
     }
 
-    const getPosts = (page) => {
+    const getPosts = (page, orderBy) => {
+        let orderByUrl = `&is_order_by=${orderBy===null?"False":"True"}`
+        if(orderBy!==null) {
+            for(let i in orderBy){
+                if(orderBy[i] !== null){
+                    orderByUrl = orderByUrl+`&${i}=${orderBy[i]}`
+                }
+            }
+        }
+
         try{
-            axios.get(`${process.env.REACT_APP_API_URL}/api/posts_preview?page=${page}&per_page=${per_page}`, {
-                headers: headers,})
+            axios.get(
+                `${process.env.REACT_APP_API_URL}/api/posts_preview?page=${page}&per_page=${per_page}${orderByUrl}`,
+                {headers: headers,})
                 .then(response => {
                     if (!response.data['posts'].length && response.status === 200) {setIsData(false)}
                     else {
@@ -63,12 +76,21 @@ export function Posts(){
         }
     }
 
-    const searchPosts = (page) =>{
+    const searchPosts = (page, orderBy) =>{
+        let orderByUrl = `&is_order_by=${orderBy===null?"False":"True"}`
+        if(orderBy!==null) {
+            for(let i in orderBy){
+                if(orderBy[i] !== null){
+                    orderByUrl = orderByUrl+`&${i}=${orderBy[i]}`
+                }
+            }
+        }
+
         const data = {
             title:searchTitle
         }
         try {
-            axios.post(`${process.env.REACT_APP_API_URL}/api/post/search?page=${page}&per_page=${per_page}`, data, {
+            axios.post(`${process.env.REACT_APP_API_URL}/api/post/search?page=${page}&per_page=${per_page}${orderByUrl}`, data, {
                 headers: headers,})
                 .then(response => {
                     if (!response.data['posts'].length && response.status === 200) {setIsData(false)}
@@ -90,9 +112,27 @@ export function Posts(){
         }
     }
 
+    const onSortClick = (el) =>{
+        let sortType = [null, 'desc', 'asc']
+        let numOfElement = sortType.indexOf(sortBy[el])
+
+        setSortBy(
+            prevObj =>{
+                return{
+                    ...prevObj,
+                    [el]: numOfElement>=2?sortType[0]: sortType[numOfElement+1]
+                }
+            })
+
+        let orderBy = {...sortBy}
+        orderBy[el] = numOfElement>=2?sortType[0]: sortType[numOfElement+1]
+
+        if(!isSearching){getPosts(1, orderBy)}else{searchPosts(1, orderBy)}
+    }
+
     useEffect(() => {
         dispatch(setTab(tabKey))
-        getPosts(page);
+        getPosts(page, null);
     }, []);
 
     return(
@@ -123,8 +163,10 @@ export function Posts(){
                             className="ps-2"
                             onClick={()=>{
                                 setPage(1);
-                                setIsSearching(true)
-                                searchPosts(1)
+                                setIsSearching(true);
+                                searchPosts(1, null);
+                                console.log(sortBy)
+                                setSortBy({number:null, title:null, createDate:null})
                             }}
                     >{CreateWhiteIco(<BsSearch size={'1.5em'}/>)}</button>
 
@@ -133,7 +175,7 @@ export function Posts(){
                             onClick={()=>{
                                 setPage(1)
                                 setIsSearching(false)
-                                getPosts(1)
+                                getPosts(1, null)
                             }}
                     >{CreateWhiteIco(<BiReset size={'1.5em'}/>)}</button>
                 </div>
@@ -141,12 +183,32 @@ export function Posts(){
 
             <div className='d-flex align-items-center justify-content-between'>
                 <div className='d-flex'>
-                    <div><p className='ms-3'>#</p></div>
-                    <div><p className='ms-3'>Post title</p></div>
+                    <button
+                        onClick={()=>onSortClick('number')}
+                        className='border-0 bg-transparent text-white p-0 d-flex'
+                    >
+                        <p className='ms-3'>#</p>
+                        <div className={"triangle ms-1 mt-2 "+ (sortBy.number==='desc'&&"down" || sortBy.number==="asc"&&"up")}></div>
+                    </button>
+                    <button
+                        onClick={()=>onSortClick('title')}
+                        className='border-0 bg-transparent text-white p-0 d-flex'
+                    >
+                        <p className='ms-1'>Post title</p>
+                        <div className={"triangle ms-1 mt-2 " + (sortBy.title === 'desc' && "down" || sortBy.title === "asc" && "up")}></div>
+                    </button>
                 </div>
-                <div><p className='me-3'>Create date</p></div>
-            </div>
+                <div>
+                    <button
+                        onClick={()=>onSortClick('createDate')}
+                        className='border-0 bg-transparent text-white p-0 d-flex'
+                    >
+                        <div className={"triangle me-1 mt-2 " + (sortBy.createDate==='desc'&&"down" || sortBy.createDate==="asc"&&"up")}></div>
+                        <p className='me-3'>Create date</p>
+                    </button>
+                </div>
 
+            </div>
             {isLoading?
                 <div className="d-flex flex-column align-items-center justify-content-center" >
                     <InfinitySpin
@@ -162,7 +224,7 @@ export function Posts(){
                                 hasNextPage={hasNext}
                                 isNextPageLoading={isLoading}
                                 items={posts}
-                                loadNextPage={()=>getPosts(page)}
+                                loadNextPage={()=>getPosts(page, null)}
                                 isSearching={isSearching}
                             />
                         </>

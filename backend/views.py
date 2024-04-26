@@ -795,8 +795,33 @@ class PostsPreviewView(AuthResource):
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', type=int)
 
-        posts = NewsPreview.query.paginate(page=page, per_page=per_page).items
+        is_order = eval(request.args.get('is_order_by', type=str))
 
+        if is_order is False:
+            posts = NewsPreview.query.paginate(page=page, per_page=per_page).items
+        else:
+            query = NewsPreview.query
+            order_by_number = request.args.get('number', type=str)
+            order_by_title = request.args.get('title', type=str)
+            order_by_create_date = request.args.get('createDate', type=str)
+
+            # ineffective 'if's' need changes
+            if order_by_number is not None:
+                if order_by_number == 'desc':
+                    query = query.order_by(NewsPreview.id.desc())
+                if order_by_number == 'asc':
+                    query = query.order_by(NewsPreview.id.asc())
+            if order_by_title is not None:
+                if order_by_title == 'desc':
+                    query = query.order_by(NewsPreview.title.desc())
+                if order_by_title == 'asc':
+                    query = query.order_by(NewsPreview.title.asc())
+            if order_by_create_date is not None:
+                if order_by_create_date == 'desc':
+                    query = query.order_by(NewsPreview.posted_at.desc())
+                if order_by_create_date == 'asc':
+                    query = query.order_by(NewsPreview.posted_at.asc())
+            posts = query.paginate(page=page, per_page=per_page).items
         posts_json = []
 
         try:
@@ -902,7 +927,33 @@ class PostsSearchView(AuthResource):
 
         data = request.get_json()
 
-        posts = NewsPreview.query.filter(NewsPreview.title.like('%'+data['title']+'%')).paginate(page=page, per_page=per_page).items
+        is_order = eval(request.args.get('is_order_by', type=str))
+
+        if is_order is False:
+            posts = NewsPreview.query.filter(NewsPreview.title.like('%'+data['title']+'%')).paginate(page=page, per_page=per_page).items
+        else:
+            query = NewsPreview.query.filter(NewsPreview.title.like('%'+data['title']+'%'))
+            order_by_number = request.args.get('number', type=str)
+            order_by_title = request.args.get('title', type=str)
+            order_by_create_date = request.args.get('createDate', type=str)
+
+            # ineffective 'if's' need changes
+            if order_by_number is not None:
+                if order_by_number == 'desc':
+                    query = query.order_by(NewsPreview.id.desc())
+                if order_by_number == 'asc':
+                    query = query.order_by(NewsPreview.id.asc())
+            if order_by_title is not None:
+                if order_by_title == 'desc':
+                    query = query.order_by(NewsPreview.title.desc())
+                if order_by_title == 'asc':
+                    query = query.order_by(NewsPreview.title.asc())
+            if order_by_create_date is not None:
+                if order_by_create_date == 'desc':
+                    query = query.order_by(NewsPreview.posted_at.desc())
+                if order_by_create_date == 'asc':
+                    query = query.order_by(NewsPreview.posted_at.asc())
+            posts = query.paginate(page=page, per_page=per_page).items
 
         posts_json = []
 
