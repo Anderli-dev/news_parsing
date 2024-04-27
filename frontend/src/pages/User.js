@@ -209,9 +209,9 @@ export function User(){
 
                 </form>
 
-                <div className="w-50 d-flex flex-column ">
+                <div className="w-50 d-flex flex-column">
                     <div >
-                        <MDBCard shadow='0' border='light' style={{backgroundColor: "inherit"}} className='mb-3 placeholder-glow'>
+                        <MDBCard shadow='0' border='light' style={{backgroundColor: "inherit"}} className='mb-3 placeholder-glow text-white'>
                             <MDBCardHeader>Activity info</MDBCardHeader>
                             <MDBCardBody>
                                 <MDBCardTitle>Count of posts</MDBCardTitle>

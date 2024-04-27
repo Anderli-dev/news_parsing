@@ -9,7 +9,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {setTab} from "../store/sideNavTab";
 import {InfinitySpin} from "react-loader-spinner";
 import UsersVirtualizedList from "../components/UsersVirtualizedList";
-
+import '../static/css/posts-page.css'
 
 export function Users(){
     const [users, setUsersList] = useState([]);
@@ -21,7 +21,8 @@ export function Users(){
     const [per_page] = useState(5)
     const [searchUserName, setSearchUserName] = useState("")
 
-    const observerTarget = useRef(null);
+    const [sortBy, setSortBy] = useState({number:null, username:null, role:null})
+
 
     const tabKey = useSelector((state) => state.tabsKey.tabs.users)
     const dispatch = useDispatch()
@@ -40,9 +41,18 @@ export function Users(){
         }
     }
 
-    function getUsers(page){
+    function getUsers(page, orderBy){
+        let orderByUrl = `&is_order_by=${orderBy===null?"False":"True"}`
+        if(orderBy!==null) {
+            for(let i in orderBy){
+                if(orderBy[i] !== null){
+                    orderByUrl = orderByUrl+`&${i}=${orderBy[i]}`
+                }
+            }
+        }
+
         try {
-            axios.get(`${process.env.REACT_APP_API_URL}/api/users?page=${page}&per_page=${per_page}`, {
+            axios.get(`${process.env.REACT_APP_API_URL}/api/users?page=${page}&per_page=${per_page}${orderByUrl}`, {
                 headers: headers,})
                 .then(response => {
                     if (!response.data['users'].length) {setIsLoading(true)}
@@ -63,12 +73,21 @@ export function Users(){
         }
     }
 
-    const searchUsers = (page) =>{
+    const searchUsers = (page, orderBy) =>{
+        let orderByUrl = `&is_order_by=${orderBy===null?"False":"True"}`
+        if(orderBy!==null) {
+            for(let i in orderBy){
+                if(orderBy[i] !== null){
+                    orderByUrl = orderByUrl+`&${i}=${orderBy[i]}`
+                }
+            }
+        }
+
         const data = {
             username:searchUserName
         }
         try {
-            axios.post(`${process.env.REACT_APP_API_URL}/api/user/search?page=${page}&per_page=${per_page}`, data, {
+            axios.post(`${process.env.REACT_APP_API_URL}/api/user/search?page=${page}&per_page=${per_page}${orderByUrl}`, data, {
                 headers: headers,})
                 .then(response => {
                     if (!response.data['users'].length) {setIsLoading(true);}
@@ -87,6 +106,24 @@ export function Users(){
         } catch (err) {
             console.log(err)
         }
+    }
+
+    const onSortClick = (el) =>{
+        let sortType = [null, 'desc', 'asc']
+        let numOfElement = sortType.indexOf(sortBy[el])
+
+        setSortBy(
+            prevObj =>{
+                return{
+                    ...prevObj,
+                    [el]: numOfElement>=2?sortType[0]: sortType[numOfElement+1]
+                }
+            })
+
+        let orderBy = {...sortBy}
+        orderBy[el] = numOfElement>=2?sortType[0]: sortType[numOfElement+1]
+
+        if(!isSearching){getUsers(1, orderBy)}else{searchUsers(1, orderBy)}
     }
 
     useEffect(() => {
@@ -132,10 +169,28 @@ export function Users(){
             <div>
                 <div className="d-flex justify-content-between">
                     <div className="d-flex ps-3">
-                        <div className='m-0 pe-3'>#</div>
-                        <div className='m-0 ps-3'>Username</div>
+                        <button
+                            onClick={()=>onSortClick('number')}
+                            className='border-0 bg-transparent text-white p-0 d-flex'
+                        >
+                            <p className='m-0 pe-2'>#</p>
+                            <div className={"triangle mt-2 "+ (sortBy.number==='desc'&&"down" || sortBy.number==="asc"&&"up")}></div>
+                        </button>
+                        <button
+                            onClick={()=>onSortClick('username')}
+                            className='border-0 bg-transparent text-white p-0 d-flex'
+                        >
+                            <p className='m-0 ps-3'>Username</p>
+                            <div className={"triangle ms-2 mt-2 " + (sortBy.username === 'desc' && "down" || sortBy.username === "asc" && "up")}></div>
+                        </button>
                     </div>
-                    <div className="pe-3">Role</div>
+                    <button
+                        onClick={()=>onSortClick('role')}
+                        className='border-0 bg-transparent text-white p-0 d-flex'
+                    >
+                        <div className={"triangle me-2 mt-2 " + (sortBy.role==='desc'&&"down" || sortBy.role==="asc"&&"up")}></div>
+                        <p className="pe-3 m-0">Role</p>
+                    </button>
                 </div>
             </div>
 

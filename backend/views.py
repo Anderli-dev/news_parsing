@@ -411,7 +411,33 @@ class UsersView(AuthResource):
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', type=int)
 
-        users = User.query.paginate(page=page, per_page=per_page).items
+        is_order = eval(request.args.get('is_order_by', type=str))
+
+        if is_order is False:
+            users = User.query.paginate(page=page, per_page=per_page).items
+        else:
+            query = User.query
+            order_by_number = request.args.get('number', type=str)
+            order_by_username = request.args.get('username', type=str)
+            order_by_role = request.args.get('role', type=str)
+
+            # ineffective 'if's' need changes
+            if order_by_number is not None:
+                if order_by_number == 'desc':
+                    query = query.order_by(User.id.desc())
+                if order_by_number == 'asc':
+                    query = query.order_by(User.id.asc())
+            if order_by_username is not None:
+                if order_by_username == 'desc':
+                    query = query.order_by(User.username.desc())
+                if order_by_username == 'asc':
+                    query = query.order_by(User.username.asc())
+            if order_by_role is not None:
+                if order_by_role == 'desc':
+                    query = query.order_by(User.role_id.desc())
+                if order_by_role == 'asc':
+                    query = query.order_by(User.role_id.asc())
+            users = query.paginate(page=page, per_page=per_page).items
 
         users_json = []
 
@@ -436,6 +462,34 @@ class UsersSearchView(AuthResource):
         data = request.get_json()
 
         users = User.query.filter(User.username.like('%' + data['username'] + '%')).paginate(page=page, per_page=per_page).items
+
+        is_order = eval(request.args.get('is_order_by', type=str))
+
+        if is_order is False:
+            users = User.query.filter(User.username.like('%' + data['username'] + '%')).paginate(page=page, per_page=per_page).items
+        else:
+            query = User.query.filter(User.username.like('%' + data['username'] + '%'))
+            order_by_number = request.args.get('number', type=str)
+            order_by_username = request.args.get('username', type=str)
+            order_by_role = request.args.get('role', type=str)
+
+            # ineffective 'if's' need changes
+            if order_by_number is not None:
+                if order_by_number == 'desc':
+                    query = query.order_by(User.id.desc())
+                if order_by_number == 'asc':
+                    query = query.order_by(User.id.asc())
+            if order_by_username is not None:
+                if order_by_username == 'desc':
+                    query = query.order_by(User.username.desc())
+                if order_by_username == 'asc':
+                    query = query.order_by(User.username.asc())
+            if order_by_role is not None:
+                if order_by_role == 'desc':
+                    query = query.order_by(User.role_id.desc())
+                if order_by_role == 'asc':
+                    query = query.order_by(User.role_id.asc())
+            users = query.paginate(page=page, per_page=per_page).items
 
         users_json = []
 
