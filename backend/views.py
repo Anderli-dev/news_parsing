@@ -164,7 +164,7 @@ class LoginView(Resource):
                 {'id': user.id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(weeks=1)},
                 app.config['SECRET_KEY']
             )
-            return make_response(jsonify({'token': token.decode('UTF-8')}), 200)
+            return make_response(jsonify({'token': token}), 200)
         else:
             return make_response(jsonify({'error': 'Wrong password!'}), 401)
 
