@@ -65,5 +65,10 @@
   },
   "devDependencies": {
     "webpack-bundle-analyzer": "^4.9.0"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "^axios$": "axios/dist/node/axios.cjs"
+    }
   }
 }
