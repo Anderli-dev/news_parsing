@@ -22,7 +22,7 @@ script:
   - docker ps
 #  - docker-compose run backend python -m pytest
   - docker-compose exec frontend npm install --legacy-peer-deps
-  - docker-compose exec frontend npm test
+  - timeout 2m docker-compose exec frontend npm test
 
 after_success:
   - docker-compose -f docker-compose.yml build
