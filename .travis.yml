@@ -26,8 +26,8 @@ script:
 
 after_success:
   - docker-compose -f docker-compose.yml build
-  - docker tag backend $DOCKER_USERNAME/news_parsing-backend:$TRAVIS_BUILD_NUMBER
-  - docker tag frontend $DOCKER_USERNAME/news_parsing-frontend:$TRAVIS_BUILD_NUMBER
+  - docker tag backend $DOCKER_USERNAME/backend:$TRAVIS_BUILD_NUMBER
+  - docker tag frontend $DOCKER_USERNAME/frontend:$TRAVIS_BUILD_NUMBER
 
-  - docker push $DOCKER_USERNAME/news_parsing-backend:$TRAVIS_BUILD_NUMBER
-  - docker push $DOCKER_USERNAME/news_parsing-frontend:$TRAVIS_BUILD_NUMBER
+  - docker push $DOCKER_USERNAME/backend:$TRAVIS_BUILD_NUMBER
+  - docker push $DOCKER_USERNAME/frontend:$TRAVIS_BUILD_NUMBER

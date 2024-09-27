@@ -10,6 +10,7 @@ services:
       - '5000:5000'
     depends_on:
       - db
+    image: backend
   db:
     image: mysql
     restart: always
@@ -32,3 +33,4 @@ services:
       - '3000:3000'
     depends_on:
       - backend
+    image: frontend
