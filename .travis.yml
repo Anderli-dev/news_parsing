@@ -1,0 +1,32 @@
+language: python
+python:
+  - "3.10"
+
+services:
+  - docker
+
+addons:
+  apt:
+    packages:
+      - nodejs
+      - npm
+
+before_install:
+  - docker --version
+  - node --version
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+script:
+  - docker-compose -f docker-compose.yml up --build -d
+  - docker ps
+  - docker-compose exec backend python -m pytest
+  - docker-compose exec frontend npm install
+  - docker-compose exec frontend npm test
+
+after_success:
+  - docker-compose -f docker-compose.yml build
+  - docker tag backend $DOCKER_USERNAME/backend:$TRAVIS_BUILD_NUMBER
+  - docker tag frontend $DOCKER_USERNAME/frontend:$TRAVIS_BUILD_NUMBER
+
+  - docker push $DOCKER_USERNAME/backend:$TRAVIS_BUILD_NUMBER
+  - docker push $DOCKER_USERNAME/frontend:$TRAVIS_BUILD_NUMBER
