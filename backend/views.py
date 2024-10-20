@@ -31,7 +31,7 @@ def scope(scope_name):
         def inner_wrapper(*args, **kwargs):
             try:
                 token = request.headers['x-access-token']
-                data = jwt.decode(token, app.config['SECRET_KEY'])
+                data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
 
                 user = User.query.filter_by(id=data['id']).first()
                 role = Role.query.filter_by(id=user.role_id).first()
@@ -69,9 +69,10 @@ def token_required(f):
             return make_response(jsonify({'error': 'Authentication error!'}), 401)
 
         try:
-            data = jwt.decode(token, app.config['SECRET_KEY'])
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
             current_user = User.query.filter_by(id=data['id']).first()
-        except:
+        except Exception as e:
+            print(e)
             return make_response(jsonify({'error': 'Token is invalid!'}), 401)
 
         return f(*args, **kwargs)
@@ -83,7 +84,7 @@ def is_admin(f):
     def decorated(*args, **kwargs):
         try:
             token = request.headers['x-access-token']
-            data = jwt.decode(token, app.config['SECRET_KEY'])
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
 
             user = User.query.filter_by(id=data['id']).first()
 
@@ -509,7 +510,7 @@ class UserView(AuthResource):
     @scope("user:read")
     def get(self, user_id):
         token = request.headers['x-access-token']
-        data = jwt.decode(token, app.config['SECRET_KEY'])
+        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
 
         auth_user = User.query.filter_by(id=data['id']).first()
         role_admin = Role.query.filter_by(name='Admin').first()
@@ -571,7 +572,7 @@ class UserView(AuthResource):
     @scope("user:delete")
     def delete(self, user_id):
         token = request.headers['x-access-token']
-        data = jwt.decode(token, app.config['SECRET_KEY'])
+        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
 
         auth_user = User.query.filter_by(id=data['id']).first()
         role_admin = Role.query.filter_by(name='Admin').first()
@@ -591,7 +592,7 @@ class UserView(AuthResource):
 class UserPermissionView(AuthResource):
     def get(self):
         token = request.headers['x-access-token']
-        data = jwt.decode(token, app.config['SECRET_KEY'])
+        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
         current_user = User.query.filter_by(id=data['id']).first()
         user_permissions = RolePermission.query.filter_by(role_id=current_user.role_id)
 
@@ -731,7 +732,7 @@ class PostPreviewView(Resource):
                 return make_response(jsonify({'error': 'Preview is too long!'}), 403)
 
             token = request.headers['x-access-token']
-            token_data = jwt.decode(token, app.config['SECRET_KEY'])
+            token_data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
 
             preview = NewsPreview(
                 img=secure_filename(file.filename),
@@ -794,7 +795,7 @@ class PostPreviewView(Resource):
                 return make_response(jsonify({'error': 'Preview is too long!'}), 403)
 
             token = request.headers['x-access-token']
-            token_data = jwt.decode(token, app.config['SECRET_KEY'])
+            token_data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
 
             preview = NewsPreview.query.filter_by(id=id).first()
 
@@ -915,7 +916,7 @@ class PostView(Resource):
 
             if request.form.get('text').__len__() > 64*1024:
                 # more than 64 kilobytes
-                return make_response(jsonify({'error': 'Text is too long!'}), 403)
+                return make_response(jsonify({'error': 'Text is too long or image too big!'}), 403)
 
             if request.form.get('previewId') is None:
                 return make_response(jsonify({'error': 'No preview id!'}), 403)

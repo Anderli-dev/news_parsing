@@ -2,7 +2,7 @@ DEBUG = True
 
 SECRET_KEY = 'v-0wa-43amc=-29-30mdci230j'
 
-# host.docker.internal for docker
+# host.docker.internal for docker, localhost when using directly
 SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://admin:12345@localhost:3306/mydb'
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False
