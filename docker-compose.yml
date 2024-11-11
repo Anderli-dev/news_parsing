@@ -12,8 +12,12 @@ services:
       - db
     image: backend
   db:
-    image: mysql
+    image: db
+    build:
+      context: ./
+      dockerfile: ./db/Dockerfile
     restart: always
+    container_name: db
     environment:
       MYSQL_DATABASE: mydb
       MYSQL_ROOT_USER: admin
