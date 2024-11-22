@@ -23,18 +23,6 @@ pipeline {
             }
         }
 
-        stage('Build Docker Images') {
-            steps {
-                script {
-                    // Збірка першого образу
-                    docker.build("${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_1}:${IMAGE_TAG_1}")
-
-                    // Збірка другого образу
-                    docker.build("${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_2}:${IMAGE_TAG_2}")
-                }
-            }
-        }
-
         stage('Login to AWS ECR') {
             steps {
                 sh '''
@@ -49,12 +37,12 @@ pipeline {
                 script {
                     // Пуш першого образу
                     docker.withRegistry("https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com") {
-                        docker.image("${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_1}:${IMAGE_TAG_1}").push()
+                        docker.image("backend").push()
                     }
 
                     // Пуш другого образу
                     docker.withRegistry("https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com") {
-                        docker.image("${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_2}:${IMAGE_TAG_2}").push()
+                        docker.image("frontend").push()
                     }
                 }
             }
