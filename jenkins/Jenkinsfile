@@ -15,16 +15,16 @@ pipeline {
         IMAGE_TAG_1 = "${env.BUILD_NUMBER}"  // Тег з номером білду
         IMAGE_TAG_2 = "${env.BUILD_NUMBER}"  // Тег з номером білду
     }
-    stage('Check Tools') {
-        steps {
-            sh '''
-                echo "Перевірка AWS CLI та Docker"
-                aws --version || echo "AWS CLI не доступний"
-                docker --version || echo "Docker не доступний"
-            '''
-        }
-    }
     stages {
+        stage('Check Tools') {
+            steps {
+                sh '''
+                    echo "Перевірка AWS CLI та Docker"
+                    aws --version || echo "AWS CLI не доступний"
+                    docker --version || echo "Docker не доступний"
+                '''
+            }
+        }
         stage('Checkout Code') {
             steps {
                 checkout scm
