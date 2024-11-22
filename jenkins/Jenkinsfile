@@ -1,19 +1,15 @@
 pipeline {
-    agent {
-        node{
-            label 'jenkins_agent'
-        }
-    }
+    agent any
     triggers {
         pollSCM '*/5 * * * *'
     }
     environment {
-        AWS_REGION = 'eu-central-1'  // Вкажіть ваш регіон AWS
-        AWS_ACCOUNT_ID = '361769559551'  // Замініть на ваш AWS Account ID
-        ECR_REPOSITORY_1 = 'my-backend-repo'  // Назва першого ECR репозиторію
-        ECR_REPOSITORY_2 = 'my-frontend-repo'  // Назва другого ECR репозиторію
-        IMAGE_TAG_1 = "${env.BUILD_NUMBER}"  // Тег з номером білду
-        IMAGE_TAG_2 = "${env.BUILD_NUMBER}"  // Тег з номером білду
+        AWS_REGION = 'eu-central-1'
+        AWS_ACCOUNT_ID = '361769559551'
+        ECR_REPOSITORY_1 = 'my-backend-repo'
+        ECR_REPOSITORY_2 = 'my-frontend-repo'
+        IMAGE_TAG_1 = "${env.BUILD_NUMBER}"
+        IMAGE_TAG_2 = "${env.BUILD_NUMBER}"
     }
     stages {
         stage('Check Tools') {
