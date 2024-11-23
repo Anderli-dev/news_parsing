@@ -40,12 +40,12 @@ pipeline {
             steps {
                 script {
 
-                    docker.withRegistry("https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_1}", "aws-credentials", 'tcp://localhost:2375') {
+                    docker.withRegistry("https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_1}", "aws-credentials") {
                         docker.image("backend").push("${IMAGE_TAG_1}")
                     }
 
 
-                    docker.withRegistry("https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_2}", "aws-credentials", 'tcp://localhost:2375') {
+                    docker.withRegistry("https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_2}", "aws-credentials") {
                         docker.image("frontend").push("${IMAGE_TAG_2}")
                     }
                 }
