@@ -10,7 +10,6 @@ pipeline {
         ECR_REPOSITORY_2 = 'my-frontend-repo'
         IMAGE_TAG_1 = "${env.BUILD_NUMBER}"
         IMAGE_TAG_2 = "${env.BUILD_NUMBER}"
-        AWS_CREDENTIALS = 'aws-credentials'
     }
     stages {
         stage('Check Tools') {
@@ -30,12 +29,10 @@ pipeline {
 
         stage('Login to AWS ECR') {
             steps {
-                withCredentials([aws(credentialsId: 'aws-credentials)')]) {
-                    sh '''
-                        aws ecr get-login-password --region ${AWS_REGION} | \
-                        docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
-                    '''
-                    }
+                sh '''
+                    aws ecr get-login-password --region ${AWS_REGION} | \
+                    docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                '''
             }
         }
 
@@ -43,12 +40,12 @@ pipeline {
             steps {
                 script {
 
-                    docker.withRegistry('tcp://localhost:2375', "https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_1}", 'aws-credentials') {
+                    docker.withRegistry("https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_1}", "aws-credentials", 'tcp://localhost:2375') {
                         docker.image("backend").push("${IMAGE_TAG_1}")
                     }
 
 
-                    docker.withRegistry('tcp://localhost:2375', "https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_2}", 'aws-credentials') {
+                    docker.withRegistry("https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_2}", "aws-credentials", 'tcp://localhost:2375') {
                         docker.image("frontend").push("${IMAGE_TAG_2}")
                     }
                 }
