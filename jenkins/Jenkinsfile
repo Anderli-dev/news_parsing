@@ -40,8 +40,8 @@ pipeline {
         stage('Push Docker Images') {
             steps {
                 script {
-                    sh 'docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_1}:${IMAGE_TAG_1}'
-                    sh 'docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_2}:${IMAGE_TAG_2}'
+                    sh 'docker push ${ECR_REPOSITORY_1}:${IMAGE_TAG_1}'
+                    sh 'docker push ${ECR_REPOSITORY_2}:${IMAGE_TAG_2}'
                 }
             }
         }
