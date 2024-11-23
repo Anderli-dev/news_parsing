@@ -10,7 +10,7 @@ pipeline {
         ECR_REPOSITORY_2 = 'my-frontend-repo'
         IMAGE_TAG_1 = "${env.BUILD_NUMBER}"
         IMAGE_TAG_2 = "${env.BUILD_NUMBER}"
-        AWS_CREDENTIALS = "ecr:eu-central--1:aws-credentials"
+        AWS_CREDENTIALS = "ecr:eu-central-1:aws-credentials"
     }
     stages {
         stage('Check Tools') {
