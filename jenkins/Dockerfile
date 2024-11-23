@@ -17,7 +17,9 @@ RUN apt-get update && apt-get install -y \
     && unzip awscliv2.zip \
     && ./aws/install --update \
     && rm -rf awscliv2.zip aws \
-    && apt-get install -y less
+    && apt-get install -y less \
+
+RUN groupadd -g 993  docker && usermod -aG docker jenkins
 
 USER jenkins
 RUN jenkins-plugin-cli --plugins "blueocean:1.25.3 docker-workflow:1.28"
