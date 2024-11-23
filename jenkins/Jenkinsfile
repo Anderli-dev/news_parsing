@@ -39,13 +39,13 @@ pipeline {
         stage('Push Docker Images') {
             steps {
                 script {
-                    // Пуш першого образу
-                    docker.withRegistry("https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com") {
+
+                    docker.withRegistry('tcp://localhost:2375', "https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com") {
                         docker.image("backend").push()
                     }
 
-                    // Пуш другого образу
-                    docker.withRegistry("https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com") {
+
+                    docker.withRegistry('tcp://localhost:2375', "https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com") {
                         docker.image("frontend").push()
                     }
                 }
