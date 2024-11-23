@@ -8,8 +8,8 @@ pipeline {
         AWS_ACCOUNT_ID = '361769559551'
         ECR_REPOSITORY_1 = 'my-backend-repo'
         ECR_REPOSITORY_2 = 'my-frontend-repo'
-        IMAGE_TAG_1 = "${env.BUILD_NUMBER}"
-        IMAGE_TAG_2 = "${env.BUILD_NUMBER}"
+        IMAGE_TAG_1 = "latest"
+        IMAGE_TAG_2 = "latest"
         AWS_CREDENTIALS = "ecr:eu-central-1:aws-credentials"
     }
     stages {
