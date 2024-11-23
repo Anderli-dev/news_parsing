@@ -39,18 +39,18 @@ pipeline {
         stage('Tag Docker Images') {
             steps {
                 sh '''
-                    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_1}:${IMAGE_TAG_1}
-                    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_2}:${IMAGE_TAG_2}
+                    docker tag backend:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_1}:${IMAGE_TAG_1}
+                    docker tag frontend:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_2}:${IMAGE_TAG_2}
                 '''
             }
         }
 
         stage('Push Docker Images') {
             steps {
-                script {
-                    sh 'docker push ${ECR_REPOSITORY_1}:${IMAGE_TAG_1}'
-                    sh 'docker push ${ECR_REPOSITORY_2}:${IMAGE_TAG_2}'
-                }
+                sh '''
+                    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_1}:${IMAGE_TAG_1}
+                    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_2}:${IMAGE_TAG_2}
+                '''
             }
         }
     }
