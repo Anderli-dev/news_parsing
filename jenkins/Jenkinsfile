@@ -10,7 +10,7 @@ pipeline {
         ECR_REPOSITORY_2 = 'my-frontend-repo'
         IMAGE_TAG_1 = "${env.BUILD_NUMBER}"
         IMAGE_TAG_2 = "${env.BUILD_NUMBER}"
-        AWS_CREDENTIALS = "ecr:eu-west-1:aws-credentials"
+        AWS_CREDENTIALS = "ecr:eu-central-1:aws-credentials"
     }
     stages {
         stage('Check Tools') {
@@ -40,7 +40,6 @@ pipeline {
         stage('Push Docker Images') {
             steps {
                 script {
-
                     docker.withRegistry("https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_1}", "${AWS_CREDENTIALS}") {
                         docker.image("backend").push("${IMAGE_TAG_1}")
                     }
