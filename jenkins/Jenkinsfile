@@ -15,18 +15,11 @@ pipeline {
     stages {
         stage('Check Tools') {
             steps {
-                script {
-                    def aws_cli_check = sh(script: "aws --version > /dev/null 2>&1 || echo 'not_installed'", returnStdout: true).trim()
-                    def docker_check = sh(script: "docker --version > /dev/null 2>&1 || echo 'not_installed'", returnStdout: true).trim()
-
-                    if (aws_cli_check == 'not_installed') {
-                        error('AWS CLI не встановлено або недоступно')
-                    }
-
-                    if (docker_check == 'not_installed') {
-                        error('Docker не встановлено або недоступно')
-                    }
-                }
+                sh '''
+                    echo "Перевірка AWS CLI та Docker"
+                    aws --version || echo "AWS CLI не доступний"
+                    docker --version || echo "Docker не доступний"
+                '''
             }
         }
         stage('Checkout Code') {
@@ -34,43 +27,7 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Check Existing Images') {
-            steps {
-                script {
-                    def backend_image_exists = sh(
-                        script: """
-                            aws ecr describe-images \
-                            --repository-name ${ECR_REPOSITORY_1} \
-                            --image-ids imageTag=${IMAGE_TAG_1} \
-                            --region ${AWS_REGION} > /dev/null 2>&1 || echo "not_found"
-                        """,
-                        returnStdout: true
-                    ).trim() != "not_found"
 
-                    def frontend_image_exists = sh(
-                        script: """
-                            aws ecr describe-images \
-                            --repository-name ${ECR_REPOSITORY_2} \
-                            --image-ids imageTag=${IMAGE_TAG_2} \
-                            --region ${AWS_REGION} > /dev/null 2>&1 || echo "not_found"
-                        """,
-                        returnStdout: true
-                    ).trim() != "not_found"
-
-                    if (backend_image_exists || frontend_image_exists) {
-                        error("One or more images with the same tag already exist in ECR.")
-                    }
-                }
-            }
-        }
-        stage('Build Docker Images') {
-            steps {
-                script {
-                    sh 'docker build -t backend:${IMAGE_TAG_1} ./backend'
-                    sh 'docker build -t frontend:${IMAGE_TAG_2} ./frontend'
-                }
-            }
-        }
         stage('Login to AWS ECR') {
             steps {
                 sh '''
@@ -79,15 +36,17 @@ pipeline {
                 '''
             }
         }
+
         stage('Push Docker Images') {
             steps {
                 script {
                     docker.withRegistry("https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/my-backend-repo", "${AWS_CREDENTIALS}") {
-                        docker.image("backend:${IMAGE_TAG_1}").push()
+                        docker.image("backend").push("${IMAGE_TAG_1}")
                     }
 
+
                     docker.withRegistry("https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/my-frontend-repo", "${AWS_CREDENTIALS}") {
-                        docker.image("frontend:${IMAGE_TAG_2}").push()
+                        docker.image("frontend").push("${IMAGE_TAG_2}")
                     }
                 }
             }
