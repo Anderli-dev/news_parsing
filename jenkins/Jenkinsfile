@@ -40,12 +40,12 @@ pipeline {
             steps {
                 script {
 
-                    docker.withRegistry('tcp://localhost:2375', "https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com") {
+                    docker.withRegistry('tcp://localhost:2375', "https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_1}") {
                         docker.image("backend").push()
                     }
 
 
-                    docker.withRegistry('tcp://localhost:2375', "https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com") {
+                    docker.withRegistry('tcp://localhost:2375', "https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY_2}") {
                         docker.image("frontend").push()
                     }
                 }
