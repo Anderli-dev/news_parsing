@@ -40,17 +40,13 @@ pipeline {
         stage('Push Docker Images') {
             steps {
                 script {
-                    docker.withRegistry("https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com", "${AWS_CREDENTIALS}") {
-                        def backendImage = docker.image("backend:${IMAGE_TAG_1}")
-                        backendImage.tag("my-backend-repo:${IMAGE_TAG_1}")
-                        backendImage.push("${IMAGE_TAG_1}")
-                    }
+                    docker.withRegistry("https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/my-backend-repo", "${AWS_CREDENTIALS}") {
+                        docker.image("backend").push("${IMAGE_TAG_1}")
+                        }
 
-                    // Тегуємо та пушимо frontend
-                    docker.withRegistry("https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com", "${AWS_CREDENTIALS}") {
-                        def frontendImage = docker.image("frontend:${IMAGE_TAG_2}")
-                        frontendImage.tag("my-frontend-repo:${IMAGE_TAG_2}")
-                        frontendImage.push("${IMAGE_TAG_2}")
+                    docker.withRegistry("https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/my-frontend-repo", "${AWS_CREDENTIALS}") {
+                        docker.image("frontend").push("${IMAGE_TAG_2}")
+                        }
                     }
                 }
             }
