@@ -36,16 +36,23 @@ pipeline {
                 '''
             }
         }
+        stage('Building image') {
+             steps{
+                script {
+                    dockerImage = docker.build "my-backend-repo"
+                }
+             }
+        }
 
         stage('Push Docker Images') {
             steps {
                 script {
                     docker.withRegistry("https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/my-backend-repo", "${AWS_CREDENTIALS}") {
-                        docker.image("my-backend-repo").push("latest}")
+                        docker.image("backend").push("latest")
                         }
 
                     docker.withRegistry("https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/my-frontend-repo", "${AWS_CREDENTIALS}") {
-                        docker.image("my-backend-repo").push("latest")
+                        docker.image("frontend").push("latest")
                         }
                 }
             }
