@@ -6,10 +6,9 @@ pipeline {
     environment {
         AWS_REGION = 'eu-central-1'
         AWS_ACCOUNT_ID = '361769559551'
-        ECR_REPOSITORY_1 = 'my-backend-repo'
-        ECR_REPOSITORY_2 = 'my-frontend-repo'
-        IMAGE_TAG_1 = "latest"
-        IMAGE_TAG_2 = "latest"
+        BACKEND_REPOSITORY = 'my-backend-repo'
+        FRONTEND_REPOSITORY = 'my-frontend-repo'
+        IMAGE_TAG = "latest"
         AWS_CREDENTIALS = "ecr:eu-central-1:aws-credentials"
     }
     stages {
@@ -31,34 +30,29 @@ pipeline {
         stage('Login to AWS ECR') {
             steps {
                 sh '''
+                    echo "Логін до AWS ECR"
                     aws ecr get-login-password --region ${AWS_REGION} | \
                     docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
                 '''
             }
         }
-        stage('Building image') {
-             steps{
+        stage('Build Docker Images') {
+            steps {
                 script {
-                    dockerImage = docker.build "my-backend-repo"
+                    sh 'docker build -t ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${BACKEND_REPOSITORY}:${IMAGE_TAG} ./backend'
+                    sh 'docker build -t ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${FRONTEND_REPOSITORY}:${IMAGE_TAG} ./frontend'
                 }
-             }
+            }
         }
-
         stage('Push Docker Images') {
             steps {
                 script {
-                    docker.withRegistry("https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/my-backend-repo", "${AWS_CREDENTIALS}") {
-                        docker.image("backend").push("latest")
-                        }
-
-                    docker.withRegistry("https://${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/my-frontend-repo", "${AWS_CREDENTIALS}") {
-                        docker.image("frontend").push("latest")
-                        }
+                    sh 'docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${BACKEND_REPOSITORY}:${IMAGE_TAG}'
+                    sh 'docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${FRONTEND_REPOSITORY}:${IMAGE_TAG}'
                 }
             }
         }
     }
-
     post {
         always {
             echo 'Pipeline completed.'
